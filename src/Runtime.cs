@@ -57,7 +57,7 @@ public class RuntimeCanvas:Panel {
  protected override void Dispose(bool disposing){if(disposing){foreach(Image img in Images.Values)img.Dispose();Images.Clear();}base.Dispose(disposing);}
 }
 
-public class ExecContext {public string Sprite;}
+public class ExecContext {public string Sprite;public bool NeedsPause;}
 class StopScript:Exception{}
 class BreakLoop:Exception{}
 public class RuntimeView:UserControl {
@@ -86,7 +86,24 @@ public class RuntimeView:UserControl {
  void Fire(string key,string sprite){if(stopped||Designing)return;List<Block> list;if(events.TryGetValue(key,out list))foreach(Block b in list.ToArray())StartEvent(b,sprite);}
  async void StartEvent(Block block,string sprite){if(cts==null||cts.IsCancellationRequested||activeEvents.Contains(block))return;if(activeEvents.Count>100){Fail("Za dużo równoczesnych zdarzeń.");return;}activeEvents.Add(block);CancellationToken token=cts.Token;try{await Execute(block.Children,new ExecContext{Sprite=sprite},token);}catch(OperationCanceledException){}catch(StopScript){}catch(BreakLoop){Fail("Przerwij pętlę poza pętlą.");}catch(Exception ex){Fail(ex.Message);}finally{activeEvents.Remove(block);}}
  void Fail(string text){if(playerMode)layout.Panel2Collapsed=false;Errors.Add(text);Log("BŁĄD: "+text);state.Text="Błąd • zobacz dziennik";Stop();state.Text="Błąd • zobacz dziennik";}
- public async Task Execute(List<Block> list,ExecContext context,CancellationToken token){foreach(Block b in list){token.ThrowIfCancellationRequested();Spec spec=Catalog.All[b.Kind];if(b.Disabled||!Project.Allows(spec.Group))continue;if(spec.Event&&b.Kind!="event_start")continue;if(Highlight!=null)Highlight(b);if(++steps%50==0)await Task.Delay(1,token);await One(b,context,token);}}
+ public static bool UsesStepDelay(Block b){return !Catalog.All[b.Kind].Container&&b.Kind!="comment"&&b.Kind!="break"&&b.Kind!="stop_this"&&b.Kind!="stop";}
+ public async Task Execute(List<Block> list,ExecContext context,CancellationToken token){
+  foreach(Block b in list){
+   token.ThrowIfCancellationRequested();Spec spec=Catalog.All[b.Kind];
+   if(b.Disabled||!Project.Allows(spec.Group))continue;
+   if(spec.Event&&b.Kind!="event_start")continue;
+   bool paced=UsesStepDelay(b);
+   if(paced&&context.NeedsPause){
+    double seconds=Project.StepDelaySeconds;
+    if(double.IsNaN(seconds)||double.IsInfinity(seconds)||seconds<0||seconds>3600)throw new Exception("Odstęp między bloczkami musi wynosić od 0 do 3600 sekund.");
+    if(!Silent&&seconds>0)await Task.Delay((int)Math.Ceiling(seconds*1000),token);
+    token.ThrowIfCancellationRequested();context.NeedsPause=false;
+   }
+   if(Highlight!=null)Highlight(b);if(++steps%50==0)await Task.Delay(1,token);
+   await One(b,context,token);if(paced)context.NeedsPause=true;
+  }
+ }
+
  public object Get(string name){object v;if(Values.TryGetValue(name,out v))return v;if(name=="pi")return Math.PI;if(name=="czas")return clock.Elapsed.TotalSeconds;if(name=="mysz_x")return Stage.MouseX;if(name=="mysz_y")return Stage.MouseY;if(name=="szerokosc")return Stage.LogicalSize.Width;if(name=="wysokosc")return Stage.LogicalSize.Height;throw new Exception("Nie ustawiono zmiennej: "+name);}
  public string TextValue(string s){return Regex.Replace(s??"",@"\{([^{}]+)\}",m=>Convert.ToString(Get(m.Groups[1].Value),CultureInfo.InvariantCulture));}
  public object Value(string s){s=s??"";if(s.TrimStart().StartsWith("="))return new Expression(this,s.TrimStart().Substring(1)).Evaluate();Match m=Regex.Match(s,@"^\{([^{}]+)\}$");if(m.Success)return Get(m.Groups[1].Value);string t=TextValue(s);double n;if(double.TryParse(t.Replace(',','.'),NumberStyles.Float,CultureInfo.InvariantCulture,out n)&&!double.IsInfinity(n)&&!double.IsNaN(n))return n;return t;}

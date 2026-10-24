@@ -4,6 +4,13 @@ PASS DnD: przenoszenie w obie strony i wstawianie pomiędzy bloczkami
 PASS DnD: zagnieżdżanie, wyjmowanie i obie gałęzie warunku
 PASS DnD: odrzucanie własnych potomków i zagnieżdżonych zdarzeń; poprawne Copy/Move
 PASS DnD: nagłówki i pola przekazują upuszczenie do karty
+PASS odstępy: zapis i eksport .js, zgodność ze starszymi projektami oraz walidacja 0–3600 s
+PASS odstępy: rzeczywista pauza między akcjami, bez pauzy początkowej i końcowej
+PASS odstępy: ciągłość przez pętle i kontenery; komentarze oraz wyłączone bloczki nie dodają pauz
+PASS odstępy: każde nowe zdarzenie zaczyna od razu i zachowuje własną kolejność
+PASS odstępy: Czekaj dodaje własny czas, a kolejna pauza rozpoczyna się po jego zakończeniu
+PASS odstępy: Stop natychmiast anuluje oczekiwanie i nie wykonuje kolejnego bloczka
+PASS odstępy: ustawienie w edytorze oraz cofanie i ponawianie zmiany
 PASS katalog: 100 bloczków / 11 kategorii
 PASS jeden plik .js: wykonywalny kod + ponowna edycja bloczków
 PASS import wcześniejszych bloczków, także JSON z rozszerzeniem .js

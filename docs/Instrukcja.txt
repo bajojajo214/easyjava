@@ -1,4 +1,4 @@
-EASYJAVA 2.0.1
+EASYJAVA 2.0.2
 100 bloczków • 11 kategorii • projektant GUI • scena i duszki
 
 START OD ZERA
@@ -45,6 +45,25 @@ Wyłączone kategorie są rzeczywiście pomijane przez silnik programu.
 Obsługa Plików jest początkowo wyłączona w nowych projektach.
 Przykład Notatnik ma ją włączoną, ponieważ korzysta z odczytu i zapisu.
 Po zmianach uruchom podgląd ponownie.
+
+ODSTĘP MIĘDZY BLOCZKAMI
+Kliknij przycisk Odstęp: 0 s na górnym pasku.
+Wpisz czas od 0 do 3600 sekund, z dokładnością do dwóch miejsc po przecinku,
+albo wybierz gotowy odstęp: 0 / 0,1 / 0,5 / 1 / 2 / 5 s.
+Kliknij Zastosuj. 0 wyłącza dodatkowy odstęp.
+
+Pierwsze polecenie w skrypcie wykonuje się od razu. Każde następne czeka
+wybrany czas od zakończenia poprzedniego polecenia.
+Ustawienie zapisuje się w jednym pliku .js razem z projektem i działa
+zarówno w podglądzie, jak i w wyeksportowanym programie.
+Po zmianie odstępu uruchom podgląd ponownie; zapisz .js, aby zachować zmianę.
+
+Pętle i warunki stosują odstęp do poleceń w środku, bez dodatkowej,
+podwójnej pauzy przy wejściu lub wyjściu. Komentarze i wyłączone bloczki
+nie dodają czasu. Nowe zdarzenie startuje od razu i ma własne odstępy.
+Stop natychmiast przerywa czekanie na następne polecenie.
+Bloczek Czekaj dodaje swój czas do ustawionych odstępów. Jeśli chcesz
+pauzę tylko w jednym miejscu, ustaw Odstęp na 0 i użyj bloczka Czekaj.
 
 PODGLĄD I PROJEKTANT
 Podgląd działania pokazuje prawdziwe elementy GUI, animacje i zdarzenia.

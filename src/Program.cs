@@ -15,6 +15,7 @@ public static class Program {
  public static Icon Icon;
  [DllImport("user32.dll")]static extern bool SetProcessDPIAware();
  [STAThread]public static int Main(string[] args){try{if(Environment.OSVersion.Version.Major>=6)SetProcessDPIAware();Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Icon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+  if(args.Length>1&&args[0]=="--snapshot-timing"){using(TimingDialog f=new TimingDialog(.5,delegate(double seconds){})){f.Show();Application.DoEvents();using(Bitmap bitmap=new Bitmap(f.Width,f.Height)){f.DrawToBitmap(bitmap,new Rectangle(0,0,f.Width,f.Height));bitmap.Save(args[1]);}f.Close();}return 0;}
   if(args.Length>1&&args[0]=="--selftest")return Tests.Run(args[1]);
   if(args.Length>1&&args[0]=="--examples"){Directory.CreateDirectory(args[1]);for(int i=1;i<=7;i++){Project p=Examples.Create(i);ProjectIO.Write(Path.Combine(args[1],ProjectIO.Safe(p.Name)+".js"),p,Application.ExecutablePath);}return 0;}
   if(args.Length>1&&(args[0]=="--player"||args[0]=="--smoke"))return Player(ProjectIO.Read(args[1]),args[0]=="--smoke");
@@ -29,6 +30,14 @@ public static class Tests {
  static Block B(string k,params string[] a){return Block.Make(k,a);}
  public static int Run(string directory){Directory.CreateDirectory(directory);int exit=0;List<string> results=new List<string>();using(Form form=new Form{ShowInTaskbar=false,WindowState=FormWindowState.Minimized})using(RuntimeView runtime=new RuntimeView()){form.Controls.Add(runtime);runtime.Silent=true;form.Shown+=async delegate{try{
   DragDropTests.Run(results);
+  await TimingTests.Run(runtime,results);
+  using(Editor timingEditor=new Editor("")){
+   timingEditor.SetStepDelay(.5);Assert(timingEditor.Project.StepDelaySeconds==.5,"Ustawienie odstępu w edytorze");
+   typeof(Editor).GetMethod("Undo",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(timingEditor,null);Assert(timingEditor.Project.StepDelaySeconds==0,"Cofanie odstępu");
+   typeof(Editor).GetMethod("Redo",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(timingEditor,null);Assert(timingEditor.Project.StepDelaySeconds==.5,"Ponawianie odstępu");
+  }
+  results.Add("PASS odstępy: ustawienie w edytorze oraz cofanie i ponawianie zmiany");
+
   Assert(Catalog.All.Count>=90,"Za mało bloczków");results.Add("PASS katalog: "+Catalog.All.Count+" bloczków / "+Catalog.Groups.Length+" kategorii");
   Project p=Examples.Gui();string json=ProjectIO.Json(p);Assert(ProjectIO.Json(ProjectIO.FromJson(json))==json,"Zapis/odczyt JSON");string js=ProjectIO.Export(p,Application.ExecutablePath);Assert(ProjectIO.Json(ProjectIO.Parse(js))==json,"Plik JS musi zachować bloczki");Assert(js.StartsWith("//"),"JS nie może zaczynać się od JSON");results.Add("PASS jeden plik .js: wykonywalny kod + ponowna edycja bloczków");
   Project old=ProjectIO.FromJson("{\"Version\":1,\"Name\":\"stary\",\"Blocks\":[{\"Kind\":\"say\",\"A\":\"Czesc\",\"Children\":[]}]}");Assert(old.Blocks[0].Else!=null&&old.Version==2,"Migracja v1");results.Add("PASS import wcześniejszych bloczków, także JSON z rozszerzeniem .js");

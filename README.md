@@ -41,6 +41,16 @@ Nie ma instalatora, logowania ani wymaganego połączenia z internetem. Potrzebu
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
+## Nowość w 2.0.2: wybierz odstęp między bloczkami
+
+Kliknij **Odstęp: 0 s** na górnym pasku i wybierz, po jakim czasie wykona się następne polecenie. Możesz wpisać czas od **0 do 3600 sekund**, z dokładnością do dwóch miejsc po przecinku, albo wybrać gotowe **0 / 0,1 / 0,5 / 1 / 2 / 5 s**. **0** oznacza wykonanie bez dodatkowego odstępu.
+
+![Ustawianie odstępu między bloczkami](docs/odstep.png)
+
+Pierwsze polecenie w skrypcie rusza od razu. Następne czeka wybrany czas od zakończenia poprzedniego. Ustawienie zapisuje się w projekcie `.js` i działa tak samo w podglądzie oraz gotowym programie.
+
+Pętle i warunki zachowują odstępy pomiędzy poleceniami w środku, bez podwójnych pauz. Komentarze i wyłączone bloczki nie dodają czasu. Każde nowe zdarzenie zaczyna od razu i ma własne odstępy, a **Stop** przerywa czekanie. Bloczek **Czekaj** nadal pozwala dodać własną pauzę w konkretnym miejscu — jego czas dolicza się do ustawionych odstępów.
+
 ## Poprawka 2.0.1: chwyć i upuść
 
 Bloczki z biblioteki dodajesz **wyłącznie przez przeciąganie i upuszczanie**. Pod kursorem widać przenoszony bloczek, a podświetlenie wskazuje miejsce wstawienia. Możesz upuszczać między kartami oraz do wnętrza pętli, warunku lub zdarzenia. Upuszczenie poza skryptami niczego nie zmienia.
@@ -55,6 +65,7 @@ Poprawka zapewnia też unikalne nazwy kolejnych elementów GUI oraz blokuje wkł
 | **Własne GUI** | Dodasz napisy, przyciski, pola tekstowe, listy, suwaki, obrazy i paski postępu. |
 | **Projektant GUI** | Ustawisz elementy okna myszą; ich pozycje zapiszą się w bloczkach. |
 | **Podgląd działania** | Sprawdzisz program wewnątrz edytora, z prawdziwymi kliknięciami i zdarzeniami. |
+| **Odstępy między bloczkami** | Wybierzesz tempo wykonywania poleceń, zapisane także w gotowym `.js`. |
 | **Scena i duszki** | Zrobisz ruch, obroty, płynne loty, odbicia, kostiumy i dymki. |
 | **Klawiatura i mysz** | Dodasz sterowanie strzałkami, kliknięcia duszka i pomiar pozycji myszy. |
 | **Zmienne, listy i wyrażenia** | Zapiszesz wyniki, policzysz punkty i użyjesz własnych danych. |
