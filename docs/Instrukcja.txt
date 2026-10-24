@@ -1,0 +1,171 @@
+EASYJAVA 2.0
+100 bloczków • 11 kategorii • projektant GUI • scena i duszki
+
+START OD ZERA
+Aplikacja zawsze otwiera nowy, pusty projekt — bez żadnych bloczków.
+Przycisk Nowy także tworzy pusty projekt i czyści scenę podglądu.
+Przykłady są dostępne do ręcznego wybrania z listy Wczytaj przykład.
+
+PIERWSZE KROKI
+1. Uruchom easyjava.exe z pulpitu.
+2. Wybierz kategorię i klikaj lub przeciągaj bloczki z lewej strony.
+3. Wpisz wartości w polach. Przenoś istniejące bloczki za tytuł lub uchwyt.
+4. W pętlach, warunkach i zdarzeniach układaj bloczki w ciemnym wnętrzu.
+5. Kliknij Uruchom podgląd lub naciśnij F5.
+6. Kliknij Kompiluj na pulpit. Powstanie mojprojekt.js oraz skrót
+   Otwórz mojprojekt. Nazwa pliku zależy od nazwy projektu w górnym pasku.
+
+JEDEN PLIK .JS
+Zapisz .js zachowuje wykonywalny program razem z układem bloczków.
+Ten sam plik można otworzyć przyciskiem Otwórz .js do dalszej edycji.
+Nie są tworzone nowe pliki projektu .easyjava.
+Otwieranie starych plików .easyjava jest zachowane do migracji.
+Wczytywany jest również dawny zapis JSON, któremu nadano rozszerzenie .js.
+Po zapisaniu z tej wersji otrzymasz prawdziwy program .js.
+
+URUCHAMIANIE
+Wygenerowany plik .js uruchamia okno aplikacji bez Node.js.
+Skrót Otwórz zawsze wskazuje Windows Script Host (wscript.exe).
+Sam .js można też uruchomić dwuklikiem, jeśli Windows otwiera .js przez WSH.
+Na tym komputerze takie skojarzenie jest ustawione.
+Plik .js jest samodzielny: zawiera dane, obrazy i silnik okienkowy.
+Nie potrzebuje oryginalnego pliku easyjava.exe obok siebie.
+Do działania na innym komputerze potrzebny jest Windows z .NET Framework 4.x
+i włączonym Windows Script Host. Skrót wskazuje pełną lokalną ścieżkę, więc
+po przeniesieniu projektu korzystaj z pliku .js lub utwórz nowy skrót.
+
+WYŁĄCZANIE FUNKCJI
+Przycisk ● w nagłówku bloczka włącza/wyłącza bloczek.
+Wyłączenie pętli, warunku lub zdarzenia pomija także jego wnętrze.
+Przycisk Funkcje pozwala wyłączyć całe kategorie, np. Dźwięk lub Pliki.
+Wyłączone kategorie są rzeczywiście pomijane przez silnik programu.
+Obsługa Plików jest początkowo wyłączona w nowych projektach.
+Przykład Notatnik ma ją włączoną, ponieważ korzysta z odczytu i zapisu.
+Po zmianach uruchom podgląd ponownie.
+
+PODGLĄD I PROJEKTANT
+Podgląd działania pokazuje prawdziwe elementy GUI, animacje i zdarzenia.
+Korzysta z tego samego silnika co gotowy plik .js.
+Flaga uruchamia projekt od nowa. ■ zatrzymuje skrypty i zdarzenia.
+Zakładka Zmienne i listy pokazuje bieżące wartości.
+Dziennik pokazuje komunikaty oraz błędy wskazujące przyczynę zatrzymania.
+Zaznacz Siatka, aby widzieć linie pomocnicze na scenie.
+
+Projektant GUI odtwarza deklaracje elementów okna bez wykonywania
+zdarzeń, operacji na plikach i pozostałych skryptów.
+Przeciągaj przyciski, napisy i pola, aby zmieniać ich położenie.
+Pozycje są zapisywane w polach X/Y odpowiednich bloczków.
+Rozmiar zmieniaj w polach Szerokość i Wysokość.
+Projektant pokazuje elementy zadeklarowane na głównym poziomie lub wewnątrz
+Kiedy kliknięto flagę. Elementy tworzone dopiero przez warunki i inne zdarzenia
+pojawią się w normalnym podglądzie po wykonaniu tych skryptów.
+
+JAK ZBUDOWAĆ GUI
+Dodaj Ustaw okno i scenę, a potem elementy GUI.
+Każdy element musi mieć unikalny identyfikator, np. input1 i button1.
+Bloczek Kiedy kliknięto przycisk o identyfikatorze button1 reaguje na kliknięcie.
+Odczytaj wartość elementu zapisuje wpisany tekst lub stan elementu do zmiennej.
+Zmień tekst elementu i Ustaw właściwość elementu aktualizują interfejs.
+Właściwości: Text, Value, Checked, Enabled, Visible, BackColor, ForeColor, FontSize.
+
+KATEGORIE BLOCZKÓW
+Zdarzenia:
+  flaga, przycisk, zmiana pola, klawisz, kliknięcie duszka lub sceny,
+  wiadomości i cykliczne zdarzenia czasowe.
+Okna i GUI:
+  okno, napisy, przyciski, pola tekstowe jedno- i wielowierszowe,
+  pola wyboru, listy rozwijane, listy elementów, suwaki, paski postępu,
+  obrazy, odczyt/zmiana wartości, przesuwanie/skalowanie elementów,
+  aktywacja pola, uzupełnianie list i okna z pytaniami.
+Ruch:
+  kroki, obroty, kierunek, pozycja, zmiana X/Y, płynny lot, odbicie.
+Wygląd:
+  tworzenie i wybór duszka, kostiumy, kolory, rozmiar, widoczność,
+  dymki, tekst i tło sceny.
+Sterowanie:
+  powtórz, zawsze, jeżeli, jeżeli/w przeciwnym razie, powtarzaj aż,
+  pętla od/do, czekanie, czekaj aż, przerwanie pętli i zatrzymywanie skryptów.
+Zmienne:
+  ustawianie, zmiana wartości, losowanie, działania i funkcje matematyczne,
+  łączenie, długość i zamiana tekstu, monitory zmiennych na scenie.
+Listy:
+  tworzenie, dodawanie, odczyt, zamiana, usuwanie elementów,
+  długość, sprawdzanie zawartości i czyszczenie.
+Czujniki:
+  pozycja myszy, wciśnięty klawisz, pozycja duszka, odległość,
+  dotknięcie krawędzi i stoper.
+Pisak:
+  opuszczanie/podnoszenie, kolor, grubość, czyszczenie i stemplowanie.
+Dźwięk:
+  generowanie tonu i dźwięki systemowe Windows.
+Pliki:
+  wybór pliku do odczytu/zapisu, odczyt UTF-8, zapis, dopisywanie,
+  sprawdzanie istnienia. Zapis pyta przed zastąpieniem istniejącego pliku.
+
+ZMIENNE I WYRAŻENIA
+Wstaw zmienną do tekstu za pomocą {nazwa}, np. Wynik: {punkty}.
+Pole zaczynające się od = jest wyrażeniem, np. =punkty * 2 + 1.
+Operatory: + - * / % ^ == != < > <= >= && || !
+Funkcje: sqrt, abs, round, floor, ceil, sin, cos, tan, log, min, max, len.
+Funkcje trygonometryczne używają stopni.
+Przykłady: =sqrt(25), =max(punkty, 10), =len('Cześć').
+W wyrażeniach używaj kropki dziesiętnej i przecinków do rozdzielania argumentów.
+Zwykłe pola liczbowe przyjmują zarówno przecinek, jak i kropkę.
+Indeksy list zaczynają się od 1.
+Nazwy zmiennych zaczynają się literą; dozwolone są litery, cyfry i podkreślenie.
+
+DUSZKI
+Najpierw utwórz duszka i nadaj mu nazwę.
+Wybierz duszka określa, którego duszka dotyczą kolejne bloczki danego skryptu.
+Poszczególne skrypty mają osobny wybór aktywnego duszka.
+Środek sceny to X=0, Y=0. Dodatnie Y jest skierowane do góry.
+Kierunek: 0 = prawo, 90 = góra, 180 = lewo, 270 = dół.
+Kliknij tło sceny, zanim zaczniesz sterować klawiaturą.
+Wbudowane kostiumy: robot, kot, rakieta, koło, kwadrat, gwiazda.
+Importuj obraz osadza PNG/JPG/BMP/GIF w projekcie .js.
+Nazwa zaimportowanego obrazu działa także jako nazwa kostiumu.
+
+GOTOWE PRZYKŁADY — WYBIERANE RĘCZNIE
+1. Panel GUI — powitanie, tekst, przycisk, suwak i pole wyboru.
+2. Licznik kliknięć — dwa przyciski i aktualizowany wynik.
+3. Sterowanie duszkiem — strzałki, spacja i kliknięcie duszka.
+4. Rysujący robot — animacja pisaka z pętlą w pętli.
+5. Gra: złap gwiazdę — sterowanie, odległość i zdobywanie punktów.
+6. Lista zadań — pole tekstowe i lista elementów.
+7. Notatnik z plikami — własny edytor tekstu z odczytem i zapisem.
+Pliki tych przykładów są również w folderze Przyklady.
+
+
+SKRÓTY
+Ctrl+S       zapisz .js
+Ctrl+Shift+S zapisz jako
+Ctrl+O       otwórz .js
+Ctrl+N       nowy pusty projekt
+Ctrl+Enter   kompiluj na pulpit
+F5           uruchom podgląd
+Shift+F5     zatrzymaj podgląd
+Ctrl+Z/Y     cofanie/ponawianie; w polu tekstowym Ctrl+Z cofa wpisany tekst
+
+ZAPIS I KOPIE
+Przy zastępowaniu projektu poprzedni plik jest kopiowany do:
+%LOCALAPPDATA%\EasyJava\Kopie
+Na pulpicie nie powstają dodatkowe pliki .easyjava.
+Przy zamykaniu zmienionego projektu aplikacja proponuje zapis.
+
+ZAKRES TEJ WERSJI
+To własny edytor inspirowany Scratchem. Nie wczytuje plików Scratch .sb3.
+Projekt może zawierać 2000 bloczków, 20 poziomów zagnieżdżenia i 200 duszków.
+Limit pętli liczbowej to milion powtórzeń; Zawsze działa do zatrzymania.
+Obraz: do 5 MB i 16 megapikseli, łącznie około 20 MB obrazów w projekcie.
+Odczyt tekstu z pliku: do 5 MB. Pisak zachowuje do około 50 000 odcinków.
+
+JAK DZIAŁA PLIK .JS
+Plik zawiera komentarz z zakodowanym układem bloczków oraz osadzony silnik .NET.
+Windows Script Host rozpakowuje silnik do nowego folderu tymczasowego,
+uruchamia go z projektem i po zamknięciu usuwa swój folder tymczasowy.
+Podgląd i odtwarzacz używają tego samego kodu wykonywania bloczków.
+Nie jest to kod dla Node.js ani dla strony internetowej.
+
+ŹRÓDŁA I TESTY
+Archiwum EasyJava2-zrodla.zip zawiera źródła C# i Build-EasyJava.ps1.
+Raport-testow.txt opisuje wykonane sprawdzenia, w tym uruchomienie .js w WSH.

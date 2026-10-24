@@ -1,0 +1,17 @@
+﻿PASS katalog: 100 bloczków / 11 kategorii
+PASS jeden plik .js: wykonywalny kod + ponowna edycja bloczków
+PASS import wcześniejszych bloczków, także JSON z rozszerzeniem .js
+PASS prawdziwe GUI: przyciski, pola, suwak, pasek postępu, zdarzenia
+PASS zmienne, obliczenia, parser, listy, warunki z alternatywą
+PASS pętle, wyłączenie bloczka i całej grupy funkcji
+PASS duszki, dymki, zdarzenia klawiatury i ruch
+PASS pisak, obrót, ślad ruchu i stemplowanie
+PASS pętla zawsze pozostawia GUI responsywne i daje się zatrzymać
+PASS projektant GUI odtwarza elementy bez uruchamiania zdarzeń
+PASS nadawanie wiadomości i obsługa odbiorcy
+PASS gra: równoległe zdarzenia, pomiar odległości i zbieranie punktów
+PASS animowany rysunek z pętlą zagnieżdżoną
+PASS odczyt plików UTF-8 i rzeczywiste wyłączenie obsługi plików
+PASS błędy obliczeń i limit złożoności wyrażeń
+PASS realny Windows Script Host uruchamia samodzielny plik .js z GUI bez Node.js
+PASS przykłady GUI, licznik, sterowanie, lista i notatnik

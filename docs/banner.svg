@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420">
+ <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#141b30"/><stop offset="1" stop-color="#302252"/></linearGradient><linearGradient id="accent" x2="1"><stop stop-color="#a58aff"/><stop offset="1" stop-color="#6f9bff"/></linearGradient><pattern id="dots" width="25" height="25" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#ffffff" opacity=".07"/></pattern></defs>
+ <rect width="1280" height="420" rx="24" fill="url(#bg)"/><rect width="1280" height="420" rx="24" fill="url(#dots)"/>
+ <rect x="64" y="66" width="76" height="76" rx="18" fill="#8b68f6"/><text x="102" y="117" text-anchor="middle" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="38" font-weight="700">EJ</text>
+ <text x="164" y="122" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="58" font-weight="700">EasyJava</text>
+ <text x="64" y="206" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="40" font-weight="700">Układaj pomysły.</text>
+ <text x="64" y="257" fill="url(#accent)" font-family="Segoe UI,Arial,sans-serif" font-size="40" font-weight="700">Uruchamiaj aplikacje.</text>
+ <text x="66" y="315" fill="#bcc8e3" font-family="Segoe UI,Arial,sans-serif" font-size="22">100 bloczków · własne GUI · gry · podgląd działania</text>
+ <rect x="67" y="345" width="132" height="32" rx="16" fill="#252f49"/><text x="133" y="367" fill="#e5edff" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="16">Windows</text>
+ <rect x="211" y="345" width="165" height="32" rx="16" fill="#252f49"/><text x="294" y="367" fill="#e5edff" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="16">Bez Node.js</text>
+ <g transform="translate(798 62) rotate(-5 190 150)">
+  <rect width="365" height="55" rx="12" fill="#d4a52c"/><text x="20" y="35" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="600">⚑ Kiedy kliknięto flagę</text>
+  <rect x="18" y="65" width="347" height="59" rx="12" fill="#7167e8"/><text x="39" y="102" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="600">Dodaj przycisk  [ Kliknij! ]</text>
+  <path d="M30 135h323q12 0 12 12v146q0 12-12 12H30q-12 0-12-12V147q0-12 12-12Z" fill="#d98e2f"/><rect x="38" y="190" width="327" height="71" rx="10" fill="#292542"/>
+  <text x="38" y="171" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="600">Powtórz  [ 10 ]</text>
+  <rect x="48" y="198" width="301" height="52" rx="10" fill="#428cdc"/><text x="66" y="232" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="600">Przesuń duszka o  [ 10 ]</text>
+ </g>
+</svg>
