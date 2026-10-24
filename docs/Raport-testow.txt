@@ -15,8 +15,19 @@ PASS odstępy: ciągłość przez pętle i kontenery; komentarze oraz wyłączon
 PASS odstępy: każde nowe zdarzenie zaczyna od razu i zachowuje własną kolejność
 PASS odstępy: Czekaj dodaje własny czas, a kolejna pauza rozpoczyna się po jego zakończeniu
 PASS odstępy: Stop natychmiast anuluje oczekiwanie i nie wykonuje kolejnego bloczka
+PASS terminal: prawdziwe CMD, oddzielne wyjście i błędy, kod wyjścia i katalog ze spacją
+PASS terminal: wielowierszowy CMD zachowuje oba polecenia, polskie znaki, klamry i cudzysłowy
+PASS terminal: PowerShell zachowuje polskie znaki, literalne nawiasy i cudzysłowy oraz stderr i kod wyjścia
+PASS terminal: duże stdout i stderr są odczytywane bez zakleszczenia i mają limit rozmiaru
+PASS terminal: limit czasu przerywa oczekujące polecenie
+PASS terminal: anulowanie kończy polecenie i jego proces potomny bez opóźnionych skutków
+PASS terminal: nowe i starsze projekty mają kategorię wyłączoną; wyłączenie bloczka i tryb smoke pomijają komendy
+PASS terminal: bloczek CMD zapisuje wynik, błąd i kod do zmiennych; następny bloczek używa wyniku; .js zachowuje ustawienia
+PASS terminal: bloczek PowerShell wykonuje skrypt z literalnymi nawiasami bez podstawiania zmiennych EasyJava
+PASS terminal: Stop w podglądzie przerywa komendę i nie uruchamia kolejnego bloczka
+PASS terminal: przykład GUI wykonuje CMD i PowerShell dopiero po kliknięciu i pokazuje wyniki w oknie
 PASS odstępy: ustawienie w edytorze oraz cofanie i ponawianie zmiany
-PASS katalog: 100 bloczków / 11 kategorii
+PASS katalog: 102 bloczków / 12 kategorii
 PASS jeden plik .js: wykonywalny kod + ponowna edycja bloczków
 PASS import wcześniejszych bloczków, także JSON z rozszerzeniem .js
 PASS prawdziwe GUI: przyciski, pola, suwak, pasek postępu, zdarzenia

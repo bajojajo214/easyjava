@@ -5,7 +5,7 @@
  <text x="164" y="122" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="58" font-weight="700">EasyJava</text>
  <text x="64" y="206" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="40" font-weight="700">Układaj pomysły.</text>
  <text x="64" y="257" fill="url(#accent)" font-family="Segoe UI,Arial,sans-serif" font-size="40" font-weight="700">Uruchamiaj aplikacje.</text>
- <text x="66" y="315" fill="#bcc8e3" font-family="Segoe UI,Arial,sans-serif" font-size="22">100 bloczków · własne GUI · gry · podgląd działania</text>
+ <text x="66" y="315" fill="#bcc8e3" font-family="Segoe UI,Arial,sans-serif" font-size="22">102 bloczki · własne GUI · gry · podgląd działania</text>
  <rect x="67" y="345" width="132" height="32" rx="16" fill="#252f49"/><text x="133" y="367" fill="#e5edff" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="16">Windows</text>
  <rect x="211" y="345" width="165" height="32" rx="16" fill="#252f49"/><text x="294" y="367" fill="#e5edff" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="16">Bez Node.js</text>
  <g transform="translate(798 62) rotate(-5 190 150)">

@@ -1,5 +1,17 @@
 # Historia zmian
 
+## 2.0.4 — 2026-10-24
+
+- Kompilacja tworzy wyłącznie plik .js na pulpicie, bez skrótów .lnk.
+- Nowa kategoria Terminal z bloczkami Uruchom polecenie CMD i Uruchom polecenie PowerShell: łącznie 102 bloczki w 12 kategoriach.
+- Terminal włącza się w Funkcjach osobno dla projektu; jest domyślnie wyłączony także we wcześniejszych projektach. Ustawienie zapisuje się w pliku .js.
+- Osobne zmienne na standardowy wynik, błędy i kod zakończenia, folder roboczy oraz limit czasu od 1 do 3600 sekund, domyślnie 30 s. Pusty folder roboczy oznacza folder użytkownika.
+- Polecenia działają bez dodatkowego okna konsoli, nie blokują interfejsu i kończą się przed następnym bloczkiem. Stop i przekroczenie limitu czasu zatrzymują także procesy potomne.
+- Składnia CMD/PowerShell, w tym cudzysłowy i klamry, jest zachowana; pole polecenia nie podstawia zmiennych EasyJava. Odbierany wynik i błędy mają osobne limity po milionie znaków.
+- Obsługa działa w podglądzie i wyeksportowanym programie .js. Tryb --smoke pomija uruchamianie poleceń. EasyJava nie podnosi uprawnień ani nie zmienia zasad wykonywania PowerShell.
+
+- Ręcznie wybierany przykład CMD i PowerShell z dwoma przyciskami i polem wyników; komendy wykonują się po kliknięciu.
+
 ## 2.0.3 — 2026-10-24
 
 - Wyróżniony panel Przerwa między bloczkami bezpośrednio nad skryptami, z widocznym polem sekund. Zmiana pola od razu aktualizuje ustawienie projektu.

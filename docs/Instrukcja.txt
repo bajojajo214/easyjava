@@ -1,5 +1,5 @@
-EASYJAVA 2.0.3
-100 bloczków • 11 kategorii • projektant GUI • scena i duszki
+EASYJAVA 2.0.4
+102 bloczki • 12 kategorii • projektant GUI • scena i duszki
 
 START OD ZERA
 Aplikacja zawsze otwiera nowy, pusty projekt — bez żadnych bloczków.
@@ -15,8 +15,9 @@ PIERWSZE KROKI
 4. W pętlach, warunkach i zdarzeniach upuszczaj bloczki w ciemnym wnętrzu.
    Deklaracje zdarzeń (np. Kiedy kliknięto przycisk) umieszczaj na głównym poziomie.
 5. Kliknij Uruchom podgląd lub naciśnij F5.
-6. Kliknij Kompiluj na pulpit. Powstanie mojprojekt.js oraz skrót
-   Otwórz mojprojekt. Nazwa pliku zależy od nazwy projektu w górnym pasku.
+6. Kliknij Kompiluj na pulpit. Powstanie wyłącznie mojprojekt.js.
+   Nazwa pliku zależy od nazwy projektu w górnym pasku.
+   Uruchom gotowy plik .js dwuklikiem albo przyciskiem Otwórz program.
 
 JEDEN PLIK .JS
 Zapisz .js zachowuje wykonywalny program razem z układem bloczków.
@@ -28,14 +29,14 @@ Po zapisaniu z tej wersji otrzymasz prawdziwy program .js.
 
 URUCHAMIANIE
 Wygenerowany plik .js uruchamia okno aplikacji bez Node.js.
-Skrót Otwórz zawsze wskazuje Windows Script Host (wscript.exe).
-Sam .js można też uruchomić dwuklikiem, jeśli Windows otwiera .js przez WSH.
+Uruchom .js dwuklikiem, jeśli Windows otwiera .js przez Windows Script Host.
 Na tym komputerze takie skojarzenie jest ustawione.
+Przycisk Otwórz program po kompilacji uruchamia .js przez wscript.exe.
+Kompilacja nie tworzy dodatkowych skrótów .lnk na pulpicie.
 Plik .js jest samodzielny: zawiera dane, obrazy i silnik okienkowy.
 Nie potrzebuje oryginalnego pliku easyjava.exe obok siebie.
 Do działania na innym komputerze potrzebny jest Windows z .NET Framework 4.x
-i włączonym Windows Script Host. Skrót wskazuje pełną lokalną ścieżkę, więc
-po przeniesieniu projektu korzystaj z pliku .js lub utwórz nowy skrót.
+i włączonym Windows Script Host. Po przeniesieniu projektu uruchamiaj jego .js.
 
 WYŁĄCZANIE FUNKCJI
 Przycisk ● w nagłówku bloczka włącza/wyłącza bloczek.
@@ -43,6 +44,8 @@ Wyłączenie pętli, warunku lub zdarzenia pomija także jego wnętrze.
 Przycisk Funkcje pozwala wyłączyć całe kategorie, np. Dźwięk lub Pliki.
 Wyłączone kategorie są rzeczywiście pomijane przez silnik programu.
 Obsługa Plików jest początkowo wyłączona w nowych projektach.
+Kategoria Terminal jest domyślnie wyłączona w nowych i wcześniejszych projektach.
+Włącz ją w Funkcjach, aby korzystać z poleceń CMD oraz PowerShell.
 Przykład Notatnik ma ją włączoną, ponieważ korzysta z odczytu i zapisu.
 Po zmianach uruchom podgląd ponownie.
 
@@ -73,7 +76,7 @@ i wpisz w nim czas. Wyszukiwarka znajduje go także po słowach
 przerwa, pauza lub odstęp. Samo kliknięcie bloczka go nie dodaje.
 
 POBIERANIE AKTUALNEJ WERSJI
-Aktualna wersja to 2.0.3. Numer wersji widać w tytule okna aplikacji.
+Aktualna wersja to 2.0.4. Numer wersji widać w tytule okna aplikacji.
 Aktualną aplikację pobierzesz przyciskiem w README
 repozytorium albo bezpośrednio z gałęzi main:
 https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe
@@ -136,9 +139,57 @@ Dźwięk:
 Pliki:
   wybór pliku do odczytu/zapisu, odczyt UTF-8, zapis, dopisywanie,
   sprawdzanie istnienia. Zapis pyta przed zastąpieniem istniejącego pliku.
+Terminal:
+  Uruchom polecenie CMD oraz Uruchom polecenie PowerShell.
+  Kategorię włączasz osobno dla projektu przyciskiem Funkcje.
+
+CMD I POWERSHELL
+1. Kliknij Funkcje, zaznacz Terminal i zastosuj ustawienie.
+2. Przeciągnij Uruchom polecenie CMD lub Uruchom polecenie PowerShell
+   z biblioteki do swojego skryptu.
+3. Wpisz polecenie. Dla CMD możesz użyć: echo Witaj z CMD
+   Dla PowerShell: Write-Output 'Witaj z PowerShell'
+4. Wskaż nazwy zmiennych na wynik, błędy i kod zakończenia.
+   Domyślne nazwy to wynik_komendy, blad_komendy oraz kod_komendy.
+5. W kolejnym bloczku Powiedz / pokaż tekst wpisz {wynik_komendy}
+   albo użyj tej zmiennej w tekście elementu GUI.
+
+Bloczek ma sześć pól: polecenie, zmienna wyniku, zmienna błędów,
+zmienna kodu zakończenia, folder roboczy oraz limit czasu w sekundach.
+Puste pole folderu roboczego oznacza folder użytkownika.
+Limit wynosi od 1 do 3600 sekund; domyślnie jest to 30 sekund.
+Kod zakończenia możesz sprawdzić warunkiem w następnym bloczku.
+
+Polecenie jest wykonywane bez dodatkowego okna konsoli i nie blokuje GUI.
+Następny bloczek czeka na zakończenie polecenia. Stop oraz przekroczenie
+limitu czasu kończą polecenie i jego procesy potomne.
+Po normalnym zakończeniu komendy aplikacje uruchomione przez start lub
+Start-Process mogą pozostać otwarte. Późniejszy Stop nie zamyka już
+odłączonych aplikacji. Przechwytywanie wyników wbudowanych poleceń CMD
+używa Unicode; dla narzędzi z innym kodowaniem wybierz PowerShell.
+Wynik standardowy i błędy są odbierane oddzielnie; każdy strumień
+zachowuje do miliona znaków.
+
+Jeden wiersz CMD korzysta ze składni wiersza poleceń. Kilka wierszy
+wykonuje się jako skrypt .cmd UTF-8; w pętlach użyj %%i zamiast %i.
+W PowerShell obowiązuje zwykła składnia skryptów.
+Cudzysłowy i klamry pozostają częścią polecenia; EasyJava nie podstawia
+w tym polu swoich zmiennych {nazwa}. W innych bloczkach możesz korzystać
+ze zmiennych zawierających odebrany wynik.
+
+Terminal jest domyślnie wyłączony także w starszych projektach.
+Włączenie kategorii zapisuje się razem z projektem .js i działa zarówno
+w podglądzie, jak i w wyeksportowanym programie. Wyłączona kategoria
+lub wyłączony pojedynczy bloczek nie uruchamia polecenia.
+Tryb testowy --smoke pomija polecenia Terminala.
+
+Polecenia działają z uprawnieniami użytkownika i mogą zmieniać pliki
+oraz ustawienia. EasyJava nie podnosi uprawnień i nie zmienia zasad
+wykonywania skryptów PowerShell.
 
 ZMIENNE I WYRAŻENIA
 Wstaw zmienną do tekstu za pomocą {nazwa}, np. Wynik: {punkty}.
+Wyjątkiem jest pole polecenia CMD/PowerShell, które zachowuje składnię powłoki.
 Pole zaczynające się od = jest wyrażeniem, np. =punkty * 2 + 1.
 Operatory: + - * / % ^ == != < > <= >= && || !
 Funkcje: sqrt, abs, round, floor, ceil, sin, cos, tan, log, min, max, len.
@@ -168,6 +219,8 @@ GOTOWE PRZYKŁADY — WYBIERANE RĘCZNIE
 5. Gra: złap gwiazdę — sterowanie, odległość i zdobywanie punktów.
 6. Lista zadań — pole tekstowe i lista elementów.
 7. Notatnik z plikami — własny edytor tekstu z odczytem i zapisem.
+8. CMD i PowerShell — przyciski uruchamiają echo i Write-Output.
+   Polecenia uruchamiają się dopiero po kliknięciu.
 Pliki tych przykładów są również w folderze Przyklady.
 
 

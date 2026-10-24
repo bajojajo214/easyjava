@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -17,9 +17,9 @@ public static class Program {
  [STAThread]public static int Main(string[] args){try{if(Environment.OSVersion.Version.Major>=6)SetProcessDPIAware();Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Icon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
   if(args.Length>1&&args[0]=="--snapshot-timing"){using(TimingDialog f=new TimingDialog(.5,delegate(double seconds){})){f.Show();Application.DoEvents();using(Bitmap bitmap=new Bitmap(f.Width,f.Height)){f.DrawToBitmap(bitmap,new Rectangle(0,0,f.Width,f.Height));bitmap.Save(args[1]);}f.Close();}return 0;}
   if(args.Length>1&&args[0]=="--selftest")return Tests.Run(args[1]);
-  if(args.Length>1&&args[0]=="--examples"){Directory.CreateDirectory(args[1]);for(int i=1;i<=7;i++){Project p=Examples.Create(i);ProjectIO.Write(Path.Combine(args[1],ProjectIO.Safe(p.Name)+".js"),p,Application.ExecutablePath);}return 0;}
+  if(args.Length>1&&args[0]=="--examples"){Directory.CreateDirectory(args[1]);for(int i=1;i<=8;i++){Project p=Examples.Create(i);ProjectIO.Write(Path.Combine(args[1],ProjectIO.Safe(p.Name)+".js"),p,Application.ExecutablePath);}return 0;}
   if(args.Length>1&&(args[0]=="--player"||args[0]=="--smoke"))return Player(ProjectIO.Read(args[1]),args[0]=="--smoke");
-  if(args.Length>1&&(args[0]=="--snapshot"||args[0]=="--snapshot-gui")){int result=0;using(Editor editor=new Editor("")){if(args[0]=="--snapshot-gui")editor.Project=Examples.Gui();editor.Shown+=async delegate{try{await editor.Snapshot(args[1]);}catch(Exception e){File.WriteAllText(args[1]+".error",e.ToString());result=1;}editor.Close();};Application.Run(editor);}return result;}
+  if(args.Length>1&&(args[0]=="--snapshot"||args[0]=="--snapshot-gui"||args[0]=="--snapshot-terminal")){int result=0;using(Editor editor=new Editor("")){if(args[0]=="--snapshot-gui")editor.Project=Examples.Gui();if(args[0]=="--snapshot-terminal")editor.Project=Examples.Terminal();editor.Shown+=async delegate{try{await editor.Snapshot(args[1],args[0]=="--snapshot-terminal");}catch(Exception e){File.WriteAllText(args[1]+".error",e.ToString());result=1;}editor.Close();};Application.Run(editor);}return result;}
   using(Editor editor=new Editor(args.Length>0?args[0]:null))Application.Run(editor);return 0;
  }catch(Exception e){if(args.Length>0&&args[0]=="--player"){MessageBox.Show(e.Message,"EasyJava",MessageBoxButtons.OK,MessageBoxIcon.Error);}else if(args.Any(x=>x.StartsWith("--"))){try{File.WriteAllText(Path.Combine(Path.GetTempPath(),"easyjava-error.txt"),e.ToString());}catch{}}else MessageBox.Show(e.Message,"EasyJava",MessageBoxButtons.OK,MessageBoxIcon.Error);return 1;}}
  static int Player(Project p,bool smoke){int result=0;using(Form form=new Form{Text=p.Name,Icon=Icon,ClientSize=new Size(800,620),StartPosition=FormStartPosition.CenterScreen,MinimumSize=new Size(320,250),KeyPreview=true,ShowInTaskbar=!smoke,WindowState=smoke?FormWindowState.Minimized:FormWindowState.Normal})using(RuntimeView view=new RuntimeView(true)){form.Controls.Add(view);view.Silent=smoke;view.WindowChanged=(title,size)=>{form.Text=title;Rectangle area=Screen.FromControl(form).WorkingArea;form.ClientSize=new Size(Math.Min(size.Width,area.Width-40),Math.Min(size.Height+43,area.Height-75));};form.Shown+=async delegate{System.Windows.Forms.Timer timeout=null;if(smoke){timeout=new System.Windows.Forms.Timer{Interval=1200};timeout.Tick+=delegate{timeout.Stop();view.Stop();};timeout.Start();}await view.Start(p);if(smoke){await Task.Delay(150);view.Stop();result=view.Errors.Count==0?0:1;if(timeout!=null)timeout.Dispose();form.Close();}};form.FormClosing+=delegate{view.Stop();};Application.Run(form);}return result;}
@@ -32,6 +32,7 @@ public static class Tests {
   DragDropTests.Run(results);
   PauseUiTests.Run(results);
   await TimingTests.Run(runtime,results);
+  await CommandTests.Run(runtime,results,directory);
   using(Editor timingEditor=new Editor("")){
    timingEditor.SetStepDelay(.5);Assert(timingEditor.Project.StepDelaySeconds==.5,"Ustawienie odstępu w edytorze");
    typeof(Editor).GetMethod("Undo",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(timingEditor,null);Assert(timingEditor.Project.StepDelaySeconds==0,"Cofanie odstępu");
@@ -55,7 +56,7 @@ public static class Tests {
   p=new Project();p.Features["Pliki"]=true;string fixture=Path.Combine(directory,"odczyt.txt");File.WriteAllText(fixture,"Zażółć gęślą jaźń",Encoding.UTF8);p.Blocks.Add(B("file_read",fixture,"tekst"));p.Blocks.Add(B("file_exists",fixture,"jest"));await runtime.Start(p);Assert((string)runtime.Get("tekst")=="Zażółć gęślą jaźń"&&RuntimeView.Number(runtime.Get("jest"))==1,"Pliki UTF8");p.Features["Pliki"]=false;await runtime.Start(p);Assert(!runtime.Values.ContainsKey("tekst"),"Wyłączenie plików");results.Add("PASS odczyt plików UTF-8 i rzeczywiste wyłączenie obsługi plików");
   p=new Project();p.Blocks.Add(B("set","bad","=5 / 0"));await runtime.Start(p);Assert(runtime.Errors.Count==1,"Dzielenie przez zero");bool rejected=false;try{runtime.Value("="+new string('!',200)+"1");}catch{rejected=true;}Assert(rejected,"Limit złożoności wyrażeń");results.Add("PASS błędy obliczeń i limit złożoności wyrażeń");
   string testJs=Path.Combine(directory,"program ze spacją ż.js");File.WriteAllText(testJs,ProjectIO.Export(Examples.Counter(),Application.ExecutablePath),Encoding.ASCII);using(Process loader=Process.Start(new ProcessStartInfo(Path.Combine(Environment.SystemDirectory,"cscript.exe"),"//E:JScript //nologo \""+testJs+"\" /easyjava-test"){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true})){bool ended=await Task.Run(()=>loader.WaitForExit(20000));if(!ended){loader.Kill();throw new Exception("Loader nie zakończył testu.");}string err=loader.StandardError.ReadToEnd()+loader.StandardOutput.ReadToEnd();Assert(loader.ExitCode==0,"WSH loader: "+err);}results.Add("PASS realny Windows Script Host uruchamia samodzielny plik .js z GUI bez Node.js");
-  foreach(int i in new[]{1,2,3,6,7}){await runtime.Start(Examples.Create(i));Assert(runtime.Errors.Count==0,"Przykład "+i+": "+string.Join(";",runtime.Errors));}results.Add("PASS przykłady GUI, licznik, sterowanie, lista i notatnik");
+  foreach(int i in new[]{1,2,3,6,7,8}){await runtime.Start(Examples.Create(i));Assert(runtime.Errors.Count==0,"Przykład "+i+": "+string.Join(";",runtime.Errors));}results.Add("PASS przykłady GUI, licznik, sterowanie, lista i notatnik");
  }catch(Exception ex){exit=1;results.Add("FAIL "+ex.ToString());}File.WriteAllText(Path.Combine(directory,"results.txt"),string.Join(Environment.NewLine,results),Encoding.UTF8);runtime.Stop();form.Close();};Application.Run(form);}return exit;}
 }
 }

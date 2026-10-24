@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -25,9 +24,9 @@ namespace EasyJava2 {
  [DataMember] public string Name="mojprojekt";
  [DataMember] public double StepDelaySeconds;
  [DataMember] public List<Block> Blocks=new List<Block>();
- [DataMember] public Dictionary<string,bool> Features=Catalog.Groups.ToDictionary(x=>x,x=>x!="Pliki");
+ [DataMember] public Dictionary<string,bool> Features=Catalog.Groups.ToDictionary(x=>x,x=>x!="Pliki"&&x!="Terminal");
  [DataMember] public Dictionary<string,string> Assets=new Dictionary<string,string>();
- public bool Allows(string group){bool on;return Features.TryGetValue(group,out on)?on:group!="Pliki";}
+ public bool Allows(string group){bool on;return Features.TryGetValue(group,out on)?on:group!="Pliki"&&group!="Terminal";}
 }
 public class Field {
  public string Key,Label,Default;public string[] Options;
@@ -38,7 +37,7 @@ public class Spec {
  public Spec(string kind,string name,string group,string hint,bool container,bool evt,bool els,params Field[] fields){Kind=kind;Name=name;Group=group;Hint=hint;Container=container;Event=evt;HasElse=els;Fields=fields;}
 }
 public static class Catalog {
- public static readonly string[] Groups={"Zdarzenia","Okna i GUI","Ruch","Wygląd","Sterowanie","Zmienne","Listy","Czujniki","Pisak","Dźwięk","Pliki"};
+ public static readonly string[] Groups={"Zdarzenia","Okna i GUI","Ruch","Wygląd","Sterowanie","Zmienne","Listy","Czujniki","Pisak","Dźwięk","Pliki","Terminal"};
  public static Dictionary<string,Spec> All=new Dictionary<string,Spec>();
  static Field F(string k,string l,string d,string o=null){return new Field(k,l,d,o);}
  static void Add(string k,string n,string g,string h,params Field[] f){All[k]=new Spec(k,n,g,h,false,false,false,f);}
@@ -139,6 +138,8 @@ public static class Catalog {
   Add("stamp","Stempluj duszka","Pisak","Zostawia kopię duszka na scenie.");
   Add("beep","Zagraj ton","Dźwięk","Częstotliwość w Hz, czas w sekundach.",F("A","Częstotliwość","660"),F("B","Sekundy","0,15"));
   Add("sound","Dźwięk systemowy","Dźwięk","Odtwarza krótki dźwięk Windows.",F("A","Dźwięk","Asterisk","Asterisk|Beep|Exclamation|Hand|Question"));
+  Add("cmd","Uruchom polecenie CMD","Terminal","Najpierw włącz Terminal w Funkcjach. Polecenie jest dosłownym kodem CMD; czeka na zakończenie i zapisuje wynik. Stop lub limit czasu przerywa komendę.",F("A","Polecenie","echo Witaj z CMD"),F("B","Wynik do","wynik_komendy"),F("C","Błędy do","blad_komendy"),F("D","Kod wyjścia do","kod_komendy"),F("E","Folder roboczy",""),F("F","Limit sekund","30"));
+  Add("powershell","Uruchom polecenie PowerShell","Terminal","Najpierw włącz Terminal w Funkcjach. Dosłowny kod PowerShell, także klamry i cudzysłowy. Bez zmiany zasad wykonywania skryptów.",F("A","Polecenie","Write-Output 'Witaj z PowerShell'"),F("B","Wynik do","wynik_komendy"),F("C","Błędy do","blad_komendy"),F("D","Kod wyjścia do","kod_komendy"),F("E","Folder roboczy",""),F("F","Limit sekund","30"));
   Add("file_open","Wybierz plik do odczytu","Pliki","Otwiera systemowy wybór pliku. Najpierw włącz kategorię Pliki.",F("A","Zapisz ścieżkę w","plik"));
   Add("file_save","Wybierz plik do zapisu","Pliki","Otwiera systemowy wybór miejsca zapisu.",F("A","Zapisz ścieżkę w","plik"),F("B","Proponowana nazwa","notatka.txt"));
   Add("file_read","Odczytaj plik tekstowy","Pliki","Czyta plik UTF-8. Limit 5 MB.",F("A","Ścieżka","{plik}"),F("B","Zapisz tekst w","zawartosc"));
@@ -146,7 +147,7 @@ public static class Catalog {
   Add("file_append","Dopisz do pliku","Pliki","Dopisuje tekst na końcu pliku UTF-8.",F("A","Ścieżka","{plik}"),F("B","Tekst","Nowy wiersz"));
   Add("file_exists","Czy plik istnieje","Pliki","Zapisuje 1 lub 0.",F("A","Ścieżka","{plik}"),F("B","Zapisz w","istnieje"));
  }
- public static Color ColorFor(string group){int i=Array.IndexOf(Groups,group);Color[] c={Color.FromArgb(213,166,43),Color.FromArgb(108,102,235),Color.FromArgb(64,139,221),Color.FromArgb(166,94,214),Color.FromArgb(219,143,47),Color.FromArgb(30,159,152),Color.FromArgb(204,102,81),Color.FromArgb(46,160,190),Color.FromArgb(39,157,111),Color.FromArgb(184,83,154),Color.FromArgb(113,126,153)};return c[Math.Max(0,i)];}
+ public static Color ColorFor(string group){int i=Array.IndexOf(Groups,group);Color[] c={Color.FromArgb(213,166,43),Color.FromArgb(108,102,235),Color.FromArgb(64,139,221),Color.FromArgb(166,94,214),Color.FromArgb(219,143,47),Color.FromArgb(30,159,152),Color.FromArgb(204,102,81),Color.FromArgb(46,160,190),Color.FromArgb(39,157,111),Color.FromArgb(184,83,154),Color.FromArgb(113,126,153),Color.FromArgb(57,143,119)};return c[Math.Max(0,i)];}
 }
 public static class ProjectIO {
  const string Marker="// EASYJAVA_PROJECT_V2:";
@@ -154,7 +155,7 @@ public static class ProjectIO {
  public static Project FromJson(string text){if(text.Length>40000000)throw new Exception("Plik projektu jest za duży.");using(MemoryStream m=new MemoryStream(Encoding.UTF8.GetBytes(text))){Project p=(Project)new DataContractJsonSerializer(typeof(Project)).ReadObject(m);Normalize(p);return p;}}
  public static Project Read(string path){string t=File.ReadAllText(path,Encoding.UTF8);return Parse(t);}
  public static Project Parse(string t){if(t.TrimStart('\uFEFF',' ','\r','\n','\t').StartsWith("{"))return FromJson(t.TrimStart('\uFEFF'));int start=t.IndexOf(Marker,StringComparison.Ordinal);if(start<0)throw new Exception("Ten plik .js nie zawiera projektu EasyJava. Otwórz plik zapisany przez EasyJava.");start+=Marker.Length;int end=t.IndexOf('\n',start);string raw=(end<0?t.Substring(start):t.Substring(start,end-start)).Trim();return FromJson(Encoding.UTF8.GetString(Convert.FromBase64String(raw)));}
- public static void Normalize(Project p){if(p==null||p.Blocks==null||p.Version<1||p.Version>2)throw new Exception("Nieobsługiwany projekt.");p.Version=2;p.Name=p.Name??"mojprojekt";if(double.IsNaN(p.StepDelaySeconds)||double.IsInfinity(p.StepDelaySeconds)||p.StepDelaySeconds<0||p.StepDelaySeconds>3600)throw new Exception("Odstęp między bloczkami musi wynosić od 0 do 3600 sekund.");if(p.Features==null)p.Features=Catalog.Groups.ToDictionary(x=>x,x=>x!="Pliki");if(p.Assets==null)p.Assets=new Dictionary<string,string>();int count=0;Check(p.Blocks,0,ref count);if(p.Assets.Sum(x=>(long)x.Value.Length)>28000000)throw new Exception("Obrazy w projekcie są za duże (limit około 20 MB).");}
+ public static void Normalize(Project p){if(p==null||p.Blocks==null||p.Version<1||p.Version>2)throw new Exception("Nieobsługiwany projekt.");p.Version=2;p.Name=p.Name??"mojprojekt";if(double.IsNaN(p.StepDelaySeconds)||double.IsInfinity(p.StepDelaySeconds)||p.StepDelaySeconds<0||p.StepDelaySeconds>3600)throw new Exception("Odstęp między bloczkami musi wynosić od 0 do 3600 sekund.");if(p.Features==null)p.Features=Catalog.Groups.ToDictionary(x=>x,x=>x!="Pliki"&&x!="Terminal");if(p.Assets==null)p.Assets=new Dictionary<string,string>();int count=0;Check(p.Blocks,0,ref count);if(p.Assets.Sum(x=>(long)x.Value.Length)>28000000)throw new Exception("Obrazy w projekcie są za duże (limit około 20 MB).");}
  static void Check(List<Block> list,int depth,ref int count){if(depth>20)throw new Exception("Limit 20 poziomów zagnieżdżenia.");foreach(Block b in list){if(++count>2000)throw new Exception("Limit 2000 bloczków.");if(b==null||b.Kind==null||!Catalog.All.ContainsKey(b.Kind))throw new Exception("Nieznany bloczek w projekcie.");b.A=b.A??"";b.B=b.B??"";b.C=b.C??"";b.D=b.D??"";b.E=b.E??"";b.F=b.F??"";b.Op=b.Op??"==";if(b.Children==null)b.Children=new List<Block>();if(b.Else==null)b.Else=new List<Block>();if(new[]{b.A,b.B,b.C,b.D,b.E,b.F}.Any(x=>x.Length>200000))throw new Exception("Zbyt długi tekst w bloczku.");Check(b.Children,depth+1,ref count);Check(b.Else,depth+1,ref count);}}
  public static int Count(List<Block> list){return list.Sum(b=>1+Count(b.Children)+Count(b.Else));}
  public static string Safe(string name){name=(name??"").Trim();foreach(char c in Path.GetInvalidFileNameChars())name=name.Replace(c,'_');name=name.TrimEnd(' ','.');if(Regex.IsMatch(name,@"^(CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9])(?:\.|$)",RegexOptions.IgnoreCase))name="projekt_"+name;if(name.Length>70)name=name.Substring(0,70);return name.Length==0?"mojprojekt":name;}
@@ -184,6 +185,5 @@ public static class ProjectIO {
   b.AppendLine("WScript.Quit(exitCode);");return b.ToString();
  }
  public static void Write(string path,Project p,string runtime){string text=Export(p,runtime);string temp=path+".tmp-"+Guid.NewGuid().ToString("N");try{File.WriteAllText(temp,text,Encoding.ASCII);if(File.Exists(path)){string backup=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"EasyJava","Kopie");Directory.CreateDirectory(backup);File.Copy(path,Path.Combine(backup,Safe(Path.GetFileNameWithoutExtension(path))+"-"+DateTime.Now.ToString("yyyyMMdd-HHmmss-fff")+".js"),false);File.Replace(temp,path,null);}else File.Move(temp,path);}finally{if(File.Exists(temp))File.Delete(temp);}}
- public static void Shortcut(string path,string script,string icon){Type t=Type.GetTypeFromProgID("WScript.Shell");object s=null,l=null;try{s=Activator.CreateInstance(t);l=t.InvokeMember("CreateShortcut",System.Reflection.BindingFlags.InvokeMethod,null,s,new object[]{path});Type z=l.GetType();Action<string,object> set=(k,v)=>z.InvokeMember(k,System.Reflection.BindingFlags.SetProperty,null,l,new[]{v});set("TargetPath",Path.Combine(Environment.SystemDirectory,"wscript.exe"));set("Arguments","//E:JScript //nologo \""+script+"\"");set("WorkingDirectory",Path.GetDirectoryName(script));set("IconLocation",icon+",0");z.InvokeMember("Save",System.Reflection.BindingFlags.InvokeMethod,null,l,null);}finally{if(l!=null)Marshal.FinalReleaseComObject(l);if(s!=null)Marshal.FinalReleaseComObject(s);}}
 }
 }

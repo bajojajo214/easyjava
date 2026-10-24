@@ -8,8 +8,8 @@
 
 <p align="center">
   <img alt="Windows" src="https://img.shields.io/badge/platforma-Windows-0078D4?style=flat-square">
-  <img alt="100 bloczków" src="https://img.shields.io/badge/bloczki-100-8b68f6?style=flat-square">
-  <img alt="11 kategorii" src="https://img.shields.io/badge/kategorie-11-209f98?style=flat-square">
+  <img alt="102 bloczki" src="https://img.shields.io/badge/bloczki-102-8b68f6?style=flat-square">
+  <img alt="12 kategorii" src="https://img.shields.io/badge/kategorie-12-209f98?style=flat-square">
   <img alt="Bez Node.js" src="https://img.shields.io/badge/Node.js-niewymagany-2b8a64?style=flat-square">
 </p>
 
@@ -41,7 +41,23 @@ Nie ma instalatora, logowania ani wymaganego połączenia z internetem. Potrzebu
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
-**Aktualna wersja: 2.0.3.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+**Aktualna wersja: 2.0.4.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+
+## Nowość w 2.0.4: CMD i PowerShell z bloczków
+
+![Bloczki CMD i PowerShell z przykładowym oknem wyników](docs/terminal.png)
+
+W **Funkcje → Terminal** włącz nową kategorię w swoim projekcie. Następnie przeciągnij **Uruchom polecenie CMD** albo **Uruchom polecenie PowerShell** do skryptu. Terminal jest domyślnie wyłączony także we wcześniejszych projektach; jego ustawienie zapisuje się w `.js`.
+
+Każdy bloczek ma pole polecenia oraz osobne pola nazw zmiennych na **wynik**, **błędy** i **kod zakończenia**. Możesz też wybrać folder roboczy — puste pole oznacza folder użytkownika — oraz limit czasu od **1 do 3600 sekund**, domyślnie **30 s**. Proces uruchamia się bez okna konsoli, a następny bloczek czeka na jego zakończenie. **Stop** i przekroczenie czasu kończą uruchomione polecenie wraz z procesami potomnymi.
+
+Prosty przykład: w bloczku CMD wpisz `echo Witaj z CMD`, a jako zmienną wyniku pozostaw `wynik_komendy`. Za nim przeciągnij **Powiedz / pokaż tekst** i wpisz `{wynik_komendy}`. W PowerShell możesz użyć `Write-Output 'Witaj z PowerShell'`. Wynik wykorzystasz też w napisie własnego GUI. Na liście **Wczytaj przykład** znajdziesz gotowy projekt **CMD i PowerShell** z dwoma przyciskami; polecenia wykonują się dopiero po kliknięciu.
+
+Jednowierszowe polecenia CMD używają składni wiersza poleceń. Kilka wierszy CMD jest wykonywanych jako skrypt `.cmd` w UTF-8 (w pętlach stosuj `%%i`). Pole polecenia zachowuje składnię PowerShell, w tym cudzysłowy i klamry. W tym polu EasyJava nie podstawia swoich zmiennych `{nazwa}`. Standardowe wyjście i błędy są odbierane oddzielnie, do miliona znaków na każdy strumień. Funkcja działa w podglądzie oraz w wyeksportowanym `.js`; tryb testowy `--smoke` pomija uruchamianie poleceń.
+
+Po normalnym zakończeniu komendy aplikacje uruchomione przez `start` lub `Start-Process` mogą pozostać otwarte; późniejszy Stop nie zamyka już odłączonych aplikacji. Przechwytywanie tekstu z wbudowanych poleceń CMD używa Unicode. Dla zewnętrznych narzędzi emitujących tekst w innym kodowaniu wybierz bloczek PowerShell.
+
+Polecenia działają z uprawnieniami użytkownika i mogą zmieniać pliki oraz ustawienia. EasyJava nie podnosi uprawnień i nie zmienia zasad wykonywania skryptów PowerShell.
 
 ## Poprawka 2.0.3: przerwy zawsze pod ręką
 
@@ -67,7 +83,7 @@ Poprawka zapewnia też unikalne nazwy kolejnych elementów GUI oraz blokuje wkł
 
 | Funkcja | Co z nią zrobisz |
 | --- | --- |
-| **100 bloczków w 11 kategoriach** | Połączysz zdarzenia, ruch, wygląd, logikę, obliczenia i wiele więcej. |
+| **102 bloczki w 12 kategoriach** | Połączysz zdarzenia, ruch, wygląd, logikę, obliczenia i wiele więcej. |
 | **Własne GUI** | Dodasz napisy, przyciski, pola tekstowe, listy, suwaki, obrazy i paski postępu. |
 | **Projektant GUI** | Ustawisz elementy okna myszą; ich pozycje zapiszą się w bloczkach. |
 | **Podgląd działania** | Sprawdzisz program wewnątrz edytora, z prawdziwymi kliknięciami i zdarzeniami. |
@@ -77,6 +93,7 @@ Poprawka zapewnia też unikalne nazwy kolejnych elementów GUI oraz blokuje wkł
 | **Zmienne, listy i wyrażenia** | Zapiszesz wyniki, policzysz punkty i użyjesz własnych danych. |
 | **Pisak i dźwięki** | Narysujesz animowane wzory i dodasz proste efekty dźwiękowe. |
 | **Odczyt i zapis plików** | Zbudujesz np. własny notatnik. Tę kategorię włączasz w oknie Funkcje. |
+| **CMD i PowerShell** | Uruchomisz polecenia, odbierzesz tekst, błędy i kod zakończenia. Włącz kategorię Terminal w Funkcjach. |
 | **Włączanie i wyłączanie** | Wyłączysz pojedynczy bloczek albo całą grupę funkcji. |
 | **Cofanie, wyszukiwanie, zwijanie** | Łatwiej uporządkujesz większy projekt. |
 | **Samodzielny plik `.js`** | Zapiszesz gotowy program razem z bloczkami i obrazami. |
@@ -85,9 +102,9 @@ Poprawka zapewnia też unikalne nazwy kolejnych elementów GUI oraz blokuje wkł
 
 **Zapisz .js** zachowuje układ bloczków w tym samym pliku, który uruchamia gotową aplikację. Przyciskiem **Otwórz .js** wrócisz do edycji. Nowe projekty nie wymagają plików `.easyjava`.
 
-**Kompiluj na pulpit** tworzy `mojprojekt.js` oraz skrót **Otwórz mojprojekt**, który uruchamia go przez systemowy `wscript.exe`. Node.js nie jest potrzebny. Wygenerowany `.js` zawiera osadzony silnik okienkowy i nie wymaga pliku edytora obok siebie.
+**Kompiluj na pulpit** tworzy wyłącznie `mojprojekt.js` — bez dodatkowych skrótów `.lnk`. Nazwa pliku zależy od nazwy projektu. Node.js nie jest potrzebny. Wygenerowany `.js` zawiera osadzony silnik okienkowy i nie wymaga pliku edytora obok siebie.
 
-Zwykły dwuklik w `.js` działa, gdy Windows przypisuje to rozszerzenie do Windows Script Host. Skrót „Otwórz” wskazuje właściwy program bezpośrednio.
+Uruchom program dwuklikiem w `.js`, gdy Windows przypisuje to rozszerzenie do Windows Script Host. Przycisk **Otwórz program** po kompilacji również uruchamia ten plik przez systemowy `wscript.exe`.
 
 ## Zacznij od przykładu, kiedy chcesz
 
@@ -99,13 +116,14 @@ Aplikacja **zawsze startuje od zera**. Gotowe projekty wybierasz samodzielnie z 
 - **Rysujący robot** — pisak i animowany wzór z pętli w pętli.
 - **Złap gwiazdę** — prosta gra ze zbieraniem punktów.
 - **Lista zadań** — dopisywanie elementów do własnej listy.
+- **CMD i PowerShell** — przyciski uruchamiające polecenia oraz pole z wynikiem.
 - **Notatnik** — okno edytora tekstowego z otwieraniem i zapisem plików.
 
 ![Pusty nowy projekt EasyJava](docs/pusty-projekt.png)
 
 ## Małe wskazówki, duże możliwości
 
-- `{punkty}` wstawia wartość zmiennej do tekstu, np. `Wynik: {punkty}`.
+- `{punkty}` wstawia wartość zmiennej do tekstu, np. `Wynik: {punkty}`. Pole polecenia CMD/PowerShell zachowuje własną składnię i nie podstawia tych zmiennych.
 - `=punkty * 2 + 1` oblicza wyrażenie.
 - `●` w nagłówku bloczka pozwala go wyłączyć bez usuwania.
 - **Funkcje** wyłącza całe kategorie. Wyłączone bloczki są pomijane także w wyeksportowanym programie.

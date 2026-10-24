@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -203,6 +203,13 @@ public class RuntimeView:UserControl {
    case "broadcast":if(++nesting>100){nesting--;throw new Exception("Zbyt długi łańcuch wiadomości.");}Fire("message:"+TextValue(b.A),ctx.Sprite);nesting--;break;
    case "beep":int frequency=Int(b.A,37,32767),ms=(int)(N(b.B)*1000);if(ms<0||ms>10000)throw new Exception("Czas tonu: do 10 sekund.");if(!Silent)await Task.Run(()=>{try{Console.Beep(frequency,Math.Max(1,ms));}catch(PlatformNotSupportedException){}},token);break;
    case "sound":if(!Silent){switch(TextValue(b.A)){case "Asterisk":SystemSounds.Asterisk.Play();break;case "Beep":SystemSounds.Beep.Play();break;case "Exclamation":SystemSounds.Exclamation.Play();break;case "Hand":SystemSounds.Hand.Play();break;default:SystemSounds.Question.Play();break;}}break;
+   case "cmd":case "powershell":
+    if(!Project.Allows("Terminal")||Designing)break;
+    foreach(string variable in new[]{b.B,b.C,b.D})if(!string.IsNullOrWhiteSpace(variable)&&!Regex.IsMatch(variable,@"^[\p{L}_][\p{L}\p{N}_]{0,79}$"))throw new Exception("Nieprawidłowa nazwa zmiennej wyniku komendy: "+variable);
+    if(Silent){if(!string.IsNullOrWhiteSpace(b.B))Set(b.B,"");if(!string.IsNullOrWhiteSpace(b.C))Set(b.C,"Pominięto polecenie w teście automatycznym.");if(!string.IsNullOrWhiteSpace(b.D))Set(b.D,-1);Log("Terminal: pominięto uruchomienie w teście automatycznym.");break;}
+    CommandResult commandResult=await CommandRunner.Run(b.Kind,b.A,TextValue(b.E),N(b.F),token);token.ThrowIfCancellationRequested();
+    if(!string.IsNullOrWhiteSpace(b.B))Set(b.B,commandResult.Output);if(!string.IsNullOrWhiteSpace(b.C))Set(b.C,commandResult.Error);if(!string.IsNullOrWhiteSpace(b.D))Set(b.D,commandResult.ExitCode);
+    Log((b.Kind=="cmd"?"CMD":"PowerShell")+" • kod wyjścia: "+commandResult.ExitCode);if(commandResult.Output.Length>0)Log(CommandLog(commandResult.Output));if(commandResult.Error.Length>0)Log("Błędy komendy: "+CommandLog(commandResult.Error));break;
    case "file_open":if(Silent)throw new Exception("Wybór pliku wymaga użytkownika.");using(OpenFileDialog of=new OpenFileDialog{Filter="Pliki tekstowe|*.txt;*.csv;*.json;*.js;*.md|Wszystkie pliki|*.*"})Set(b.A,of.ShowDialog(FindForm())==DialogResult.OK?of.FileName:"");break;
    case "file_save":if(Silent)throw new Exception("Wybór pliku wymaga użytkownika.");using(SaveFileDialog sf=new SaveFileDialog{Filter="Plik tekstowy|*.txt|Wszystkie pliki|*.*",FileName=TextValue(b.B),OverwritePrompt=false})Set(b.A,sf.ShowDialog(FindForm())==DialogResult.OK?sf.FileName:"");break;
    case "file_read":string path=TextValue(b.A);if(new FileInfo(path).Length>5*1024*1024)throw new Exception("Plik przekracza 5 MB.");Set(b.B,File.ReadAllText(path,Encoding.UTF8));break;
@@ -211,6 +218,7 @@ public class RuntimeView:UserControl {
    case "file_exists":Set(b.B,File.Exists(TextValue(b.A))?1:0);break;
   }
  }
+ static string CommandLog(string text){return text.Length<=8192?text:text.Substring(0,8192)+"\r\n… Dalsza część jest w zmiennej wyniku.";}
  async Task Delay(string seconds,CancellationToken token){double n=N(seconds);if(n<0||n>3600)throw new Exception("Czekanie: od 0 do 3600 sekund.");if(!Silent)await Task.Delay((int)(n*1000),token);}
  void SetUi(Control c,string property,object value){switch(property){case "Text":c.Text=Convert.ToString(value,CultureInfo.InvariantCulture);break;case "Value":int n=(int)Number(value);if(c is TrackBar)((TrackBar)c).Value=Math.Max(((TrackBar)c).Minimum,Math.Min(((TrackBar)c).Maximum,n));else if(c is ProgressBar)((ProgressBar)c).Value=Math.Max(0,Math.Min(100,n));else throw new Exception("Ten element nie ma wartości liczbowej.");break;case "Checked":if(!(c is CheckBox))throw new Exception("Element nie jest polem wyboru.");((CheckBox)c).Checked=Truth(value);break;case "Enabled":c.Enabled=Truth(value);break;case "Visible":c.Visible=Truth(value);break;case "BackColor":c.BackColor=ColorValue(Convert.ToString(value));break;case "ForeColor":c.ForeColor=ColorValue(Convert.ToString(value));break;case "FontSize":double fs=Number(value);if(fs<6||fs>96)throw new Exception("Rozmiar czcionki: od 6 do 96.");UiElement match=Stage.Elements.Values.FirstOrDefault(x=>x.Control==c);if(match!=null)match.FontSize=(float)fs;c.Font=new Font("Segoe UI",(float)fs*Stage.ScaleFactor);break;default:throw new Exception("Nieznana właściwość: "+property);}}
  string Prompt(string question,string initial){using(Form f=new Form{Text=Project.Name,ClientSize=new Size(420,165),StartPosition=FormStartPosition.CenterParent,FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,MinimizeBox=false}){Label l=new Label{Text=question,Left=18,Top=18,Width=385,Height=45};TextBox t=new TextBox{Text=initial,Left=18,Top=70,Width=385};Button ok=new Button{Text="OK",DialogResult=DialogResult.OK,Left=220,Top=112,Width=85},cancel=new Button{Text="Anuluj",DialogResult=DialogResult.Cancel,Left=315,Top=112,Width=85};f.Controls.AddRange(new Control[]{l,t,ok,cancel});f.AcceptButton=ok;f.CancelButton=cancel;return f.ShowDialog(FindForm())==DialogResult.OK?t.Text:"";}}
