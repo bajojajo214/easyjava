@@ -1,0 +1,5 @@
+.vs/
+*.pdb
+*.tmp
+src/easyjava.exe
+src/test-output/
