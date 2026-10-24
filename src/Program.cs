@@ -28,6 +28,7 @@ public static class Tests {
  static void Assert(bool v,string text){if(!v)throw new Exception(text);}
  static Block B(string k,params string[] a){return Block.Make(k,a);}
  public static int Run(string directory){Directory.CreateDirectory(directory);int exit=0;List<string> results=new List<string>();using(Form form=new Form{ShowInTaskbar=false,WindowState=FormWindowState.Minimized})using(RuntimeView runtime=new RuntimeView()){form.Controls.Add(runtime);runtime.Silent=true;form.Shown+=async delegate{try{
+  DragDropTests.Run(results);
   Assert(Catalog.All.Count>=90,"Za mało bloczków");results.Add("PASS katalog: "+Catalog.All.Count+" bloczków / "+Catalog.Groups.Length+" kategorii");
   Project p=Examples.Gui();string json=ProjectIO.Json(p);Assert(ProjectIO.Json(ProjectIO.FromJson(json))==json,"Zapis/odczyt JSON");string js=ProjectIO.Export(p,Application.ExecutablePath);Assert(ProjectIO.Json(ProjectIO.Parse(js))==json,"Plik JS musi zachować bloczki");Assert(js.StartsWith("//"),"JS nie może zaczynać się od JSON");results.Add("PASS jeden plik .js: wykonywalny kod + ponowna edycja bloczków");
   Project old=ProjectIO.FromJson("{\"Version\":1,\"Name\":\"stary\",\"Blocks\":[{\"Kind\":\"say\",\"A\":\"Czesc\",\"Children\":[]}]}");Assert(old.Blocks[0].Else!=null&&old.Version==2,"Migracja v1");results.Add("PASS import wcześniejszych bloczków, także JSON z rozszerzeniem .js");

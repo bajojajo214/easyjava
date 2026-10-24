@@ -14,9 +14,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/bajojajo214/easyjava/releases/latest/download/easyjava.exe"><strong>⬇ Pobierz EasyJava.exe</strong></a>
+  <a href="https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe"><strong>⬇ Pobierz EasyJava.exe</strong></a>
   &nbsp; · &nbsp;
-  <a href="https://github.com/bajojajo214/easyjava/releases/latest/download/EasyJava-Windows.zip">Pobierz paczkę z przykładami</a>
+  <a href="https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/EasyJava-Windows.zip">Pobierz paczkę z przykładami</a>
   &nbsp; · &nbsp;
   <a href="docs/Instrukcja.txt">Instrukcja po polsku</a>
 </p>
@@ -31,15 +31,21 @@ Chcesz zrobić własną aplikację z przyciskami albo grę sterowaną strzałkam
 
 ## Pobierz i zacznij
 
-1. Pobierz **[easyjava.exe](https://github.com/bajojajo214/easyjava/releases/latest/download/easyjava.exe)** lub **[paczkę ZIP](https://github.com/bajojajo214/easyjava/releases/latest/download/EasyJava-Windows.zip)**.
+1. Pobierz **[easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)** lub **[paczkę ZIP](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/EasyJava-Windows.zip)**.
 2. Uruchom `easyjava.exe`. Dostaniesz **pusty nowy projekt**.
-3. Dodaj bloczki z biblioteki. Ułóż je w pętlach, warunkach i zdarzeniach.
+3. **Chwyć bloczek, przeciągnij go i upuść** w skryptach. Samo kliknięcie lub dwuklik niczego nie dodaje.
 4. Kliknij **Uruchom podgląd** lub naciśnij **F5**.
 5. Kliknij **Kompiluj na pulpit**. Gotowe — masz własny program!
 
 Nie ma instalatora, logowania ani wymaganego połączenia z internetem. Potrzebujesz Windows z .NET Framework 4.x; uruchamianie wyeksportowanych projektów korzysta także z Windows Script Host. W tej wersji testy wykonano w Windows na .NET Framework 4.x.
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
+
+## Poprawka 2.0.1: chwyć i upuść
+
+Bloczki z biblioteki dodajesz **wyłącznie przez przeciąganie i upuszczanie**. Pod kursorem widać przenoszony bloczek, a podświetlenie wskazuje miejsce wstawienia. Możesz upuszczać między kartami oraz do wnętrza pętli, warunku lub zdarzenia. Upuszczenie poza skryptami niczego nie zmienia.
+
+Poprawka zapewnia też unikalne nazwy kolejnych elementów GUI oraz blokuje wkładanie deklaracji zdarzeń do wnętrza innych skryptów. [Lista zmian](CHANGELOG.md).
 
 ## Co jest w środku?
 

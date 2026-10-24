@@ -1,4 +1,10 @@
-﻿PASS katalog: 100 bloczków / 11 kategorii
+﻿PASS DnD: kliknięcie i dwuklik nie dodają; brak upuszczenia nie zmienia projektu
+PASS DnD: kolejne elementy GUI mają unikalne identyfikatory
+PASS DnD: przenoszenie w obie strony i wstawianie pomiędzy bloczkami
+PASS DnD: zagnieżdżanie, wyjmowanie i obie gałęzie warunku
+PASS DnD: odrzucanie własnych potomków i zagnieżdżonych zdarzeń; poprawne Copy/Move
+PASS DnD: nagłówki i pola przekazują upuszczenie do karty
+PASS katalog: 100 bloczków / 11 kategorii
 PASS jeden plik .js: wykonywalny kod + ponowna edycja bloczków
 PASS import wcześniejszych bloczków, także JSON z rozszerzeniem .js
 PASS prawdziwe GUI: przyciski, pola, suwak, pasek postępu, zdarzenia

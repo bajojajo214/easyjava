@@ -1,4 +1,4 @@
-EASYJAVA 2.0
+EASYJAVA 2.0.1
 100 bloczków • 11 kategorii • projektant GUI • scena i duszki
 
 START OD ZERA
@@ -8,9 +8,12 @@ Przykłady są dostępne do ręcznego wybrania z listy Wczytaj przykład.
 
 PIERWSZE KROKI
 1. Uruchom easyjava.exe z pulpitu.
-2. Wybierz kategorię i klikaj lub przeciągaj bloczki z lewej strony.
-3. Wpisz wartości w polach. Przenoś istniejące bloczki za tytuł lub uchwyt.
-4. W pętlach, warunkach i zdarzeniach układaj bloczki w ciemnym wnętrzu.
+2. Wybierz kategorię. Chwyć bloczek lewym przyciskiem myszy, przeciągnij
+   i upuść w obszarze skryptów. Samo kliknięcie i dwuklik niczego nie dodają.
+3. Podświetlenie wskazuje miejsce upuszczenia; poza skryptami nic się nie doda.
+   Wpisz wartości w polach. Istniejące bloczki przenoś za tytuł lub uchwyt.
+4. W pętlach, warunkach i zdarzeniach upuszczaj bloczki w ciemnym wnętrzu.
+   Deklaracje zdarzeń (np. Kiedy kliknięto przycisk) umieszczaj na głównym poziomie.
 5. Kliknij Uruchom podgląd lub naciśnij F5.
 6. Kliknij Kompiluj na pulpit. Powstanie mojprojekt.js oraz skrót
    Otwórz mojprojekt. Nazwa pliku zależy od nazwy projektu w górnym pasku.
