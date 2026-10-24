@@ -15,6 +15,7 @@ public static class Program {
  public static Icon Icon;
  [DllImport("user32.dll")]static extern bool SetProcessDPIAware();
  [STAThread]public static int Main(string[] args){try{if(Environment.OSVersion.Version.Major>=6)SetProcessDPIAware();Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Icon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+  if(args.Length>1&&args[0]=="--snapshot-command"){int result=0;using(CommandWindow popup=new CommandWindow("powershell","Write-Output 'Witaj z PowerShell'",Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),30,delegate{})){popup.Shown+=async delegate{try{CommandResult done=await CommandRunner.Run("powershell","Write-Output 'Witaj z PowerShell'", "",30,CancellationToken.None,delegate(bool error,string chunk){if(error)popup.AppendError(chunk);else popup.AppendOutput(chunk);});popup.Complete(done);Application.DoEvents();using(Bitmap bitmap=new Bitmap(popup.Width,popup.Height)){popup.DrawToBitmap(bitmap,new Rectangle(0,0,popup.Width,popup.Height));bitmap.Save(args[1]);}}catch(Exception ex){File.WriteAllText(args[1]+".error",ex.ToString());result=1;}if(args.Length<3||args[2]!="--keep-open")popup.Close();};Application.Run(popup);}return result;}
   if(args.Length>1&&args[0]=="--snapshot-timing"){using(TimingDialog f=new TimingDialog(.5,delegate(double seconds){})){f.Show();Application.DoEvents();using(Bitmap bitmap=new Bitmap(f.Width,f.Height)){f.DrawToBitmap(bitmap,new Rectangle(0,0,f.Width,f.Height));bitmap.Save(args[1]);}f.Close();}return 0;}
   if(args.Length>1&&args[0]=="--selftest")return Tests.Run(args[1]);
   if(args.Length>1&&args[0]=="--examples"){Directory.CreateDirectory(args[1]);for(int i=1;i<=8;i++){Project p=Examples.Create(i);ProjectIO.Write(Path.Combine(args[1],ProjectIO.Safe(p.Name)+".js"),p,Application.ExecutablePath);}return 0;}
@@ -28,11 +29,12 @@ public static class Program {
 public static class Tests {
  static void Assert(bool v,string text){if(!v)throw new Exception(text);}
  static Block B(string k,params string[] a){return Block.Make(k,a);}
- public static int Run(string directory){Directory.CreateDirectory(directory);int exit=0;List<string> results=new List<string>();using(Form form=new Form{ShowInTaskbar=false,WindowState=FormWindowState.Minimized})using(RuntimeView runtime=new RuntimeView()){form.Controls.Add(runtime);runtime.Silent=true;form.Shown+=async delegate{try{
+ public static int Run(string directory){Directory.CreateDirectory(directory);int exit=0;List<string> results=new List<string>();using(Form form=new Form{ShowInTaskbar=false,WindowState=FormWindowState.Minimized})using(RuntimeView runtime=new RuntimeView()){form.Controls.Add(runtime);runtime.Silent=true;runtime.ShowCommandWindows=false;form.Shown+=async delegate{try{
   DragDropTests.Run(results);
   PauseUiTests.Run(results);
   await TimingTests.Run(runtime,results);
   await CommandTests.Run(runtime,results,directory);
+  await CommandWindowTests.Run(results);
   using(Editor timingEditor=new Editor("")){
    timingEditor.SetStepDelay(.5);Assert(timingEditor.Project.StepDelaySeconds==.5,"Ustawienie odstępu w edytorze");
    typeof(Editor).GetMethod("Undo",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(timingEditor,null);Assert(timingEditor.Project.StepDelaySeconds==0,"Cofanie odstępu");

@@ -26,6 +26,15 @@ PASS terminal: bloczek CMD zapisuje wynik, błąd i kod do zmiennych; następny 
 PASS terminal: bloczek PowerShell wykonuje skrypt z literalnymi nawiasami bez podstawiania zmiennych EasyJava
 PASS terminal: Stop w podglądzie przerywa komendę i nie uruchamia kolejnego bloczka
 PASS terminal: przykład GUI wykonuje CMD i PowerShell dopiero po kliknięciu i pokazuje wyniki w oknie
+PASS okno komendy: pokazuje kod, odbiera wynik i błędy z wątku roboczego oraz zachowuje końcowy wynik i kod wyjścia
+PASS okno komendy: Zatrzymaj anuluje raz i pozostawia okno, a zamknięcie zakończonego okna nie anuluje ponownie
+PASS okno komendy: zamknięcie aktywnego okna anuluje komendę, późne dane nie odwołują się do usuniętych kontrolek
+PASS okno komendy: błąd uruchomienia jest widoczny, a okno pozostaje gotowe do odczytania
+PASS okno komendy: duże wyniki i błędy mają ograniczenie widocznego tekstu
+PASS okno komendy: wynik PowerShell jest dostępny na żywo przed zakończeniem procesu
+PASS okno komendy: podgląd otwiera GUI z wynikiem na żywo, zachowuje wynik i zatrzymuje skrypt przyciskiem okna
+PASS okno komendy: odtwarzacz .js otwiera GUI z wynikiem na żywo, zachowuje wynik i zatrzymuje skrypt przyciskiem okna
+PASS okno komendy: zamknięcie odtwarzacza podczas aktywnego polecenia kończy proces i okno bez dostępu do usuniętych kontrolek
 PASS odstępy: ustawienie w edytorze oraz cofanie i ponawianie zmiany
 PASS katalog: 102 bloczków / 12 kategorii
 PASS jeden plik .js: wykonywalny kod + ponowna edycja bloczków

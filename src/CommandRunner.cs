@@ -21,7 +21,7 @@ public static class CommandRunner {
  const uint StartUseStdHandles=0x100,KillOnJobClose=0x2000;
  const int JobExtendedLimitInformation=9;
 
- public static async Task<CommandResult> Run(string shell,string command,string workingDirectory,double timeoutSeconds,CancellationToken token){
+ public static async Task<CommandResult> Run(string shell,string command,string workingDirectory,double timeoutSeconds,CancellationToken token,Action<bool,string> progress=null){
   if(shell!="cmd"&&shell!="powershell")throw new ArgumentException("Wybierz CMD albo PowerShell.","shell");
   if(string.IsNullOrWhiteSpace(command))throw new ArgumentException("Wpisz polecenie do wykonania.","command");
   if(double.IsNaN(timeoutSeconds)||double.IsInfinity(timeoutSeconds)||timeoutSeconds<1||timeoutSeconds>3600)throw new ArgumentException("Limit polecenia musi wynosić od 1 do 3600 sekund.","timeoutSeconds");
@@ -47,7 +47,7 @@ public static class CommandRunner {
   if(commandLine.Length>=32767)throw new ArgumentException("Polecenie jest za długie dla Windows. Skróć je albo wywołaj osobny plik.","command");
   using(NativeCommand running=NativeCommand.Start(executable,commandLine,folder))
   using(CancellationTokenSource finished=new CancellationTokenSource()){
-   Task<string> output=Capture(running.Output,encoding,finished.Token),error=Capture(running.Error,encoding,finished.Token);
+   Task<string> output=Capture(running.Output,encoding,finished.Token,progress,false),error=Capture(running.Error,encoding,finished.Token,progress,true);
    Stopwatch watch=Stopwatch.StartNew();bool cancelled=false,timedOut=false;Exception failure=null;int exitCode=-1;
    try{
     running.Resume();
@@ -106,8 +106,8 @@ public static class CommandRunner {
 
  // Peek before reading so a detached child retaining its standard handles cannot
  // hold the editor open. Keep draining after the capture limit to avoid pipe stalls.
- static async Task<string> Capture(SafeFileHandle handle,Encoding encoding,CancellationToken finished){
-  byte[] bytes=new byte[8192];char[] chars=new char[encoding.GetMaxCharCount(bytes.Length)];Decoder decoder=encoding.GetDecoder();StringBuilder text=new StringBuilder();Stopwatch tail=null;bool truncated=false;
+ static async Task<string> Capture(SafeFileHandle handle,Encoding encoding,CancellationToken finished,Action<bool,string> progress,bool error){
+  byte[] bytes=new byte[8192];char[] chars=new char[encoding.GetMaxCharCount(bytes.Length)];Decoder decoder=encoding.GetDecoder();StringBuilder text=new StringBuilder();Stopwatch tail=null;bool truncated=false;int published=0;
   while(true){
    if(finished.IsCancellationRequested){if(tail==null)tail=Stopwatch.StartNew();if(tail.ElapsedMilliseconds>=250)break;}
    uint available;
@@ -120,12 +120,22 @@ public static class CommandRunner {
     int code=Marshal.GetLastWin32Error();if(code==109||code==232)break;throw new Win32Exception(code,"Nie można odczytać wyjścia polecenia.");
    }
    if(read==0)break;
-   int count=decoder.GetChars(bytes,0,(int)read,chars,0,false);truncated|=AppendBounded(text,chars,count);
+   int count=decoder.GetChars(bytes,0,(int)read,chars,0,false);truncated|=AppendBounded(text,chars,count);PublishProgress(text,ref published,error,ref progress);
    // Let cancellation and the other stream run even if a command continuously
    // produces more data than fits in an anonymous pipe.
    await Task.Yield();
   }
-  truncated|=AppendBounded(text,chars,decoder.GetChars(new byte[0],0,0,chars,0,true));if(truncated){if(text.Length>0&&char.IsHighSurrogate(text[text.Length-1]))text.Length--;text.Append("\r\n[Wynik skrócony do 1 000 000 znaków.]");}return text.ToString();
+  truncated|=AppendBounded(text,chars,decoder.GetChars(new byte[0],0,0,chars,0,true));if(truncated){if(text.Length>0&&char.IsHighSurrogate(text[text.Length-1]))text.Length--;text.Append("\r\n[Wynik skrócony do 1 000 000 znaków.]");}PublishProgress(text,ref published,error,ref progress);return text.ToString();
+ }
+ static void PublishProgress(StringBuilder text,ref int published,bool error,ref Action<bool,string> progress){
+  if(progress==null)return;int end=text.Length;
+  // Retain a trailing high surrogate until its partner has been decoded. This
+  // keeps each visible chunk valid even across pipe reads and at the output cap.
+  if(end>published&&char.IsHighSurrogate(text[end-1]))end--;
+  if(end<=published)return;string chunk=text.ToString(published,end-published);published=end;
+  // Closing a result window must never interrupt pipe draining or leave the
+  // command running unattended. Disable a failing observer for this stream.
+  try{progress(error,chunk);}catch(Exception){progress=null;}
  }
  static bool AppendBounded(StringBuilder builder,char[] chars,int count){int room=MaxStreamCharacters-builder.Length;if(room>0)builder.Append(chars,0,Math.Min(room,count));return count>room;}
  static Exception NativeError(string message){return new Win32Exception(Marshal.GetLastWin32Error(),message);}

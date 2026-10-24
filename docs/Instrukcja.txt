@@ -1,4 +1,6 @@
-EASYJAVA 2.0.4
+EASYJAVA 2.0.5
+Starszy projekt .js otwórz w tej wersji i zapisz ponownie,
+aby gotowy program zawierał okno komendy.
 102 bloczki • 12 kategorii • projektant GUI • scena i duszki
 
 START OD ZERA
@@ -76,7 +78,7 @@ i wpisz w nim czas. Wyszukiwarka znajduje go także po słowach
 przerwa, pauza lub odstęp. Samo kliknięcie bloczka go nie dodaje.
 
 POBIERANIE AKTUALNEJ WERSJI
-Aktualna wersja to 2.0.4. Numer wersji widać w tytule okna aplikacji.
+Aktualna wersja to 2.0.5. Numer wersji widać w tytule okna aplikacji.
 Aktualną aplikację pobierzesz przyciskiem w README
 repozytorium albo bezpośrednio z gałęzi main:
 https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe
@@ -160,7 +162,14 @@ Puste pole folderu roboczego oznacza folder użytkownika.
 Limit wynosi od 1 do 3600 sekund; domyślnie jest to 30 sekund.
 Kod zakończenia możesz sprawdzić warunkiem w następnym bloczku.
 
-Polecenie jest wykonywane bez dodatkowego okna konsoli i nie blokuje GUI.
+Po uruchomieniu bloczka pojawia się osobne okno GUI EasyJava z treścią
+komendy, folderem roboczym i limitem czasu. Zakładki Wynik i Błędy pokazują
+tekst na żywo. Przycisk Zatrzymaj przerywa aktywną komendę; zamknięcie
+aktywnego okna również ją przerywa. Po zakończeniu okno pozostaje otwarte,
+aby można było odczytać wynik i kod zakończenia. Zamknij je, gdy skończysz.
+Okno działa w podglądzie i w programie uruchomionym z pliku .js.
+Wynik nadal zapisuje się w zmiennych wybranych w bloczku.
+Polecenie nie blokuje interfejsu.
 Następny bloczek czeka na zakończenie polecenia. Stop oraz przekroczenie
 limitu czasu kończą polecenie i jego procesy potomne.
 Po normalnym zakończeniu komendy aplikacje uruchomione przez start lub

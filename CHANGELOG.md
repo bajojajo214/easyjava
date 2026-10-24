@@ -1,5 +1,12 @@
 # Historia zmian
 
+## 2.0.5 — 2026-10-24
+
+- CMD i PowerShell otwierają osobne okno GUI z dosłowną treścią polecenia, folderem roboczym i limitem czasu.
+- Zakładki Wynik i Błędy pokazują odbierany tekst na żywo. Po zakończeniu okno pozostaje otwarte z wynikiem i kodem zakończenia.
+- Przycisk Zatrzymaj oraz zamknięcie aktywnego okna przerywają komendę. Wyniki nadal trafiają do zmiennych wskazanych w bloczku.
+- Okno działa w podglądzie i wyeksportowanym .js. Kompilacja nadal tworzy sam plik .js na pulpicie, bez skrótów .lnk.
+
 ## 2.0.4 — 2026-10-24
 
 - Kompilacja tworzy wyłącznie plik .js na pulpicie, bez skrótów .lnk.
