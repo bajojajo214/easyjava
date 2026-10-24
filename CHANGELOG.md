@@ -1,5 +1,13 @@
 # Historia zmian
 
+## 2.0.3 — 2026-10-24
+
+- Wyróżniony panel Przerwa między bloczkami bezpośrednio nad skryptami, z widocznym polem sekund. Zmiana pola od razu aktualizuje ustawienie projektu.
+- Przycisk na górnym pasku ma czytelniejszą nazwę Przerwy i otwiera okno Przerwy między bloczkami z gotowymi czasami.
+- Wyszukiwanie słów przerwa, pauza i odstęp znajduje bloczek Czekaj, który można przeciągnąć w konkretne miejsce skryptu.
+- Instrukcja i README pokazują miejsce ustawiania przerw; numer wersji jest widoczny w tytule okna aplikacji.
+- Zachowano zapis przerw w pliku .js, cofanie i ponawianie zmian oraz dotychczasowe zasady wykonywania i zatrzymywania skryptów.
+
 ## 2.0.2 — 2026-10-24
 
 - Ustawienie Odstęp na górnym pasku: od 0 do 3600 sekund, dwa miejsca po przecinku oraz gotowe wartości 0 / 0,1 / 0,5 / 1 / 2 / 5 s.

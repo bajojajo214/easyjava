@@ -30,6 +30,7 @@ public static class Tests {
  static Block B(string k,params string[] a){return Block.Make(k,a);}
  public static int Run(string directory){Directory.CreateDirectory(directory);int exit=0;List<string> results=new List<string>();using(Form form=new Form{ShowInTaskbar=false,WindowState=FormWindowState.Minimized})using(RuntimeView runtime=new RuntimeView()){form.Controls.Add(runtime);runtime.Silent=true;form.Shown+=async delegate{try{
   DragDropTests.Run(results);
+  PauseUiTests.Run(results);
   await TimingTests.Run(runtime,results);
   using(Editor timingEditor=new Editor("")){
    timingEditor.SetStepDelay(.5);Assert(timingEditor.Project.StepDelaySeconds==.5,"Ustawienie odstępu w edytorze");

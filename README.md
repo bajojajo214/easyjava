@@ -41,15 +41,21 @@ Nie ma instalatora, logowania ani wymaganego połączenia z internetem. Potrzebu
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
-## Nowość w 2.0.2: wybierz odstęp między bloczkami
+**Aktualna wersja: 2.0.3.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
 
-Kliknij **Odstęp: 0 s** na górnym pasku i wybierz, po jakim czasie wykona się następne polecenie. Możesz wpisać czas od **0 do 3600 sekund**, z dokładnością do dwóch miejsc po przecinku, albo wybrać gotowe **0 / 0,1 / 0,5 / 1 / 2 / 5 s**. **0** oznacza wykonanie bez dodatkowego odstępu.
+## Poprawka 2.0.3: przerwy zawsze pod ręką
 
-![Ustawianie odstępu między bloczkami](docs/odstep.png)
+Bezpośrednio nad bloczkami w obszarze **SKRYPTY** znajdziesz wyróżniony panel **Przerwa między bloczkami**. Wpisz liczbę sekund w widocznym polu — ustawienie zmienia się od razu. Możesz wybrać czas od **0 do 3600 sekund**, z dokładnością do dwóch miejsc po przecinku. **0** wyłącza dodatkowe przerwy.
+
+![Gdzie ustawić przerwy między bloczkami](docs/przerwy.png)
+
+Przycisk **Przerwy: 0 s** na górnym pasku otwiera także okno **Przerwy między bloczkami** z gotowymi wartościami **0 / 0,1 / 0,5 / 1 / 2 / 5 s**. W tym oknie potwierdź wybór przyciskiem **Zastosuj**. Po zmianie uruchom podgląd ponownie, a następnie zapisz `.js`, aby zachować ustawienie.
 
 Pierwsze polecenie w skrypcie rusza od razu. Następne czeka wybrany czas od zakończenia poprzedniego. Ustawienie zapisuje się w projekcie `.js` i działa tak samo w podglądzie oraz gotowym programie.
 
-Pętle i warunki zachowują odstępy pomiędzy poleceniami w środku, bez podwójnych pauz. Komentarze i wyłączone bloczki nie dodają czasu. Każde nowe zdarzenie zaczyna od razu i ma własne odstępy, a **Stop** przerywa czekanie. Bloczek **Czekaj** nadal pozwala dodać własną pauzę w konkretnym miejscu — jego czas dolicza się do ustawionych odstępów.
+Potrzebujesz przerwy tylko w jednym miejscu? Przeciągnij bloczek **Czekaj** z kategorii **Sterowanie** pomiędzy dwa polecenia i wpisz w nim czas. Znajdziesz go też, wpisując w wyszukiwarce **przerwa**, **pauza** lub **odstęp**. Jego czas dolicza się do przerwy ustawionej dla całego projektu. Dla samej pojedynczej pauzy pozostaw pole nad skryptami na **0**.
+
+Pętle i warunki zachowują odstępy pomiędzy poleceniami w środku, bez podwójnych pauz. Komentarze i wyłączone bloczki nie dodają czasu. Każde nowe zdarzenie zaczyna od razu i ma własne odstępy, a **Stop** przerywa czekanie. Szczegóły wcześniejszej funkcji odstępów z wersji 2.0.2 znajdziesz w [historii zmian](CHANGELOG.md).
 
 ## Poprawka 2.0.1: chwyć i upuść
 

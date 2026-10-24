@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -101,7 +101,7 @@ public static class Catalog {
   Nest("if_else","Jeżeli / w przeciwnym razie","Sterowanie","Wykonuje jedną z dwóch gałęzi.",false,true,F("A","Wartość A","{punkty}"),F("B","Wartość B","10"),F("Op","Porównanie",">=","==|!=|>|<|>=|<="));
   Nest("until","Powtarzaj aż","Sterowanie","Powtarza, dopóki wyrażenie nie jest prawdziwe. Np. =punkty >= 10.",false,false,F("A","Warunek","=punkty >= 10"));
   Nest("for","Dla zmiennej od / do","Sterowanie","Zakres włącznie; krok może być ujemny.",false,false,F("A","Zmienna","i"),F("B","Od","1"),F("C","Do","10"),F("D","Krok","1"));
-  Add("wait","Czekaj","Sterowanie","Czeka bez blokowania interfejsu.",F("A","Sekundy","1"));
+  Add("wait","Czekaj","Sterowanie","Dodaje przerwę w tym miejscu. Przerwa, pauza, odstęp w sekundach. Czeka bez blokowania interfejsu.",F("A","Sekundy","1"));
   Add("wait_until","Czekaj aż","Sterowanie","Np. =punkty > 5.",F("A","Warunek","=punkty > 5"));
   Add("break","Przerwij pętlę","Sterowanie","Kończy najbliższą otaczającą pętlę.");
   Add("stop_this","Zatrzymaj ten skrypt","Sterowanie","Pozostałe zdarzenia działają dalej.");

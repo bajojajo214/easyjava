@@ -1,4 +1,4 @@
-EASYJAVA 2.0.2
+EASYJAVA 2.0.3
 100 bloczków • 11 kategorii • projektant GUI • scena i duszki
 
 START OD ZERA
@@ -46,11 +46,15 @@ Obsługa Plików jest początkowo wyłączona w nowych projektach.
 Przykład Notatnik ma ją włączoną, ponieważ korzysta z odczytu i zapisu.
 Po zmianach uruchom podgląd ponownie.
 
-ODSTĘP MIĘDZY BLOCZKAMI
-Kliknij przycisk Odstęp: 0 s na górnym pasku.
-Wpisz czas od 0 do 3600 sekund, z dokładnością do dwóch miejsc po przecinku,
-albo wybierz gotowy odstęp: 0 / 0,1 / 0,5 / 1 / 2 / 5 s.
-Kliknij Zastosuj. 0 wyłącza dodatkowy odstęp.
+PRZERWY MIĘDZY BLOCZKAMI
+Bezpośrednio nad bloczkami w obszarze SKRYPTY jest wyróżniony panel Przerwa między bloczkami.
+Wpisz czas w widocznym polu: od 0 do 3600 sekund, z dokładnością
+do dwóch miejsc po przecinku. Zmiana tego pola działa od razu.
+0 wyłącza dodatkowe przerwy.
+
+Przycisk Przerwy: 0 s na górnym pasku otwiera okno
+Przerwy między bloczkami. Możesz w nim także wybrać gotową wartość:
+0 / 0,1 / 0,5 / 1 / 2 / 5 s. W tym oknie kliknij Zastosuj.
 
 Pierwsze polecenie w skrypcie wykonuje się od razu. Każde następne czeka
 wybrany czas od zakończenia poprzedniego polecenia.
@@ -63,7 +67,16 @@ podwójnej pauzy przy wejściu lub wyjściu. Komentarze i wyłączone bloczki
 nie dodają czasu. Nowe zdarzenie startuje od razu i ma własne odstępy.
 Stop natychmiast przerywa czekanie na następne polecenie.
 Bloczek Czekaj dodaje swój czas do ustawionych odstępów. Jeśli chcesz
-pauzę tylko w jednym miejscu, ustaw Odstęp na 0 i użyj bloczka Czekaj.
+pauzę tylko w jednym miejscu, ustaw Przerwę między bloczkami na 0,
+przeciągnij Czekaj z kategorii Sterowanie pomiędzy dwa polecenia
+i wpisz w nim czas. Wyszukiwarka znajduje go także po słowach
+przerwa, pauza lub odstęp. Samo kliknięcie bloczka go nie dodaje.
+
+POBIERANIE AKTUALNEJ WERSJI
+Aktualna wersja to 2.0.3. Numer wersji widać w tytule okna aplikacji.
+Aktualną aplikację pobierzesz przyciskiem w README
+repozytorium albo bezpośrednio z gałęzi main:
+https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe
 
 PODGLĄD I PROJEKTANT
 Podgląd działania pokazuje prawdziwe elementy GUI, animacje i zdarzenia.
