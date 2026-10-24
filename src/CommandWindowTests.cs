@@ -70,6 +70,16 @@ public static class CommandWindowTests {
   }
   results.Add("PASS okno komendy: duże wyniki i błędy mają ograniczenie widocznego tekstu");
 
+  using(CommandWindow window=new CommandWindow("cmd","curl parrot.live","",30,delegate{})){
+   ShowFixture(window);window.AppendOutput(new string('x',1100000));
+   await Until(()=>window.OutputText.TextLength>=1000000,5000,"limit zapisanego tekstu");
+   window.AppendOutput("\x1b[2J\x1b[Hostatnia klatka");
+   await Until(()=>window.Terminal.PlainText.Contains("ostatnia klatka"),3000,"nowa klatka po limicie tekstu");
+   window.Complete(new CommandResult{Output="starszy zapis",Error="",ExitCode=0});
+   Check(window.Terminal.PlainText.Contains("ostatnia klatka"),"zakończenie nadpisało ostatnią klatkę starym zapisem");
+  }
+  results.Add("PASS terminal ANSI: animacja napływa także po limicie zapisanego tekstu, a zakończenie zachowuje ostatnią klatkę");
+
   Exception failure=null;Task<CommandResult> running=null;
   using(CancellationTokenSource cancel=new CancellationTokenSource()){
    try{

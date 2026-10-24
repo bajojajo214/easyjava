@@ -4,6 +4,12 @@ PASS DnD: przenoszenie w obie strony i wstawianie pomiędzy bloczkami
 PASS DnD: zagnieżdżanie, wyjmowanie i obie gałęzie warunku
 PASS DnD: odrzucanie własnych potomków i zagnieżdżonych zdarzeń; poprawne Copy/Move
 PASS DnD: nagłówki i pola przekazują upuszczenie do karty
+PASS terminal ANSI: CR/LF, podzielone sekwencje oraz powrót kursora nadpisują i odświeżają klatkę
+PASS terminal ANSI: pełna klatka 50x18 mieści się bez obcięcia przy skalowaniu Windows
+PASS terminal ANSI: pozycjonowanie oraz czyszczenie J i K usuwają właściwe fragmenty ekranu
+PASS terminal ANSI: kolory RGB, paleta 256 kolorów, tło i reset stylu zachowują właściwe komórki
+PASS terminal ANSI: ruch kursora i podzielone OSC działają bez wypisywania kodów sterujących
+PASS terminal ANSI: przewijanie i reset zachowują ograniczony rozmiar bufora ekranu
 PASS przerwy GUI: pole sekund zmienia projekt, przycisk oraz cofanie i ponawianie
 PASS przerwy GUI: odświeżenie pustego projektu zeruje ustawienie bez zmian i wpisów cofania
 PASS przerwy GUI: pole sekund i jednostka mieszczą się przy minimalnym rozmiarze okna
@@ -31,6 +37,7 @@ PASS okno komendy: Zatrzymaj anuluje raz i pozostawia okno, a zamknięcie zakoń
 PASS okno komendy: zamknięcie aktywnego okna anuluje komendę, późne dane nie odwołują się do usuniętych kontrolek
 PASS okno komendy: błąd uruchomienia jest widoczny, a okno pozostaje gotowe do odczytania
 PASS okno komendy: duże wyniki i błędy mają ograniczenie widocznego tekstu
+PASS terminal ANSI: animacja napływa także po limicie zapisanego tekstu, a zakończenie zachowuje ostatnią klatkę
 PASS okno komendy: wynik PowerShell jest dostępny na żywo przed zakończeniem procesu
 PASS okno komendy: podgląd otwiera GUI z wynikiem na żywo, zachowuje wynik i zatrzymuje skrypt przyciskiem okna
 PASS okno komendy: odtwarzacz .js otwiera GUI z wynikiem na żywo, zachowuje wynik i zatrzymuje skrypt przyciskiem okna

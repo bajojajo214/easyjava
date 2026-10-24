@@ -1,6 +1,6 @@
-EASYJAVA 2.0.5
+EASYJAVA 2.0.6
 Starszy projekt .js otwórz w tej wersji i zapisz ponownie,
-aby gotowy program zawierał okno komendy.
+aby gotowy program zawierał poprawione okno komendy z animacją i kolorami.
 102 bloczki • 12 kategorii • projektant GUI • scena i duszki
 
 START OD ZERA
@@ -78,7 +78,7 @@ i wpisz w nim czas. Wyszukiwarka znajduje go także po słowach
 przerwa, pauza lub odstęp. Samo kliknięcie bloczka go nie dodaje.
 
 POBIERANIE AKTUALNEJ WERSJI
-Aktualna wersja to 2.0.5. Numer wersji widać w tytule okna aplikacji.
+Aktualna wersja to 2.0.6. Numer wersji widać w tytule okna aplikacji.
 Aktualną aplikację pobierzesz przyciskiem w README
 repozytorium albo bezpośrednio z gałęzi main:
 https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe
@@ -146,6 +146,19 @@ Terminal:
   Kategorię włączasz osobno dla projektu przyciskiem Funkcje.
 
 CMD I POWERSHELL
+WYNIK I ANIMACJA KOMENDY W OKNIE
+Wpisz curl parrot.live w bloczku CMD lub PowerShell. W wyskakującym oknie
+zakładka Terminal pokazuje rzeczywisty wynik komendy na żywo, w tym kolory,
+zmiany klatek i przesuwanie kursora. Nie dodawaj do tego bloczka Powiedz.
+Sekwencje ANSI są interpretowane, zamiast pojawiać się jako znaki w tekście.
+Możesz też wpisać curl.exe parrot.live, aby wybrać systemowy program curl.
+To polecenie wymaga internetu i działa do zatrzymania lub limitu czasu.
+Domyślny limit to 30 sekund; zmienisz go w polu Limit sekund bloczka.
+Zatrzymaj lub zamknięcie aktywnego okna przerywa komendę.
+Zakładki Wynik i Błędy pozostają dostępne do odczytania tekstu.
+Starszy projekt .js otwórz w EasyJava 2.0.6 i zapisz ponownie,
+aby uruchamiał poprawiony silnik z ekranem terminala.
+
 1. Kliknij Funkcje, zaznacz Terminal i zastosuj ustawienie.
 2. Przeciągnij Uruchom polecenie CMD lub Uruchom polecenie PowerShell
    z biblioteki do swojego skryptu.
@@ -163,8 +176,9 @@ Limit wynosi od 1 do 3600 sekund; domyślnie jest to 30 sekund.
 Kod zakończenia możesz sprawdzić warunkiem w następnym bloczku.
 
 Po uruchomieniu bloczka pojawia się osobne okno GUI EasyJava z treścią
-komendy, folderem roboczym i limitem czasu. Zakładki Wynik i Błędy pokazują
-tekst na żywo. Przycisk Zatrzymaj przerywa aktywną komendę; zamknięcie
+komendy, folderem roboczym i limitem czasu. Zakładka Terminal pokazuje
+kolorowy wynik oraz animacje ANSI na żywo; Wynik i Błędy pozwalają odczytać
+tekst. Przycisk Zatrzymaj przerywa aktywną komendę; zamknięcie
 aktywnego okna również ją przerywa. Po zakończeniu okno pozostaje otwarte,
 aby można było odczytać wynik i kod zakończenia. Zamknij je, gdy skończysz.
 Okno działa w podglądzie i w programie uruchomionym z pliku .js.
@@ -174,8 +188,8 @@ Następny bloczek czeka na zakończenie polecenia. Stop oraz przekroczenie
 limitu czasu kończą polecenie i jego procesy potomne.
 Po normalnym zakończeniu komendy aplikacje uruchomione przez start lub
 Start-Process mogą pozostać otwarte. Późniejszy Stop nie zamyka już
-odłączonych aplikacji. Przechwytywanie wyników wbudowanych poleceń CMD
-używa Unicode; dla narzędzi z innym kodowaniem wybierz PowerShell.
+odłączonych aplikacji. Wyniki CMD i PowerShell są odbierane w UTF-8,
+aby zachować polskie znaki oraz wynik zewnętrznych narzędzi, takich jak curl.
 Wynik standardowy i błędy są odbierane oddzielnie; każdy strumień
 zachowuje do miliona znaków.
 

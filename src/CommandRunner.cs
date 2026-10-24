@@ -17,7 +17,7 @@ public sealed class CommandResult {
 
 public static class CommandRunner {
  public const int MaxStreamCharacters=1000000;
- const uint CreateSuspended=0x4,CreateNoWindow=0x08000000,ExtendedStartupInfoPresent=0x80000;
+ const uint CreateSuspended=0x4,CreateNewConsole=0x10,CreateNoWindow=0x08000000,ExtendedStartupInfoPresent=0x80000;
  const uint StartUseStdHandles=0x100,KillOnJobClose=0x2000;
  const int JobExtendedLimitInformation=9;
 
@@ -30,22 +30,27 @@ public static class CommandRunner {
   token.ThrowIfCancellationRequested();
   string executable=Path.Combine(Environment.SystemDirectory,shell=="cmd"?"cmd.exe":@"WindowsPowerShell\v1.0\powershell.exe");
   if(!File.Exists(executable))throw new FileNotFoundException("Nie znaleziono programu "+(shell=="cmd"?"CMD":"Windows PowerShell")+".",executable);
+  command=StreamCurl(command);
   using(CommandScript batchScript=CommandScript.Create(shell,command)){
   if(batchScript.ScriptPath!=null)command="\""+batchScript.ScriptPath+"\"";
   string arguments;
   Encoding encoding;
   if(shell=="cmd"){
-   // /U gives CMD's built-in commands a predictable Unicode output encoding.
-   arguments="/D /U /S /C \""+command+"\"";encoding=Encoding.Unicode;
+   // Keep CMD and native tools such as curl on the same UTF-8 code page. /U
+   // would encode only built-ins as UTF-16 and corrupt native UTF-8 output.
+   // CMD caches its redirected-output code page at startup. Start the actual
+   // interpreter only after the outer hidden console has switched to UTF-8.
+   arguments="/D /S /C \"chcp 65001 >nul & \""+executable+"\" /D /S /C \""+command+"\"\"";encoding=new UTF8Encoding(false,false);
   }else{
    string script="$ProgressPreference = 'SilentlyContinue'\r\n$OutputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)\r\n"+
+    "$__EasyJavaCurlPath = [IO.Path]::Combine([Environment]::SystemDirectory, 'curl.exe')\r\nif ([IO.File]::Exists($__EasyJavaCurlPath)) { Set-Alias -Name curl -Value $__EasyJavaCurlPath -Scope Global -Option AllScope -Force }\r\n"+
     "$ErrorActionPreference = 'Stop'\r\n$global:LASTEXITCODE = 0\r\ntry {\r\n& {\r\n"+command+
     "\r\n}\r\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\r\n} catch {\r\n[Console]::Error.WriteLine($_.ToString())\r\nexit 1\r\n}\r\n";
    arguments="-NoLogo -NoProfile -NonInteractive -EncodedCommand "+Convert.ToBase64String(Encoding.Unicode.GetBytes(script));encoding=new UTF8Encoding(false,false);
   }
   string commandLine="\""+executable+"\" "+arguments;
   if(commandLine.Length>=32767)throw new ArgumentException("Polecenie jest za długie dla Windows. Skróć je albo wywołaj osobny plik.","command");
-  using(NativeCommand running=NativeCommand.Start(executable,commandLine,folder))
+  using(NativeCommand running=NativeCommand.Start(executable,commandLine,folder,shell=="cmd"))
   using(CancellationTokenSource finished=new CancellationTokenSource()){
    Task<string> output=Capture(running.Output,encoding,finished.Token,progress,false),error=Capture(running.Error,encoding,finished.Token,progress,true);
    Stopwatch watch=Stopwatch.StartNew();bool cancelled=false,timedOut=false;Exception failure=null;int exitCode=-1;
@@ -74,6 +79,17 @@ public static class CommandRunner {
    return new CommandResult{Output=stdout,Error=stderr,ExitCode=exitCode};
   }
   }
+ }
+
+ // Native curl buffers redirected stdout by default. Disable that buffer for a
+ // leading curl command so animated responses reach the GUI as they arrive.
+ // The editor and command window retain the original, unmodified command text.
+ static string StreamCurl(string command){
+  int first=0;while(first<command.Length&&char.IsWhiteSpace(command[first]))first++;
+  int end=first;while(end<command.Length&&!char.IsWhiteSpace(command[end]))end++;
+  string name=command.Substring(first,end-first);
+  if(string.Equals(name,"curl",StringComparison.OrdinalIgnoreCase)||string.Equals(name,"curl.exe",StringComparison.OrdinalIgnoreCase))return command.Insert(end," --no-buffer");
+  return command;
  }
 
  // CMD /C reads only the first line of a direct command string. A UTF-8 batch
@@ -107,7 +123,7 @@ public static class CommandRunner {
  // Peek before reading so a detached child retaining its standard handles cannot
  // hold the editor open. Keep draining after the capture limit to avoid pipe stalls.
  static async Task<string> Capture(SafeFileHandle handle,Encoding encoding,CancellationToken finished,Action<bool,string> progress,bool error){
-  byte[] bytes=new byte[8192];char[] chars=new char[encoding.GetMaxCharCount(bytes.Length)];Decoder decoder=encoding.GetDecoder();StringBuilder text=new StringBuilder();Stopwatch tail=null;bool truncated=false;int published=0;
+  byte[] bytes=new byte[8192];char[] chars=new char[encoding.GetMaxCharCount(bytes.Length)];Decoder decoder=encoding.GetDecoder();StringBuilder text=new StringBuilder();Stopwatch tail=null;bool truncated=false;char pendingHighSurrogate='\0';
   while(true){
    if(finished.IsCancellationRequested){if(tail==null)tail=Stopwatch.StartNew();if(tail.ElapsedMilliseconds>=250)break;}
    uint available;
@@ -120,19 +136,22 @@ public static class CommandRunner {
     int code=Marshal.GetLastWin32Error();if(code==109||code==232)break;throw new Win32Exception(code,"Nie można odczytać wyjścia polecenia.");
    }
    if(read==0)break;
-   int count=decoder.GetChars(bytes,0,(int)read,chars,0,false);truncated|=AppendBounded(text,chars,count);PublishProgress(text,ref published,error,ref progress);
+   int count=decoder.GetChars(bytes,0,(int)read,chars,0,false);truncated|=AppendBounded(text,chars,count);PublishProgress(chars,count,error,ref pendingHighSurrogate,ref progress);
    // Let cancellation and the other stream run even if a command continuously
    // produces more data than fits in an anonymous pipe.
    await Task.Yield();
   }
-  truncated|=AppendBounded(text,chars,decoder.GetChars(new byte[0],0,0,chars,0,true));if(truncated){if(text.Length>0&&char.IsHighSurrogate(text[text.Length-1]))text.Length--;text.Append("\r\n[Wynik skrócony do 1 000 000 znaków.]");}PublishProgress(text,ref published,error,ref progress);return text.ToString();
+  int finalCount=decoder.GetChars(new byte[0],0,0,chars,0,true);truncated|=AppendBounded(text,chars,finalCount);PublishProgress(chars,finalCount,error,ref pendingHighSurrogate,ref progress);
+  if(pendingHighSurrogate!='\0'){char[] replacement={'\ufffd'};pendingHighSurrogate='\0';PublishProgress(replacement,1,error,ref pendingHighSurrogate,ref progress);}
+  if(truncated){if(text.Length>0&&char.IsHighSurrogate(text[text.Length-1]))text.Length--;text.Append("\r\n[Wynik skrócony do 1 000 000 znaków.]");}return text.ToString();
  }
- static void PublishProgress(StringBuilder text,ref int published,bool error,ref Action<bool,string> progress){
-  if(progress==null)return;int end=text.Length;
-  // Retain a trailing high surrogate until its partner has been decoded. This
-  // keeps each visible chunk valid even across pipe reads and at the output cap.
-  if(end>published&&char.IsHighSurrogate(text[end-1]))end--;
-  if(end<=published)return;string chunk=text.ToString(published,end-published);published=end;
+ static void PublishProgress(char[] chars,int count,bool error,ref char pendingHighSurrogate,ref Action<bool,string> progress){
+  if(progress==null)return;string chunk=new string(chars,0,count);
+  if(pendingHighSurrogate!='\0'){chunk=pendingHighSurrogate+chunk;pendingHighSurrogate='\0';}
+  // Live terminal frames keep flowing after the stored transcript reaches its
+  // cap. Retain at most one UTF-16 code unit between chunks, never a growing log.
+  if(chunk.Length>0&&char.IsHighSurrogate(chunk[chunk.Length-1])){pendingHighSurrogate=chunk[chunk.Length-1];chunk=chunk.Substring(0,chunk.Length-1);}
+  if(chunk.Length==0)return;
   // Closing a result window must never interrupt pipe draining or leave the
   // command running unattended. Disable a failing observer for this stream.
   try{progress(error,chunk);}catch(Exception){progress=null;}
@@ -145,7 +164,7 @@ public static class CommandRunner {
   SafeFileHandle thread,job;
   bool resumed;
   NativeCommand(){}
-  public static NativeCommand Start(string executable,string commandLine,string directory){
+  public static NativeCommand Start(string executable,string commandLine,string directory,bool hiddenConsole){
    NativeCommand result=new NativeCommand();SafeFileHandle outputWrite=null,errorWrite=null,input=null;IntPtr attributes=IntPtr.Zero,inheritList=IntPtr.Zero;bool attributesInitialized=false;
    try{
     result.job=new SafeFileHandle(CreateJobObject(IntPtr.Zero,null),true);if(result.job.IsInvalid)throw NativeError("Nie można przygotować procesu polecenia.");
@@ -161,9 +180,9 @@ public static class CommandRunner {
     attributesInitialized=true;
     inheritList=Marshal.AllocHGlobal(IntPtr.Size*3);Marshal.WriteIntPtr(inheritList,0,input.DangerousGetHandle());Marshal.WriteIntPtr(inheritList,IntPtr.Size,outputWrite.DangerousGetHandle());Marshal.WriteIntPtr(inheritList,IntPtr.Size*2,errorWrite.DangerousGetHandle());
     if(!UpdateProcThreadAttribute(attributes,0,new IntPtr(0x20002),inheritList,new IntPtr(IntPtr.Size*3),IntPtr.Zero,IntPtr.Zero))throw NativeError("Nie można przekazać wyjścia do polecenia.");
-    StartupInfoEx startup=new StartupInfoEx();startup.StartupInfo.Size=Marshal.SizeOf(typeof(StartupInfoEx));startup.StartupInfo.Flags=StartUseStdHandles;startup.StartupInfo.StandardInput=input.DangerousGetHandle();startup.StartupInfo.StandardOutput=outputWrite.DangerousGetHandle();startup.StartupInfo.StandardError=errorWrite.DangerousGetHandle();startup.Attributes=attributes;
+    StartupInfoEx startup=new StartupInfoEx();startup.StartupInfo.Size=Marshal.SizeOf(typeof(StartupInfoEx));startup.StartupInfo.Flags=StartUseStdHandles|(hiddenConsole?1u:0u);startup.StartupInfo.ShowWindow=0;startup.StartupInfo.StandardInput=input.DangerousGetHandle();startup.StartupInfo.StandardOutput=outputWrite.DangerousGetHandle();startup.StartupInfo.StandardError=errorWrite.DangerousGetHandle();startup.Attributes=attributes;
     ProcessInformation process;
-    if(!CreateProcess(executable,new StringBuilder(commandLine),IntPtr.Zero,IntPtr.Zero,true,CreateSuspended|CreateNoWindow|ExtendedStartupInfoPresent,IntPtr.Zero,directory,ref startup,out process))throw NativeError("Nie można uruchomić polecenia.");
+    if(!CreateProcess(executable,new StringBuilder(commandLine),IntPtr.Zero,IntPtr.Zero,true,CreateSuspended|(hiddenConsole?CreateNewConsole:CreateNoWindow)|ExtendedStartupInfoPresent,IntPtr.Zero,directory,ref startup,out process))throw NativeError("Nie można uruchomić polecenia.");
     result.Process=new SafeFileHandle(process.Process,true);result.thread=new SafeFileHandle(process.Thread,true);
     if(!AssignProcessToJobObject(result.job.DangerousGetHandle(),result.Process.DangerousGetHandle()))throw NativeError("Nie można objąć polecenia obsługą zatrzymywania.");
     return result;

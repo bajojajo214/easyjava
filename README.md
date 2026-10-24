@@ -41,7 +41,19 @@ Nie ma instalatora, logowania ani wymaganego połączenia z internetem. Potrzebu
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
-**Aktualna wersja: 2.0.5.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+**Aktualna wersja: 2.0.6.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+
+## Poprawka 2.0.6: animacja z komendy w oknie GUI
+
+Wpisz **`curl parrot.live`** w bloczku CMD lub PowerShell. W wyskakującym oknie otwiera się zakładka **Terminal**, która pokazuje wynik komendy na żywo: kolory, zmiany klatek i przesuwanie kursora. Sekwencje sterujące ANSI są interpretowane zamiast pojawiać się jako niezrozumiałe znaki. Nie trzeba dodawać osobnego bloczka wyświetlania tekstu.
+
+![Animowany wynik komendy w oknie Terminal](docs/terminal-animacja.png)
+
+Polecenie `curl parrot.live` wymaga połączenia z internetem i działa do zatrzymania lub osiągnięcia limitu czasu. Domyślny limit to **30 sekund**; zmienisz go w bloczku. **Zatrzymaj** i zamknięcie aktywnego okna nadal przerywają komendę. Możesz też jawnie wpisać `curl.exe parrot.live`, aby użyć programu curl systemu Windows.
+
+Zakładki **Wynik** i **Błędy** pozostają dostępne do odczytania tekstu. Kolorowy ekran działa w podglądzie oraz w gotowym `.js`. Starszy plik `.js` otwórz w **EasyJava 2.0.6** i zapisz ponownie, aby zawierał poprawiony silnik.
+
+W przykładzie **CMD i PowerShell** kliknij **Papuga: curl parrot.live**, aby od razu zobaczyć animację w oknie.
 
 ## Nowość w 2.0.5: komenda w wyskakującym oknie
 
@@ -51,7 +63,7 @@ Uruchom bloczek **CMD** lub **PowerShell**, a zobaczysz osobne okno GUI z treśc
 
 Po zakończeniu okno pozostaje otwarte, aby dało się przeczytać wynik i kod zakończenia. Funkcja działa zarówno w podglądzie edytora, jak i w gotowym pliku `.js`. Wynik nadal trafia do zmiennych wskazanych w bloczku. Do uruchomienia użyj **Funkcje → Terminal**; możesz też wybrać przykład **CMD i PowerShell**.
 
-Starszy wyeksportowany plik `.js` otwórz w EasyJava 2.0.5 i zapisz ponownie, aby zawierał nowy silnik z oknem komendy.
+Starszy wyeksportowany plik `.js` otwórz w EasyJava 2.0.6 i zapisz ponownie, aby zawierał nowy silnik z oknem komendy i obsługą animacji terminala.
 
 ## Nowość w 2.0.4: CMD i PowerShell z bloczków
 
@@ -65,7 +77,7 @@ Prosty przykład: w bloczku CMD wpisz `echo Witaj z CMD`, a jako zmienną wyniku
 
 Jednowierszowe polecenia CMD używają składni wiersza poleceń. Kilka wierszy CMD jest wykonywanych jako skrypt `.cmd` w UTF-8 (w pętlach stosuj `%%i`). Pole polecenia zachowuje składnię PowerShell, w tym cudzysłowy i klamry. W tym polu EasyJava nie podstawia swoich zmiennych `{nazwa}`. Standardowe wyjście i błędy są odbierane oddzielnie, do miliona znaków na każdy strumień. Funkcja działa w podglądzie oraz w wyeksportowanym `.js`; tryb testowy `--smoke` pomija uruchamianie poleceń.
 
-Po normalnym zakończeniu komendy aplikacje uruchomione przez `start` lub `Start-Process` mogą pozostać otwarte; późniejszy Stop nie zamyka już odłączonych aplikacji. Przechwytywanie tekstu z wbudowanych poleceń CMD używa Unicode. Dla zewnętrznych narzędzi emitujących tekst w innym kodowaniu wybierz bloczek PowerShell.
+Po normalnym zakończeniu komendy aplikacje uruchomione przez `start` lub `Start-Process` mogą pozostać otwarte; późniejszy Stop nie zamyka już odłączonych aplikacji. Wyjście CMD i PowerShell jest odbierane w UTF-8, aby zachować polskie znaki i wynik zewnętrznych narzędzi, takich jak curl.
 
 Polecenia działają z uprawnieniami użytkownika i mogą zmieniać pliki oraz ustawienia. EasyJava nie podnosi uprawnień i nie zmienia zasad wykonywania skryptów PowerShell.
 

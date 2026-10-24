@@ -1,5 +1,13 @@
 # Historia zmian
 
+## 2.0.6 — 2026-10-24
+
+- Zakładka Terminal w wyskakującym oknie komendy wyświetla rzeczywisty wynik na żywo, z kolorami ANSI, pozycjonowaniem kursora, czyszczeniem i nadpisywaniem klatek.
+- Polecenia takie jak curl parrot.live mogą wyświetlać animację w oknie GUI. Zakładki Wynik i Błędy zachowują podgląd tekstu.
+- Poprawione odbieranie UTF-8 z CMD oraz zewnętrznych narzędzi; polecenie curl w PowerShell uruchamia systemowy program curl.exe.
+- Ekran terminala ma ograniczony bufor i przewija tekst; wynik na żywo pozostaje aktualizowany także przy długim strumieniu.
+- Zachowane zatrzymywanie, limit czasu, działanie w podglądzie i gotowym .js oraz kompilacja bez skrótów .lnk. Starszy .js należy otworzyć i zapisać w nowej wersji.
+
 ## 2.0.5 — 2026-10-24
 
 - CMD i PowerShell otwierają osobne okno GUI z dosłowną treścią polecenia, folderem roboczym i limitem czasu.
