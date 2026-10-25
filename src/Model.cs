@@ -13,10 +13,11 @@ namespace EasyJava2 {
  [DataMember] public string Kind="say";
  [DataMember] public string A="",B="",C="",D="",E="",F="",Op="==";
  [DataMember] public bool Disabled,Collapsed;
+ [DataMember] public bool RunInBackground;
  [DataMember] public List<Block> Children=new List<Block>();
  [DataMember] public List<Block> Else=new List<Block>();
- public string Get(string key) { switch(key) {case "A":return A;case "B":return B;case "C":return C;case "D":return D;case "E":return E;case "F":return F;default:return Op;} }
- public void Set(string key,string val) {switch(key){case "A":A=val;break;case "B":B=val;break;case "C":C=val;break;case "D":D=val;break;case "E":E=val;break;case "F":F=val;break;default:Op=val;break;} }
+ public string Get(string key) { switch(key) {case "A":return A;case "B":return B;case "C":return C;case "D":return D;case "E":return E;case "F":return F;case "G":return RunInBackground?"W tle":"Czekaj";default:return Op;} }
+ public void Set(string key,string val) {switch(key){case "A":A=val;break;case "B":B=val;break;case "C":C=val;break;case "D":D=val;break;case "E":E=val;break;case "F":F=val;break;case "G":RunInBackground=val=="W tle";break;default:Op=val;break;} }
  public static Block Make(string kind,params string[] args) {Block b=new Block{Kind=kind};Spec s=Catalog.All[kind];foreach(Field f in s.Fields)b.Set(f.Key,f.Default);for(int i=0;i<args.Length&&i<6;i++)b.Set(((char)('A'+i)).ToString(),args[i]);return b;}
 }
 [DataContract] public class Project {
@@ -139,8 +140,8 @@ public static class Catalog {
   Add("stamp","Stempluj duszka","Pisak","Zostawia kopię duszka na scenie.");
   Add("beep","Zagraj ton","Dźwięk","Częstotliwość w Hz, czas w sekundach.",F("A","Częstotliwość","660"),F("B","Sekundy","0,15"));
   Add("sound","Dźwięk systemowy","Dźwięk","Odtwarza krótki dźwięk Windows.",F("A","Dźwięk","Asterisk","Asterisk|Beep|Exclamation|Hand|Question"));
-  Add("cmd","Uruchom polecenie CMD","Terminal","Upuszczenie nowego bloczka włącza kategorię Terminal. Polecenie jest dosłownym kodem CMD; czeka na zakończenie i zapisuje wynik. Stop lub limit czasu przerywa komendę.",F("A","Polecenie","echo Witaj z CMD"),F("B","Wynik do","wynik_komendy"),F("C","Błędy do","blad_komendy"),F("D","Kod wyjścia do","kod_komendy"),F("E","Folder (pusty = projekt)",""),F("F","Limit sekund","30"));
-  Add("powershell","Uruchom polecenie PowerShell","Terminal","Upuszczenie nowego bloczka włącza kategorię Terminal. Dosłowny kod PowerShell, także klamry i cudzysłowy. Bez zmiany zasad wykonywania skryptów.",F("A","Polecenie","Write-Output 'Witaj z PowerShell'"),F("B","Wynik do","wynik_komendy"),F("C","Błędy do","blad_komendy"),F("D","Kod wyjścia do","kod_komendy"),F("E","Folder (pusty = projekt)",""),F("F","Limit sekund","30"));
+  Add("cmd","Uruchom polecenie CMD","Terminal","Upuszczenie nowego bloczka włącza kategorię Terminal. Polecenie jest dosłownym kodem CMD. Działanie: Czekaj wstrzymuje następne bloczki; W tle uruchamia je od razu, np. zapis TXT podczas curl parrot.live. Stop lub limit przerywa komendę.",F("A","Polecenie","echo Witaj z CMD"),F("B","Wynik do","wynik_komendy"),F("C","Błędy do","blad_komendy"),F("D","Kod wyjścia do","kod_komendy"),F("E","Folder (pusty = projekt)",""),F("F","Limit sekund","30"),F("G","Działanie","Czekaj","Czekaj|W tle"));
+  Add("powershell","Uruchom polecenie PowerShell","Terminal","Upuszczenie nowego bloczka włącza kategorię Terminal. Dosłowny kod PowerShell, także klamry i cudzysłowy. Działanie: Czekaj albo W tle (kolejne bloczki ruszają od razu). Bez zmiany zasad wykonywania skryptów.",F("A","Polecenie","Write-Output 'Witaj z PowerShell'"),F("B","Wynik do","wynik_komendy"),F("C","Błędy do","blad_komendy"),F("D","Kod wyjścia do","kod_komendy"),F("E","Folder (pusty = projekt)",""),F("F","Limit sekund","30"),F("G","Działanie","Czekaj","Czekaj|W tle"));
   Add("file_open","Wybierz plik do odczytu","Pliki","Otwiera systemowy wybór pliku. Upuszczenie nowego bloczka włącza kategorię Pliki.",F("A","Zapisz ścieżkę w","plik"));
   Add("file_save","Wybierz plik do zapisu","Pliki","Otwiera systemowy wybór miejsca zapisu.",F("A","Zapisz ścieżkę w","plik"),F("B","Proponowana nazwa","notatka.txt"));
   Add("file_read","Odczytaj plik tekstowy","Pliki","Czyta plik UTF-8. Limit 5 MB.",F("A","Ścieżka","{plik}"),F("B","Zapisz tekst w","zawartosc"));

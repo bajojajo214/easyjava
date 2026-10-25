@@ -1,36 +1,49 @@
-﻿EASYJAVA 2.0.7 — RAPORT TESTÓW (Windows, .NET Framework 4.x)
+﻿EASYJAVA 2.0.8 — RAPORT TESTÓW (Windows, .NET Framework 4.x)
 
-Wynik: 75 grup testów PASS, 0 FAIL.
-Pokrycie: wykonanie wszystkich 102 bloczków z 12 kategorii.
-Lista każdego bloczka znajduje się w Pokrycie-bloczkow.txt.
+Wynik: 87 grup testów PASS, 0 FAIL.
+Pokrycie wykonania: 102/102 bloczki, wszystkie 12 kategorii.
+Każdy bloczek jest wymieniony w Pokrycie-bloczkow.txt.
 
-NOWE SPRAWDZENIA
-- Odtwarzacz samodzielnego .js uruchomiony przez prawdziwy cscript/WSH,
-  bez trybu smoke, z nazwą i folderem zawierającymi spacje oraz polskie znaki.
-- Faktyczne polecenia CMD i PowerShell, oddzielne stdout/stderr i kody 7/9.
-- Rzeczywiste tworzenie plików przez CMD oraz zapis/dopisanie/odczyt TXT UTF-8.
-- Host uruchomiony z innego folderu: wyniki nadal zapisują się obok projektu.
-- Wszystkie kontrolki GUI, właściwości, zmienne, listy, czujniki,
-  ruch, kostiumy, pisak, sterowanie i osiem rodzajów zdarzeń.
-- Włączenie kategorii przez upuszczenie, cofanie/ponawianie i zachowanie
-  folderu projektu; ręczne wyłączenie nadal blokuje efekty.
-- Ścieżki względne, cudzysłowy, zmienne środowiskowe, odmowa i zgoda
-  na zastąpienie pliku, pusty wybór, folder zamiast pliku i brak folderu.
-- Dotychczasowe testy przeciągania, przerw, anulowania komend, limitów,
-  procesów potomnych, okien GUI i interpretacji animacji ANSI.
+ZNALAZIONA PRZYCZYNA PROBLEMU TXT
+Układ: CMD curl parrot.live -> Zapisz plik tekstowy.
+Przy trybie Czekaj komenda nadająca bez końca wstrzymuje kolejne bloczki.
+Stop lub przekroczenie limitu kończy ten skrypt, więc nie dochodzi do zapisu.
+Nowy tryb W tle pozwala wykonać zapis podczas trwania komendy.
+
+RZECZYWISTE TESTY CAŁEGO PRZEPŁYWU
+- Normalny .js uruchomiony przez Windows Script Host, bez --smoke:
+  aktywna komenda strumieniująca i zapis TXT UTF-8 przed jej zakończeniem.
+- Zamknięcie samodzielnego .js kończy aktywny proces; brak opóźnionego zapisu.
+- Prawdziwe curl parrot.live działało w widocznym oknie GUI z animacją ANSI,
+  podczas gdy następny bloczek zapisał tekst wielowierszowy UTF-8.
+- Dodatkowo sprawdzono pierwotny układ dwóch bloczków w istniejącym projekcie:
+  plik notatka.txt na pulpicie powstał i zawierał cztery bajty tekstu test,
+  zanim animacja curl zakończyła się po ustawionym limicie 30 sekund.
+- Ten projekt zachowano lokalnie z trybem W tle; nie jest częścią repozytorium.
+- Komenda Czekaj i jej Stop nadal pomijają dalsze bloczki, zgodnie z opisem.
+- Lokalny Stop/limit komendy w tle nie zatrzymuje przycisków i innych zdarzeń.
+- Globalny Stop i zmiana projektu kończą komendy; stare wyniki nie nadpisują
+  zmiennych nowego uruchomienia.
+- Rzeczywisty zapis/dopisanie/odczyt TXT, ścieżki względne i Unicode,
+  wielowierszowy tekst, CMD/PowerShell i oddzielne strumienie/kody wyjścia.
+
+POZOSTAŁE MODUŁY
+Wszystkie kontrolki GUI i właściwości, zdarzenia, pętle/warunki/zatrzymania,
+przerwy, zmienne i wyrażenia, listy, duszki i ruch, czujniki, pisak/stemple,
+dźwięk, włączanie/wyłączanie, przeciąganie, zapis/odczyt projektu i eksport.
 
 ZAKRES I OGRANICZENIA
-- Automatyczne testy dialogów podstawiają odpowiedzi TAK/NIE/Anuluj oraz
-  wybrane ścieżki przez adapter. Zapis i odczyt dotyczą rzeczywistych plików.
-- W natywnym GUI dodatkowo sprawdzono wpisanie polskiego tekstu w notatniku,
-  otwarcie systemowych okien Zapisz/Otwórz i ich anulowanie. Automatyzacja
-  nie ukończyła wyboru pliku w tych oknach (niestabilne dane dostępności),
-  więc pełny przepływ klikania Zapisz -> wskazanie pliku nie jest zaliczony.
-- Dźwięki: wywołanie API bez błędu, bez weryfikacji słyszalności na sprzęcie.
-- Testy obejmują wszystkie typy bloczków i opisane warianty, nie każdy możliwy
-  program, ustawienie Windows lub odpowiedź zewnętrznej usługi.
-- Stary wyeksportowany .js ma własny silnik. Otwórz go w 2.0.7 i zapisz
-  ponownie; w razie wyłączonych kategorii użyj Włącz pomijane kategorie.
+- Testy dialogów podstawiają odpowiedzi TAK/NIE/Anuluj i wybrane ścieżki.
+  Native okna wyboru sprawdzono przy otwieraniu i anulowaniu; pełny wybór
+  pliku przez systemowy picker nie jest zaliczony do testów GUI.
+- Zapis TXT z bezpośrednią ścieżką oraz zapis z podstawioną ścieżką dialogu
+  wykonują rzeczywiste operacje plikowe, także w samodzielnym .js.
+- Dźwięk: wywołanie API bez błędu; słyszalność na sprzęcie nie jest mierzona.
+- Pokrycie wszystkich typów bloczków nie oznacza sprawdzenia wszystkich
+  możliwych programów, ustawień Windows czy usług internetowych.
+- W tle: zmienne wyniku są puste podczas działania i wypełniane po zakończeniu;
+  przy błędzie/zatrzymaniu kod -1. Użyj Czekaj, gdy kolejny bloczek potrzebuje
+  pełnego wyniku. Globalny Stop nadal zatrzymuje wszystkie skrypty i komendy.
 
 SZCZEGÓŁOWE WYNIKI
 PASS DnD: kliknięcie i dwuklik nie dodają; brak upuszczenia nie zmienia projektu
@@ -77,6 +90,18 @@ PASS okno komendy: wynik PowerShell jest dostępny na żywo przed zakończeniem 
 PASS okno komendy: podgląd otwiera GUI z wynikiem na żywo, zachowuje wynik i zatrzymuje skrypt przyciskiem okna
 PASS okno komendy: odtwarzacz .js otwiera GUI z wynikiem na żywo, zachowuje wynik i zatrzymuje skrypt przyciskiem okna
 PASS okno komendy: zamknięcie odtwarzacza podczas aktywnego polecenia kończy proces i okno bez dostępu do usuniętych kontrolek
+PASS komendy w tle: wybór Czekaj/W tle, zgodność starych projektów, zapis .js i przykład papugi
+PASS podglad: odtworzenie przyczyny — komenda Czekaj blokuje zapis, a Stop przerywa skrypt
+PASS podglad: TXT UTF-8 z wieloma wierszami zapisuje się PRZED końcem komendy; GUI pokazuje zapis, wynik komendy trafia później do zmiennych
+PASS podglad: Zatrzymaj w oknie komendy w tle kończy ją, a zapis i przyciski aplikacji nadal działają
+PASS podglad: limit czasu komendy w tle zgłasza błąd komendy i nie cofa wykonanych kolejnych bloczków
+PASS podglad: globalny Stop kończy komendy w tle; stary wynik nie nadpisuje ponownie uruchomionego projektu
+PASS odtwarzacz: odtworzenie przyczyny — komenda Czekaj blokuje zapis, a Stop przerywa skrypt
+PASS odtwarzacz: TXT UTF-8 z wieloma wierszami zapisuje się PRZED końcem komendy; GUI pokazuje zapis, wynik komendy trafia później do zmiennych
+PASS odtwarzacz: Zatrzymaj w oknie komendy w tle kończy ją, a zapis i przyciski aplikacji nadal działają
+PASS odtwarzacz: limit czasu komendy w tle zgłasza błąd komendy i nie cofa wykonanych kolejnych bloczków
+PASS odtwarzacz: globalny Stop kończy komendy w tle; stary wynik nie nadpisuje ponownie uruchomionego projektu
+PASS prawdziwy WSH i normalny .js: aktywna komenda strumieniująca + zapis TXT UTF-8; zamknięcie aplikacji kończy komendę bez opóźnionego zapisu
 PASS wszystkie zmienne i teksty; sześć działań, dziewięć funkcji, wyrażenia, losowanie i monitory
 PASS wszystkie operacje na listach: tworzenie, dodawanie, odczyt, zmiana, usunięcie, długość, wyszukiwanie, czyszczenie
 PASS wszystkie bloczki sterowania, obie gałęzie, pętle rosnące/malejące, przerwanie, czekanie i oba zatrzymania

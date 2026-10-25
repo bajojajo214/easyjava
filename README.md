@@ -41,7 +41,19 @@ Nie ma instalatora, logowania ani wymaganego połączenia z internetem. Potrzebu
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
-**Aktualna wersja: 2.0.7.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+**Aktualna wersja: 2.0.8.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+
+## Poprawka 2.0.8: zapis TXT podczas działającej komendy
+
+Masz `curl parrot.live`, a za nim **Zapisz plik tekstowy**? Papuga nadaje bez końca. Przy ustawieniu **Czekaj** następny bloczek nie ruszy; Stop lub limit przerywa taki skrypt.
+
+W bloczku CMD/PowerShell ustaw teraz **Działanie → W tle**. Okno nadal pokazuje animację, a następne bloczki, np. zapis `{pulpit}\notatka.txt`, wykonują się od razu. Wynik komendy trafia do zmiennych po jej zakończeniu. Zatrzymanie okna komendy lub jej limit kończy komendę w tle; inne zdarzenia nadal działają. Globalny Stop i zamknięcie aplikacji kończą aktywne komendy. **Czekaj** pozostaje ustawieniem domyślnym i zachowuje działanie wcześniejszych projektów.
+
+Zapis TXT obsługuje teraz wygodne pole na wiele wierszy i pokazuje potwierdzenie ze ścieżką w dzienniku. Przykład **Papuga: curl parrot.live** korzysta z trybu w tle.
+
+Sprawdzono **87 grup testów bez błędów**, w tym wszystkie **102 bloczki / 12 kategorii**, rzeczywisty samodzielny `.js` zapisujący TXT podczas aktywnej komendy oraz prawdziwe `curl parrot.live` równocześnie z zapisem UTF-8. [Raport i ograniczenia testów](docs/Raport-testow.txt).
+
+**Starszy `.js` otwórz i zapisz ponownie w 2.0.8**, aby osadzić nowy silnik oraz ustawienie Działanie.
 
 ## Poprawka 2.0.7: komendy i zapis TXT po kompilacji
 
@@ -51,7 +63,7 @@ W bloczku **Zapisz plik tekstowy** podaj np. **`{pulpit}\notatka.txt`**. Sama ś
 
 Sprawdzono wykonanie **102/102 bloczków z 12 kategorii**, a osobny test uruchamia prawdziwy samodzielny `.js` przez Windows Script Host i wykonuje CMD, PowerShell oraz zapis/dopisanie/odczyt TXT UTF-8. Ten test nie używa `--smoke`. Zakres i ograniczenia sprawdzeń opisuje [raport testów](docs/Raport-testow.txt), a [lista bloczków](docs/Pokrycie-bloczkow.txt) dokumentuje pokrycie.
 
-**Starszy plik `.js` otwórz w EasyJava 2.0.7, włącz pomijane kategorie i zapisz lub skompiluj ponownie.** Plik zawiera własną kopię silnika, więc sama aktualizacja edytora nie aktualizuje wcześniej utworzonych programów.
+**Starszy plik `.js` otwórz w EasyJava 2.0.8, włącz pomijane kategorie i zapisz lub skompiluj ponownie.** Plik zawiera własną kopię silnika, więc sama aktualizacja edytora nie aktualizuje wcześniej utworzonych programów.
 
 ## Poprawka 2.0.6: animacja z komendy w oknie GUI
 
@@ -61,7 +73,7 @@ Wpisz **`curl parrot.live`** w bloczku CMD lub PowerShell. W wyskakującym oknie
 
 Polecenie `curl parrot.live` wymaga połączenia z internetem i działa do zatrzymania lub osiągnięcia limitu czasu. Domyślny limit to **30 sekund**; zmienisz go w bloczku. **Zatrzymaj** i zamknięcie aktywnego okna nadal przerywają komendę. Możesz też jawnie wpisać `curl.exe parrot.live`, aby użyć programu curl systemu Windows.
 
-Zakładki **Wynik** i **Błędy** pozostają dostępne do odczytania tekstu. Kolorowy ekran działa w podglądzie oraz w gotowym `.js`. Starszy plik `.js` otwórz w **EasyJava 2.0.7** i zapisz ponownie, aby zawierał poprawiony silnik.
+Zakładki **Wynik** i **Błędy** pozostają dostępne do odczytania tekstu. Kolorowy ekran działa w podglądzie oraz w gotowym `.js`. Starszy plik `.js` otwórz w **EasyJava 2.0.8** i zapisz ponownie, aby zawierał poprawiony silnik.
 
 W przykładzie **CMD i PowerShell** kliknij **Papuga: curl parrot.live**, aby od razu zobaczyć animację w oknie.
 
@@ -73,7 +85,7 @@ Uruchom bloczek **CMD** lub **PowerShell**, a zobaczysz osobne okno GUI z treśc
 
 Po zakończeniu okno pozostaje otwarte, aby dało się przeczytać wynik i kod zakończenia. Funkcja działa zarówno w podglądzie edytora, jak i w gotowym pliku `.js`. Wynik nadal trafia do zmiennych wskazanych w bloczku. Do uruchomienia użyj **Funkcje → Terminal**; możesz też wybrać przykład **CMD i PowerShell**.
 
-Starszy wyeksportowany plik `.js` otwórz w EasyJava 2.0.7 i zapisz ponownie, aby zawierał nowy silnik z oknem komendy i obsługą animacji terminala.
+Starszy wyeksportowany plik `.js` otwórz w EasyJava 2.0.8 i zapisz ponownie, aby zawierał nowy silnik z oknem komendy i obsługą animacji terminala.
 
 ## Nowość w 2.0.4: CMD i PowerShell z bloczków
 

@@ -1,4 +1,4 @@
-EASYJAVA 2.0.7
+EASYJAVA 2.0.8
 Starszy projekt .js otwórz w tej wersji i zapisz ponownie,
 aby gotowy program zawierał poprawione okno komendy z animacją i kolorami.
 102 bloczki • 12 kategorii • projektant GUI • scena i duszki
@@ -78,7 +78,7 @@ i wpisz w nim czas. Wyszukiwarka znajduje go także po słowach
 przerwa, pauza lub odstęp. Samo kliknięcie bloczka go nie dodaje.
 
 POBIERANIE AKTUALNEJ WERSJI
-Aktualna wersja to 2.0.7. Numer wersji widać w tytule okna aplikacji.
+Aktualna wersja to 2.0.8. Numer wersji widać w tytule okna aplikacji.
 Aktualną aplikację pobierzesz przyciskiem w README
 repozytorium albo bezpośrednio z gałęzi main:
 https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe
@@ -292,3 +292,17 @@ Sama nazwa notatka.txt zapisuje obok projektu .js; niezapisany podgląd używa p
 Możesz użyć {dokumenty}, {folder_projektu} i zmiennych np. %USERPROFILE%.
 Okno wyboru zapisu automatycznie dopisuje .txt.
 Starsze .js otwórz w nowym edytorze i zapisz ponownie, aby zaktualizować silnik.
+
+POPRAWKA 2.0.8 — ZAPIS TXT PODCZAS KOMENDY
+W CMD/PowerShell jest pole Działanie: Czekaj / W tle.
+Czekaj: następne bloczki czekają na koniec komendy. Nieskończony curl
+parrot.live blokuje wtedy dalszy zapis; Stop lub limit przerywa ten skrypt.
+W tle: następne bloczki działają od razu, a wynik komendy widzisz w jej oknie.
+Ustaw W tle, aby animacja papugi i zapis TXT działały równocześnie.
+Zmienne wyniku/błędu/kodu są uzupełniane po zakończeniu komendy; wcześniej
+są puste. Przy błędzie lub zatrzymaniu w tle kod wynosi -1.
+Lokalny Zatrzymaj i limit czasu kończą tylko tę komendę w tle.
+Globalny Stop lub zamknięcie aplikacji kończy wszystkie aktywne komendy.
+Stare projekty zachowują Czekaj; otwórz je i zapisz w 2.0.8 po zmianie trybu.
+Zapis/dopisywanie pliku obsługuje tekst wielowierszowy i potwierdza ścieżkę
+w dzienniku. Każda ścieżka musi wskazywać nazwę pliku, np. {pulpit}\notatka.txt.

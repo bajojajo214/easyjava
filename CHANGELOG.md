@@ -1,5 +1,13 @@
 # Historia zmian
 
+## 2.0.8 — 2026-10-25
+
+- Nowe pole Działanie: Czekaj / W tle w CMD i PowerShell. W tle pozwala zapisywać TXT i wykonywać kolejne bloczki równocześnie z nieskończoną komendą, np. curl parrot.live.
+- Zatrzymanie lub limit komendy w tle nie zatrzymuje innych zdarzeń; globalny Stop i zamknięcie aplikacji kończą aktywne komendy. Wyniki ze starego uruchomienia nie nadpisują nowego projektu.
+- Pole tekstu w zapisie/dopisywaniu TXT obsługuje wiele wierszy. Potwierdzenie zapisu i pełna ścieżka trafiają do dziennika.
+- Przykład papugi używa trybu W tle; stare komendy domyślnie zachowują Czekaj.
+- 87 grup testów, wszystkie 102 bloczki i test rzeczywistego .js z komendą strumieniującą oraz zapisem TXT przed jej końcem.
+
 ## 2.0.7 — 2026-10-24
 
 - Nowo upuszczany bloczek włącza swoją kategorię; starsze projekty mają widoczny przycisk włączenia pomijanych kategorii. Ręczne wyłączanie pozostaje dostępne.
