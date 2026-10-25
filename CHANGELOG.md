@@ -1,5 +1,14 @@
 # Historia zmian
 
+## 2.0.7 — 2026-10-24
+
+- Nowo upuszczany bloczek włącza swoją kategorię; starsze projekty mają widoczny przycisk włączenia pomijanych kategorii. Ręczne wyłączanie pozostaje dostępne.
+- CMD, PowerShell i względne ścieżki plików używają folderu projektu; niezapisany podgląd używa pulpitu.
+- Ścieżki obsługują {pulpit}, {dokumenty}, {folder_projektu}, zmienne środowiskowe i otaczające cudzysłowy. Komunikaty rozróżniają folder i plik oraz brak folderu zapisu.
+- Wybór miejsca zapisu dopisuje rozszerzenie .txt i zachowuje folder roboczy aplikacji.
+- Cofanie/ponawianie zachowuje folder otwartego projektu.
+- Testy wszystkich 102 bloczków i rzeczywistego eksportu .js: CMD/PowerShell, kody/strumienie, zapis/dopisanie/odczyt TXT, bez trybu smoke.
+
 ## 2.0.6 — 2026-10-24
 
 - Zakładka Terminal w wyskakującym oknie komendy wyświetla rzeczywisty wynik na żywo, z kolorami ANSI, pozycjonowaniem kursora, czyszczeniem i nadpisywaniem klatek.

@@ -1,0 +1,102 @@
+﻿PASS | Zdarzenia | event_start | Kiedy kliknięto flagę
+PASS | Zdarzenia | event_button | Kiedy kliknięto przycisk
+PASS | Zdarzenia | event_change | Kiedy zmieni się pole
+PASS | Zdarzenia | event_key | Kiedy naciśnięto klawisz
+PASS | Zdarzenia | event_sprite | Kiedy kliknięto duszka
+PASS | Zdarzenia | event_message | Kiedy otrzymam wiadomość
+PASS | Zdarzenia | event_tick | Co określony czas
+PASS | Zdarzenia | event_click | Kiedy kliknięto tło sceny
+PASS | Zdarzenia | broadcast | Nadaj wiadomość
+PASS | Okna i GUI | window | Ustaw okno i scenę
+PASS | Okna i GUI | ui_label | Dodaj napis
+PASS | Okna i GUI | ui_button | Dodaj przycisk
+PASS | Okna i GUI | ui_input | Dodaj pole tekstowe
+PASS | Okna i GUI | ui_textarea | Dodaj duże pole tekstowe
+PASS | Okna i GUI | ui_checkbox | Dodaj pole wyboru
+PASS | Okna i GUI | ui_combo | Dodaj listę rozwijaną
+PASS | Okna i GUI | ui_listbox | Dodaj listę elementów
+PASS | Okna i GUI | ui_slider | Dodaj suwak
+PASS | Okna i GUI | ui_progress | Dodaj pasek postępu
+PASS | Okna i GUI | ui_image | Dodaj obraz
+PASS | Okna i GUI | ui_text | Zmień tekst elementu
+PASS | Okna i GUI | ui_get | Odczytaj wartość elementu
+PASS | Okna i GUI | ui_set | Ustaw właściwość elementu
+PASS | Okna i GUI | ui_move | Przesuń element GUI
+PASS | Okna i GUI | ui_size | Zmień rozmiar elementu
+PASS | Okna i GUI | ui_focus | Ustaw kursor w polu
+PASS | Okna i GUI | ui_item | Dodaj element do listy GUI
+PASS | Okna i GUI | ui_clear | Wyczyść element GUI
+PASS | Okna i GUI | ui_remove | Usuń element GUI
+PASS | Okna i GUI | dialog | Pokaż okno dialogowe
+PASS | Okna i GUI | ask_text | Zapytaj o tekst
+PASS | Okna i GUI | ask | Zapytaj TAK / NIE
+PASS | Wygląd | sprite_add | Utwórz duszka
+PASS | Wygląd | sprite_select | Wybierz duszka
+PASS | Wygląd | costume | Zmień kostium
+PASS | Wygląd | sprite_color | Zmień kolor duszka
+PASS | Wygląd | sprite_size | Ustaw rozmiar duszka
+PASS | Wygląd | sprite_show | Pokaż duszka
+PASS | Wygląd | sprite_hide | Ukryj duszka
+PASS | Wygląd | say | Powiedz / pokaż tekst
+PASS | Wygląd | say_for | Powiedz przez chwilę
+PASS | Wygląd | background | Zmień tło sceny
+PASS | Ruch | move | Przesuń o kroki
+PASS | Ruch | turn | Obróć o stopnie
+PASS | Ruch | direction | Ustaw kierunek
+PASS | Ruch | goto | Idź do pozycji
+PASS | Ruch | change_x | Zmień X o
+PASS | Ruch | change_y | Zmień Y o
+PASS | Ruch | glide | Leć do pozycji
+PASS | Ruch | bounce | Odbij od krawędzi
+PASS | Sterowanie | repeat | Powtórz
+PASS | Sterowanie | forever | Zawsze
+PASS | Sterowanie | if | Jeżeli
+PASS | Sterowanie | if_else | Jeżeli / w przeciwnym razie
+PASS | Sterowanie | until | Powtarzaj aż
+PASS | Sterowanie | for | Dla zmiennej od / do
+PASS | Sterowanie | wait | Czekaj
+PASS | Sterowanie | wait_until | Czekaj aż
+PASS | Sterowanie | break | Przerwij pętlę
+PASS | Sterowanie | stop_this | Zatrzymaj ten skrypt
+PASS | Sterowanie | stop | Zatrzymaj wszystko
+PASS | Sterowanie | comment | Komentarz
+PASS | Zmienne | set | Ustaw zmienną
+PASS | Zmienne | change | Zmień zmienną o
+PASS | Zmienne | random | Losuj liczbę
+PASS | Zmienne | math | Oblicz działanie
+PASS | Zmienne | function | Oblicz funkcję
+PASS | Zmienne | join | Połącz teksty
+PASS | Zmienne | text_length | Długość tekstu
+PASS | Zmienne | text_replace | Zamień fragment tekstu
+PASS | Zmienne | watch | Pokaż zmienną na scenie
+PASS | Listy | list_create | Utwórz listę
+PASS | Listy | list_add | Dodaj do listy
+PASS | Listy | list_get | Odczytaj element listy
+PASS | Listy | list_set | Zmień element listy
+PASS | Listy | list_remove | Usuń element listy
+PASS | Listy | list_length | Długość listy
+PASS | Listy | list_contains | Czy lista zawiera
+PASS | Listy | list_clear | Wyczyść listę
+PASS | Czujniki | mouse | Pozycja myszy
+PASS | Czujniki | key_pressed | Czy klawisz wciśnięty
+PASS | Czujniki | sprite_position | Odczytaj pozycję duszka
+PASS | Czujniki | distance | Odległość między duszkami
+PASS | Czujniki | touch_edge | Czy dotyka krawędzi
+PASS | Czujniki | timer | Odczytaj stoper
+PASS | Czujniki | timer_reset | Wyzeruj stoper
+PASS | Pisak | pen_down | Przyłóż pisak
+PASS | Pisak | pen_up | Podnieś pisak
+PASS | Pisak | pen_color | Kolor pisaka
+PASS | Pisak | pen_size | Grubość pisaka
+PASS | Pisak | pen_clear | Wyczyść rysunek
+PASS | Pisak | stamp | Stempluj duszka
+PASS | Dźwięk | beep | Zagraj ton
+PASS | Dźwięk | sound | Dźwięk systemowy
+PASS | Terminal | cmd | Uruchom polecenie CMD
+PASS | Terminal | powershell | Uruchom polecenie PowerShell
+PASS | Pliki | file_open | Wybierz plik do odczytu
+PASS | Pliki | file_save | Wybierz plik do zapisu
+PASS | Pliki | file_read | Odczytaj plik tekstowy
+PASS | Pliki | file_write | Zapisz plik tekstowy
+PASS | Pliki | file_append | Dopisz do pliku
+PASS | Pliki | file_exists | Czy plik istnieje

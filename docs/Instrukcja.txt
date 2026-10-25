@@ -1,4 +1,4 @@
-EASYJAVA 2.0.6
+EASYJAVA 2.0.7
 Starszy projekt .js otwórz w tej wersji i zapisz ponownie,
 aby gotowy program zawierał poprawione okno komendy z animacją i kolorami.
 102 bloczki • 12 kategorii • projektant GUI • scena i duszki
@@ -78,7 +78,7 @@ i wpisz w nim czas. Wyszukiwarka znajduje go także po słowach
 przerwa, pauza lub odstęp. Samo kliknięcie bloczka go nie dodaje.
 
 POBIERANIE AKTUALNEJ WERSJI
-Aktualna wersja to 2.0.6. Numer wersji widać w tytule okna aplikacji.
+Aktualna wersja to 2.0.7. Numer wersji widać w tytule okna aplikacji.
 Aktualną aplikację pobierzesz przyciskiem w README
 repozytorium albo bezpośrednio z gałęzi main:
 https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe
@@ -156,7 +156,7 @@ To polecenie wymaga internetu i działa do zatrzymania lub limitu czasu.
 Domyślny limit to 30 sekund; zmienisz go w polu Limit sekund bloczka.
 Zatrzymaj lub zamknięcie aktywnego okna przerywa komendę.
 Zakładki Wynik i Błędy pozostają dostępne do odczytania tekstu.
-Starszy projekt .js otwórz w EasyJava 2.0.6 i zapisz ponownie,
+Starszy projekt .js otwórz w EasyJava 2.0.7 i zapisz ponownie,
 aby uruchamiał poprawiony silnik z ekranem terminala.
 
 1. Kliknij Funkcje, zaznacz Terminal i zastosuj ustawienie.
@@ -171,7 +171,7 @@ aby uruchamiał poprawiony silnik z ekranem terminala.
 
 Bloczek ma sześć pól: polecenie, zmienna wyniku, zmienna błędów,
 zmienna kodu zakończenia, folder roboczy oraz limit czasu w sekundach.
-Puste pole folderu roboczego oznacza folder użytkownika.
+Puste pole folderu roboczego oznacza folder projektu .js; w niezapisanym podglądzie — pulpit.
 Limit wynosi od 1 do 3600 sekund; domyślnie jest to 30 sekund.
 Kod zakończenia możesz sprawdzić warunkiem w następnym bloczku.
 
@@ -280,3 +280,15 @@ Nie jest to kod dla Node.js ani dla strony internetowej.
 ŹRÓDŁA I TESTY
 Archiwum EasyJava2-zrodla.zip zawiera źródła C# i Build-EasyJava.ps1.
 Raport-testow.txt opisuje wykonane sprawdzenia, w tym uruchomienie .js w WSH.
+
+POPRAWKA 2.0.7 — KOMENDY I PLIKI
+Nowo upuszczany bloczek włącza swoją kategorię. W starszym projekcie kliknij
+Włącz pomijane kategorie nad skryptami albo włącz Terminal / Pliki w Funkcjach.
+Wyłączenie kategorii lub bloczka nadal pomija jego wykonanie.
+
+Ścieżka pliku musi zawierać nazwę, np. {pulpit}\notatka.txt.
+Samo C:\Users\nazwa\Desktop\ oznacza folder, więc nie jest plikiem TXT.
+Sama nazwa notatka.txt zapisuje obok projektu .js; niezapisany podgląd używa pulpitu.
+Możesz użyć {dokumenty}, {folder_projektu} i zmiennych np. %USERPROFILE%.
+Okno wyboru zapisu automatycznie dopisuje .txt.
+Starsze .js otwórz w nowym edytorze i zapisz ponownie, aby zaktualizować silnik.

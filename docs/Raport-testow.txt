@@ -1,4 +1,39 @@
-﻿PASS DnD: kliknięcie i dwuklik nie dodają; brak upuszczenia nie zmienia projektu
+﻿EASYJAVA 2.0.7 — RAPORT TESTÓW (Windows, .NET Framework 4.x)
+
+Wynik: 75 grup testów PASS, 0 FAIL.
+Pokrycie: wykonanie wszystkich 102 bloczków z 12 kategorii.
+Lista każdego bloczka znajduje się w Pokrycie-bloczkow.txt.
+
+NOWE SPRAWDZENIA
+- Odtwarzacz samodzielnego .js uruchomiony przez prawdziwy cscript/WSH,
+  bez trybu smoke, z nazwą i folderem zawierającymi spacje oraz polskie znaki.
+- Faktyczne polecenia CMD i PowerShell, oddzielne stdout/stderr i kody 7/9.
+- Rzeczywiste tworzenie plików przez CMD oraz zapis/dopisanie/odczyt TXT UTF-8.
+- Host uruchomiony z innego folderu: wyniki nadal zapisują się obok projektu.
+- Wszystkie kontrolki GUI, właściwości, zmienne, listy, czujniki,
+  ruch, kostiumy, pisak, sterowanie i osiem rodzajów zdarzeń.
+- Włączenie kategorii przez upuszczenie, cofanie/ponawianie i zachowanie
+  folderu projektu; ręczne wyłączenie nadal blokuje efekty.
+- Ścieżki względne, cudzysłowy, zmienne środowiskowe, odmowa i zgoda
+  na zastąpienie pliku, pusty wybór, folder zamiast pliku i brak folderu.
+- Dotychczasowe testy przeciągania, przerw, anulowania komend, limitów,
+  procesów potomnych, okien GUI i interpretacji animacji ANSI.
+
+ZAKRES I OGRANICZENIA
+- Automatyczne testy dialogów podstawiają odpowiedzi TAK/NIE/Anuluj oraz
+  wybrane ścieżki przez adapter. Zapis i odczyt dotyczą rzeczywistych plików.
+- W natywnym GUI dodatkowo sprawdzono wpisanie polskiego tekstu w notatniku,
+  otwarcie systemowych okien Zapisz/Otwórz i ich anulowanie. Automatyzacja
+  nie ukończyła wyboru pliku w tych oknach (niestabilne dane dostępności),
+  więc pełny przepływ klikania Zapisz -> wskazanie pliku nie jest zaliczony.
+- Dźwięki: wywołanie API bez błędu, bez weryfikacji słyszalności na sprzęcie.
+- Testy obejmują wszystkie typy bloczków i opisane warianty, nie każdy możliwy
+  program, ustawienie Windows lub odpowiedź zewnętrznej usługi.
+- Stary wyeksportowany .js ma własny silnik. Otwórz go w 2.0.7 i zapisz
+  ponownie; w razie wyłączonych kategorii użyj Włącz pomijane kategorie.
+
+SZCZEGÓŁOWE WYNIKI
+PASS DnD: kliknięcie i dwuklik nie dodają; brak upuszczenia nie zmienia projektu
 PASS DnD: kolejne elementy GUI mają unikalne identyfikatory
 PASS DnD: przenoszenie w obie strony i wstawianie pomiędzy bloczkami
 PASS DnD: zagnieżdżanie, wyjmowanie i obie gałęzie warunku
@@ -42,6 +77,19 @@ PASS okno komendy: wynik PowerShell jest dostępny na żywo przed zakończeniem 
 PASS okno komendy: podgląd otwiera GUI z wynikiem na żywo, zachowuje wynik i zatrzymuje skrypt przyciskiem okna
 PASS okno komendy: odtwarzacz .js otwiera GUI z wynikiem na żywo, zachowuje wynik i zatrzymuje skrypt przyciskiem okna
 PASS okno komendy: zamknięcie odtwarzacza podczas aktywnego polecenia kończy proces i okno bez dostępu do usuniętych kontrolek
+PASS wszystkie zmienne i teksty; sześć działań, dziewięć funkcji, wyrażenia, losowanie i monitory
+PASS wszystkie operacje na listach: tworzenie, dodawanie, odczyt, zmiana, usunięcie, długość, wyszukiwanie, czyszczenie
+PASS wszystkie bloczki sterowania, obie gałęzie, pętle rosnące/malejące, przerwanie, czekanie i oba zatrzymania
+PASS wszystkie kontrolki GUI, import PNG, odczyty i właściwości, pozycja, rozmiar, żądanie fokusu, listy, czyszczenie i usuwanie
+PASS wszystkie osiem zdarzeń: start, przycisk, zmiana pola, klawisz, duszek, tło, wiadomość i zegar (prawdziwe sygnały kontrolek)
+PASS wszystkie bloczki ruchu, wyglądu, sześć kostiumów, czujniki, pisak i stemple; animowany lot i dymek z rzeczywistym czasem
+PASS logika trzech dialogów: OK, TAK/NIE, odpowiedź i anulowanie; odpowiedzi podstawione przez adapter testowy, bez klikania okien użytkownika
+PASS wszystkie sześć bloczków plików: rzeczywisty zapis, dopisanie, odczyt UTF-8, istnienie; zastąpienie TAK/NIE, nazwy względne, cudzysłowy i błędne ścieżki; wybór/anulowanie przez adapter
+PASS CMD i PowerShell: domyślny folder poleceń jest folderem projektu, spójnym z plikami TXT
+PASS wywołanie obu API dźwięku; słyszalność zależy od sprzętu i ustawień Windows
+PASS dodawanie CMD/Plików przez upuszczenie włącza kategorię; ręczne wyłączenie nadal działa i pokazuje komunikat oraz przycisk naprawy
+PASS pokrycie wykonania: 102 / 102 bloczków, wszystkie 12 kategorii; osobna lista pokrycia
+PASS rzeczywisty eksport: WSH -> osadzony EXE -> normalny --player; CMD, PowerShell, stdout/stderr/kody, zapis/dopisanie/odczyt TXT UTF-8; bez --smoke i bez Node.js
 PASS odstępy: ustawienie w edytorze oraz cofanie i ponawianie zmiany
 PASS katalog: 102 bloczków / 12 kategorii
 PASS jeden plik .js: wykonywalny kod + ponowna edycja bloczków

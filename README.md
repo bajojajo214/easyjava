@@ -41,7 +41,17 @@ Nie ma instalatora, logowania ani wymaganego połączenia z internetem. Potrzebu
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
-**Aktualna wersja: 2.0.6.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+**Aktualna wersja: 2.0.7.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+
+## Poprawka 2.0.7: komendy i zapis TXT po kompilacji
+
+Przeciągnięcie nowego bloczka **CMD**, **PowerShell** lub **Pliki** włącza jego kategorię. Jeśli starszy projekt ma wyłączone kategorie używane przez bloczki, nad skryptami pojawi się przycisk **Włącz pomijane kategorie**. Możesz nadal wyłączać kategorie w **Funkcjach** oraz pojedyncze bloczki przyciskiem ●. Gotowy program wyświetla w dzienniku informację o pomijanych kategoriach.
+
+W bloczku **Zapisz plik tekstowy** podaj np. **`{pulpit}\notatka.txt`**. Sama ścieżka folderu nie jest nazwą pliku. Nazwa `notatka.txt` bez folderu zapisuje **obok projektu `.js`**; w niezapisanym podglądzie — na pulpicie. Dostępne są także `{dokumenty}`, `{folder_projektu}` i ścieżki z `%USERPROFILE%`. Pusty folder roboczy CMD/PowerShell oznacza teraz ten sam folder projektu. Okno wyboru zapisu dopisuje `.txt` i nie zmienia folderu całej aplikacji.
+
+Sprawdzono wykonanie **102/102 bloczków z 12 kategorii**, a osobny test uruchamia prawdziwy samodzielny `.js` przez Windows Script Host i wykonuje CMD, PowerShell oraz zapis/dopisanie/odczyt TXT UTF-8. Ten test nie używa `--smoke`. Zakres i ograniczenia sprawdzeń opisuje [raport testów](docs/Raport-testow.txt), a [lista bloczków](docs/Pokrycie-bloczkow.txt) dokumentuje pokrycie.
+
+**Starszy plik `.js` otwórz w EasyJava 2.0.7, włącz pomijane kategorie i zapisz lub skompiluj ponownie.** Plik zawiera własną kopię silnika, więc sama aktualizacja edytora nie aktualizuje wcześniej utworzonych programów.
 
 ## Poprawka 2.0.6: animacja z komendy w oknie GUI
 
@@ -51,7 +61,7 @@ Wpisz **`curl parrot.live`** w bloczku CMD lub PowerShell. W wyskakującym oknie
 
 Polecenie `curl parrot.live` wymaga połączenia z internetem i działa do zatrzymania lub osiągnięcia limitu czasu. Domyślny limit to **30 sekund**; zmienisz go w bloczku. **Zatrzymaj** i zamknięcie aktywnego okna nadal przerywają komendę. Możesz też jawnie wpisać `curl.exe parrot.live`, aby użyć programu curl systemu Windows.
 
-Zakładki **Wynik** i **Błędy** pozostają dostępne do odczytania tekstu. Kolorowy ekran działa w podglądzie oraz w gotowym `.js`. Starszy plik `.js` otwórz w **EasyJava 2.0.6** i zapisz ponownie, aby zawierał poprawiony silnik.
+Zakładki **Wynik** i **Błędy** pozostają dostępne do odczytania tekstu. Kolorowy ekran działa w podglądzie oraz w gotowym `.js`. Starszy plik `.js` otwórz w **EasyJava 2.0.7** i zapisz ponownie, aby zawierał poprawiony silnik.
 
 W przykładzie **CMD i PowerShell** kliknij **Papuga: curl parrot.live**, aby od razu zobaczyć animację w oknie.
 
@@ -63,7 +73,7 @@ Uruchom bloczek **CMD** lub **PowerShell**, a zobaczysz osobne okno GUI z treśc
 
 Po zakończeniu okno pozostaje otwarte, aby dało się przeczytać wynik i kod zakończenia. Funkcja działa zarówno w podglądzie edytora, jak i w gotowym pliku `.js`. Wynik nadal trafia do zmiennych wskazanych w bloczku. Do uruchomienia użyj **Funkcje → Terminal**; możesz też wybrać przykład **CMD i PowerShell**.
 
-Starszy wyeksportowany plik `.js` otwórz w EasyJava 2.0.6 i zapisz ponownie, aby zawierał nowy silnik z oknem komendy i obsługą animacji terminala.
+Starszy wyeksportowany plik `.js` otwórz w EasyJava 2.0.7 i zapisz ponownie, aby zawierał nowy silnik z oknem komendy i obsługą animacji terminala.
 
 ## Nowość w 2.0.4: CMD i PowerShell z bloczków
 
@@ -71,7 +81,7 @@ Starszy wyeksportowany plik `.js` otwórz w EasyJava 2.0.6 i zapisz ponownie, ab
 
 W **Funkcje → Terminal** włącz nową kategorię w swoim projekcie. Następnie przeciągnij **Uruchom polecenie CMD** albo **Uruchom polecenie PowerShell** do skryptu. Terminal jest domyślnie wyłączony także we wcześniejszych projektach; jego ustawienie zapisuje się w `.js`.
 
-Każdy bloczek ma pole polecenia oraz osobne pola nazw zmiennych na **wynik**, **błędy** i **kod zakończenia**. Możesz też wybrać folder roboczy — puste pole oznacza folder użytkownika — oraz limit czasu od **1 do 3600 sekund**, domyślnie **30 s**. Polecenie pokazuje się w osobnym oknie GUI EasyJava, a następny bloczek czeka na jego zakończenie. **Stop** i przekroczenie czasu kończą uruchomione polecenie wraz z procesami potomnymi.
+Każdy bloczek ma pole polecenia oraz osobne pola nazw zmiennych na **wynik**, **błędy** i **kod zakończenia**. Możesz też wybrać folder roboczy — puste pole oznacza folder projektu — oraz limit czasu od **1 do 3600 sekund**, domyślnie **30 s**. Polecenie pokazuje się w osobnym oknie GUI EasyJava, a następny bloczek czeka na jego zakończenie. **Stop** i przekroczenie czasu kończą uruchomione polecenie wraz z procesami potomnymi.
 
 Prosty przykład: w bloczku CMD wpisz `echo Witaj z CMD`, a jako zmienną wyniku pozostaw `wynik_komendy`. Za nim przeciągnij **Powiedz / pokaż tekst** i wpisz `{wynik_komendy}`. W PowerShell możesz użyć `Write-Output 'Witaj z PowerShell'`. Wynik wykorzystasz też w napisie własnego GUI. Na liście **Wczytaj przykład** znajdziesz gotowy projekt **CMD i PowerShell** z dwoma przyciskami; polecenia wykonują się dopiero po kliknięciu.
 
