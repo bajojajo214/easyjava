@@ -1,5 +1,15 @@
 # Historia zmian
 
+## 2.0.10 — 2026-10-25
+
+- Nowy panel AI • Ollama: opis programu po polsku zamieniany na edytowalny projekt z bloczkami.
+- Lista modeli z lokalnego serwera, edytowalny adres i nazwa modelu oraz jawne pobieranie wybranego modelu przez Ollamę.
+- Generowanie nowego projektu lub poprawianie bieżącego z zachowaniem zaimportowanych obrazów.
+- Opis propozycji i drzewo bloczków przed wstawieniem; projekt uruchamia się dopiero na polecenie użytkownika.
+- Wstawienie wygenerowanego projektu obsługuje cofanie. Zapis i kompilacja nadal tworzą pojedynczy plik .js.
+- Generowanie i pobieranie można anulować; komunikaty pomagają przy niedostępnym serwerze lub modelu.
+- AI jest opcjonalne. Zwykłe projekty i bloczki działają bez Ollamy.
+
 ## 2.0.9 — 2026-10-25
 
 - Ikona dostarczona przez autora osadzona w pliku EXE, oknach, nagłówku edytora i instalatorze.

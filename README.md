@@ -21,7 +21,7 @@
   <a href="docs/Instrukcja.txt">Instrukcja po polsku</a>
 </p>
 
-Chcesz zrobić własną aplikację z przyciskami albo grę sterowaną strzałkami? W EasyJava zaczynasz od pustego projektu, przeciągasz bloczki i od razu widzisz efekt. Gdy wszystko działa, klikasz **Kompiluj na pulpit** i uruchamiasz swój program dwuklikiem.
+Chcesz zrobić własną aplikację z przyciskami albo grę sterowaną strzałkami? W EasyJava zaczynasz od pustego projektu, przeciągasz bloczki i od razu widzisz efekt. Możesz też opisać pomysł w **AI • Ollama**, aby model ułożył projekt za Ciebie. Gdy wszystko działa, klikasz **Kompiluj na pulpit** i uruchamiasz swój program dwuklikiem.
 
 ## Zobacz, co możesz zbudować
 
@@ -31,17 +31,35 @@ Chcesz zrobić własną aplikację z przyciskami albo grę sterowaną strzałkam
 
 ## Pobierz i zacznij
 
-1. Pobierz **[easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)** lub **[paczkę ZIP](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/EasyJava-Windows.zip)**.
-2. Uruchom `easyjava.exe`. Dostaniesz **pusty nowy projekt**.
+1. Pobierz **[instalator EasyJava-Setup.exe](https://github.com/bajojajo214/easyjava/releases/latest/download/EasyJava-Setup.exe)** i kliknij **Zainstaluj**. Możesz też wybrać przenośny **[easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)** lub **[paczkę ZIP](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/EasyJava-Windows.zip)**.
+2. Uruchom EasyJava ze skrótu na pulpicie albo plik `easyjava.exe`. Dostaniesz **pusty nowy projekt**.
 3. **Chwyć bloczek, przeciągnij go i upuść** w skryptach. Samo kliknięcie lub dwuklik niczego nie dodaje.
 4. Kliknij **Uruchom podgląd** lub naciśnij **F5**.
 5. Kliknij **Kompiluj na pulpit**. Gotowe — masz własny program!
 
-Nie ma instalatora, logowania ani wymaganego połączenia z internetem. Potrzebujesz Windows z .NET Framework 4.x; uruchamianie wyeksportowanych projektów korzysta także z Windows Script Host. W tej wersji testy wykonano w Windows na .NET Framework 4.x.
+Ręczne tworzenie projektów działa offline i nie wymaga logowania. Potrzebujesz 64-bitowego Windows z .NET Framework 4.5 lub nowszym; uruchamianie wyeksportowanych projektów korzysta także z Windows Script Host. Opcjonalny generator AI wymaga osobno uruchomionej Ollamy i pobranego modelu.
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
-**Aktualna wersja: 2.0.9.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+**Aktualna wersja: 2.0.10.** Instalator pochodzi z najnowszego wydania, a przenośny EXE i paczka ZIP z gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+
+## Nowość 2.0.10: opisz program, a AI ułoży bloczki
+
+Kliknij **AI • Ollama**, wybierz model i napisz na przykład:
+
+> Zrób licznik kliknięć. Okno ma mieć wynik, przycisk +1 i przycisk zerowania.
+
+Generator pokaże propozycję projektu wraz z opisem i drzewem bloczków. Kliknij **Użyj projektu**, aby wstawić ją do edytora. Potem sprawdź działanie przez **F5**, popraw dowolne bloczki i zapisz gotowy program jako jeden `.js`. Samo generowanie nie uruchamia projektu. Wstawienie propozycji można cofnąć przyciskiem **Cofnij**.
+
+Masz już projekt? Wybierz tryb poprawiania bieżącego projektu i opisz zmianę, np. „Dodaj przycisk odejmowania punktu”. AI otrzyma jego bloczki jako kontekst; zaimportowane obrazy pozostają w projekcie. Wynik nadal można edytować ręcznie.
+
+Potrzebujesz **[Ollamy](https://ollama.com/download)** z uruchomionym lokalnym serwerem i modelem. Domyślny adres to `http://127.0.0.1:11434`. W panelu AI odświeżysz listę modeli lub wpiszesz nazwę i klikniesz **Pobierz model**. Model pobierasz jawnie, a jego rozmiar zależy od wybranego wariantu. Nie jest potrzebny klucz API.
+
+Domyślnie opis trafia do Ollamy na Twoim komputerze. Jeśli ustawisz adres innego serwera, trafi do niego opis, a w trybie poprawiania także bloczki bieżącego projektu. Jakość wygenerowanego programu zależy od modelu i polecenia. [Instrukcja AI i rozwiązywanie problemów](docs/Ollama.md).
+
+![Panel AI Ollama z projektem wygenerowanym z opisu](docs/ai-ollama.png)
+
+Wersja 2.0.10 przeszła **103 grupy testów aplikacji bez błędów**. Sprawdzono także prawdziwy model `qwen2.5-coder:3b`: utworzenie licznika, dodanie przycisku +10, działanie przycisków i uruchomienie zapisanego `.js`. [Pełny raport i zakres testów](docs/Raport-testow.txt).
 
 ## Nowość 2.0.9: instalator EXE i nowa ikona
 
@@ -136,6 +154,7 @@ Poprawka zapewnia też unikalne nazwy kolejnych elementów GUI oraz blokuje wkł
 | Funkcja | Co z nią zrobisz |
 | --- | --- |
 | **102 bloczki w 12 kategoriach** | Połączysz zdarzenia, ruch, wygląd, logikę, obliczenia i wiele więcej. |
+| **AI z Ollamą** | Opiszesz pomysł po polsku, wygenerujesz edytowalne bloczki lub zaproponujesz zmianę w bieżącym projekcie. |
 | **Własne GUI** | Dodasz napisy, przyciski, pola tekstowe, listy, suwaki, obrazy i paski postępu. |
 | **Projektant GUI** | Ustawisz elementy okna myszą; ich pozycje zapiszą się w bloczkach. |
 | **Podgląd działania** | Sprawdzisz program wewnątrz edytora, z prawdziwymi kliknięciami i zdarzeniami. |

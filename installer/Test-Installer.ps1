@@ -1,9 +1,9 @@
-param(
+﻿param(
     [Parameter(Mandatory=$true)][string]$Installer,
     [Parameter(Mandatory=$true)][string]$TestDirectory
 )
 $ErrorActionPreference = 'Stop'
-$product = '{A99B8264-B2AA-5D28-9C82-706300DF4696}'
+$product = '{8A7369E7-398C-4292-80E6-C1DE1FA0BC46}'
 Add-Type -TypeDefinition @'
 using System;
 using System.Text;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 public static class BuildMsi {
- public const string Version="2.0.9",Product="{A99B8264-B2AA-5D28-9C82-706300DF4696}",Upgrade="{5E072EB9-6D60-43DB-993A-1902C26BD099}";
+ public const string Version="2.0.10",Product="{8A7369E7-398C-4292-80E6-C1DE1FA0BC46}",Upgrade="{5E072EB9-6D60-43DB-993A-1902C26BD099}";
  static uint db;static string context;
  [DllImport("msi.dll",CharSet=CharSet.Unicode)]static extern uint MsiOpenDatabase(string path,IntPtr mode,out uint handle);
  [DllImport("msi.dll",CharSet=CharSet.Unicode)]static extern uint MsiDatabaseOpenView(uint database,string sql,out uint view);

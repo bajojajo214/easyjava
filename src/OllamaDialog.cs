@@ -1,0 +1,89 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace EasyJava2 {
+[DataContract] public sealed class OllamaPreferences {
+ [DataMember] public string Endpoint="http://127.0.0.1:11434";
+ [DataMember] public string Model="qwen2.5-coder:3b";
+ static string SettingsPath {get{return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"EasyJava","ollama.json");}}
+ public static OllamaPreferences Load(){try{if(new FileInfo(SettingsPath).Length>16000)return new OllamaPreferences();using(FileStream stream=File.OpenRead(SettingsPath)){OllamaPreferences value=(OllamaPreferences)new DataContractJsonSerializer(typeof(OllamaPreferences)).ReadObject(stream);if(value!=null&&!string.IsNullOrWhiteSpace(value.Endpoint))return value;}}catch(IOException){}catch(UnauthorizedAccessException){}catch(SerializationException){}return new OllamaPreferences();}
+ public void Save(){Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath));string temp=SettingsPath+"."+Guid.NewGuid().ToString("N")+".tmp";try{using(FileStream stream=File.Create(temp))new DataContractJsonSerializer(typeof(OllamaPreferences)).WriteObject(stream,this);if(File.Exists(SettingsPath))File.Replace(temp,SettingsPath,null);else File.Move(temp,SettingsPath);}finally{if(File.Exists(temp))File.Delete(temp);}}
+}
+
+public sealed class OllamaDialog:Form {
+ public readonly TextBox EndpointInput,PromptInput;
+ public readonly ComboBox ModelInput;
+ public readonly CheckBox ModifyCurrent;
+ public readonly Button GenerateButton,UseButton,RefreshButton,PullButton,StopButton;
+ public readonly TreeView ResultTree;
+ public readonly TextBox Description;
+ public readonly Label State;
+ public OllamaGeneration Result {get;private set;}
+ public bool ResultModifiesCurrent {get;private set;}
+ readonly Project current;readonly bool autoConnect,persistPreferences;
+ readonly ProgressBar progress;readonly Button closeButton;readonly FlowLayoutPanel choices;
+ CancellationTokenSource active;bool busy;
+ public OllamaDialog(Project project,bool autoConnect=true,bool persistPreferences=true){
+  current=ProjectIO.FromJson(ProjectIO.Json(project));current.SourcePath=project.SourcePath;
+  this.autoConnect=autoConnect;this.persistPreferences=persistPreferences;
+  Text="AI • Ollama — opisz swoją aplikację";Icon=Program.Icon;BackColor=Ui.Panel;ForeColor=Ui.Text;Font=new Font("Segoe UI",10);AutoScaleMode=AutoScaleMode.Dpi;
+  ClientSize=new Size(1040,790);MinimumSize=new Size(860,720);StartPosition=FormStartPosition.CenterParent;
+  TableLayoutPanel root=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(22,14,22,14),ColumnCount=1,RowCount=7};
+  root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
+  foreach(float height in new float[]{78,92,155,43})root.RowStyles.Add(new RowStyle(SizeType.Absolute,height));root.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,64));root.RowStyles.Add(new RowStyle(SizeType.Absolute,46));Controls.Add(root);
+  Panel header=new Panel{Dock=DockStyle.Fill};root.Controls.Add(header,0,0);
+  Label title=Ui.Label("Opisz pomysł. AI ułoży bloczki.",22);title.Font=new Font("Segoe UI",22,FontStyle.Bold);title.SetBounds(0,0,950,43);header.Controls.Add(title);
+  Label intro=Ui.Label("Ollama generuje projekt do edycji, podglądu i zapisania jako jeden plik .js.",10);intro.ForeColor=Ui.Muted;intro.SetBounds(2,44,950,23);header.Controls.Add(intro);
+  TableLayoutPanel connection=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=4,RowCount=2,Margin=new Padding(0)};
+  connection.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,122));connection.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));connection.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,157));connection.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,151));connection.RowStyles.Add(new RowStyle(SizeType.Percent,50));connection.RowStyles.Add(new RowStyle(SizeType.Percent,50));root.Controls.Add(connection,0,1);
+  Label serverLabel=Ui.Label("Serwer",10);serverLabel.Dock=DockStyle.Fill;serverLabel.TextAlign=ContentAlignment.MiddleLeft;connection.Controls.Add(serverLabel,0,0);
+  OllamaPreferences settings=persistPreferences?OllamaPreferences.Load():new OllamaPreferences();
+  EndpointInput=Ui.Input(settings.Endpoint);EndpointInput.Name="ollamaEndpoint";EndpointInput.Dock=DockStyle.Fill;EndpointInput.Margin=new Padding(0,9,10,0);connection.Controls.Add(EndpointInput,1,0);
+  RefreshButton=Ui.Button("Odśwież modele",Ui.Raised);RefreshButton.Name="ollamaRefresh";RefreshButton.Dock=DockStyle.Fill;RefreshButton.Margin=new Padding(0,5,8,5);RefreshButton.Click+=async delegate{await RefreshModelsAsync();};connection.Controls.Add(RefreshButton,2,0);connection.SetColumnSpan(RefreshButton,2);
+  Label modelLabel=Ui.Label("Model",10);modelLabel.Dock=DockStyle.Fill;modelLabel.TextAlign=ContentAlignment.MiddleLeft;connection.Controls.Add(modelLabel,0,1);
+  ModelInput=new ComboBox{Name="ollamaModel",DropDownStyle=ComboBoxStyle.DropDown,BackColor=Ui.Bg,ForeColor=Ui.Text,FlatStyle=FlatStyle.Flat,Font=new Font("Segoe UI",10),Dock=DockStyle.Fill,Text=settings.Model??"qwen2.5-coder:3b",Margin=new Padding(0,8,10,0)};connection.Controls.Add(ModelInput,1,1);
+  PullButton=Ui.Button("Pobierz model",Ui.Raised);PullButton.Name="ollamaPull";PullButton.Dock=DockStyle.Fill;PullButton.Margin=new Padding(0,4,8,6);PullButton.Click+=async delegate{await PullModelAsync();};connection.Controls.Add(PullButton,2,1);connection.SetColumnSpan(PullButton,2);
+  TableLayoutPanel promptArea=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=2,Margin=new Padding(0)};promptArea.RowStyles.Add(new RowStyle(SizeType.Absolute,30));promptArea.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.Controls.Add(promptArea,0,2);
+  Label promptLabel=Ui.Label("Co ma robić Twój program?",11);promptLabel.Font=new Font("Segoe UI",11,FontStyle.Bold);promptLabel.Dock=DockStyle.Fill;promptArea.Controls.Add(promptLabel,0,0);
+  PromptInput=Ui.Input("");PromptInput.Name="ollamaPrompt";PromptInput.Multiline=true;PromptInput.AcceptsReturn=true;PromptInput.ScrollBars=ScrollBars.Vertical;PromptInput.MaxLength=12000;PromptInput.Dock=DockStyle.Fill;PromptInput.Margin=new Padding(0,0,0,8);promptArea.Controls.Add(PromptInput,0,1);
+  choices=new FlowLayoutPanel{Dock=DockStyle.Fill,WrapContents=false,Margin=new Padding(0)};root.Controls.Add(choices,0,3);
+  foreach(string[] sample in new[]{new[]{"Licznik","Zrób licznik kliknięć. Okno z napisem Wynik: 0, przyciskiem +1 i przyciskiem Wyzeruj. Kliknięcie +1 zwiększa wynik, Wyzeruj zeruje."},new[]{"Notatnik","Zrób notatnik z dużym polem tekstowym i przyciskami Otwórz i Zapisz. Użyj okien wyboru pliku oraz zapisu i odczytu UTF-8. Anulowanie wyboru nie powinno nic robić."},new[]{"Gra","Zrób grę: robot sterowany strzałkami zbiera gwiazdę. Pokazuj punkty. Po dotknięciu gwiazdy przenieś ją w losowe miejsce."}}){string prompt=sample[1];Button example=Ui.Button(sample[0],Ui.Raised);example.Size=new Size(103,31);example.Click+=delegate{PromptInput.Text=prompt;};choices.Controls.Add(example);}
+  ModifyCurrent=new CheckBox{Name="ollamaModifyCurrent",Text="Popraw bieżący projekt",Checked=current.Blocks.Count>0,AutoSize=true,ForeColor=Ui.Text,Margin=new Padding(14,5,0,0)};choices.Controls.Add(ModifyCurrent);
+  TabControl resultTabs=new TabControl{Dock=DockStyle.Fill,Margin=new Padding(0,0,0,4)};root.Controls.Add(resultTabs,0,4);
+  TabPage blocksTab=new TabPage("Propozycja bloczków"),summaryTab=new TabPage("Opis projektu");resultTabs.TabPages.AddRange(new[]{blocksTab,summaryTab});
+  ResultTree=new TreeView{Name="ollamaResultTree",Dock=DockStyle.Fill,BackColor=Ui.Bg,ForeColor=Ui.Text,BorderStyle=BorderStyle.None,Font=new Font("Segoe UI",10),ShowNodeToolTips=true,HideSelection=false};blocksTab.Controls.Add(ResultTree);
+  Description=Ui.Input("Wpisz opis, wybierz model i kliknij Wygeneruj.\r\n\r\nWynik obejrzysz tutaj. Użyj projektu przenosi bloczki do edytora. Podgląd uruchomisz potem przyciskiem F5.");Description.Dock=DockStyle.Fill;Description.Multiline=true;Description.ReadOnly=true;Description.ScrollBars=ScrollBars.Vertical;summaryTab.Controls.Add(Description);
+  Panel statePanel=new Panel{Dock=DockStyle.Fill,Margin=new Padding(0)};root.Controls.Add(statePanel,0,5);
+  State=Ui.Label("Ollama musi działać. Pobranie modelu może wymagać kilku GB miejsca i internetu.",9);State.Name="ollamaState";State.ForeColor=Ui.Muted;State.Dock=DockStyle.Fill;State.Padding=new Padding(0,4,0,6);statePanel.Controls.Add(State);
+  progress=new ProgressBar{Style=ProgressBarStyle.Marquee,Visible=false,Dock=DockStyle.Bottom,Height=4};statePanel.Controls.Add(progress);
+  FlowLayoutPanel actions=new FlowLayoutPanel{Dock=DockStyle.Fill,FlowDirection=FlowDirection.RightToLeft,WrapContents=false,Margin=new Padding(0)};root.Controls.Add(actions,0,6);
+  UseButton=Ui.Button("Użyj projektu",Color.FromArgb(35,130,103));UseButton.Name="ollamaUse";UseButton.Size=new Size(155,39);UseButton.Enabled=false;UseButton.Click+=delegate{if(Result!=null&&!busy){DialogResult=DialogResult.OK;Close();}};actions.Controls.Add(UseButton);
+  GenerateButton=Ui.Button("Wygeneruj",Ui.Purple);GenerateButton.Name="ollamaGenerate";GenerateButton.Size=new Size(155,39);GenerateButton.Click+=async delegate{await GenerateProjectAsync();};actions.Controls.Add(GenerateButton);
+  StopButton=Ui.Button("Przerwij",Ui.Raised);StopButton.Name="ollamaStop";StopButton.Size=new Size(110,39);StopButton.Enabled=false;StopButton.Click+=delegate{if(active!=null){State.Text="Przerywanie…";active.Cancel();}};actions.Controls.Add(StopButton);
+  closeButton=Ui.Button("Zamknij",Ui.Raised);closeButton.Size=new Size(110,39);closeButton.Click+=delegate{Close();};actions.Controls.Add(closeButton);CancelButton=closeButton;
+  PromptInput.TextChanged+=delegate{InvalidateResult();};ModelInput.TextChanged+=delegate{InvalidateResult();};EndpointInput.TextChanged+=delegate{InvalidateResult();};ModifyCurrent.CheckedChanged+=delegate{InvalidateResult();};
+  Shown+=async delegate{if(this.autoConnect)await RefreshModelsAsync();};FormClosing+=delegate{if(active!=null)active.Cancel();};
+ }
+ protected override void Dispose(bool disposing){if(disposing&&active!=null)active.Cancel();base.Dispose(disposing);}
+ void InvalidateResult(){if(busy||Result==null)return;Result=null;UseButton.Enabled=false;ResultTree.Nodes.Clear();Description.Text="Zmieniono opis lub ustawienia. Kliknij Wygeneruj, aby przygotować nową propozycję.";}
+ void Busy(bool value){busy=value;EndpointInput.Enabled=ModelInput.Enabled=PromptInput.Enabled=choices.Enabled=ModifyCurrent.Enabled=RefreshButton.Enabled=PullButton.Enabled=GenerateButton.Enabled=!value;StopButton.Enabled=value;UseButton.Enabled=!value&&Result!=null;progress.Visible=value;}
+ void SavePreferences(){if(!persistPreferences)return;try{new OllamaPreferences{Endpoint=EndpointInput.Text.Trim(),Model=ModelInput.Text.Trim()}.Save();}catch(IOException){}catch(UnauthorizedAccessException){}}
+ public async Task RefreshModelsAsync(){if(busy)return;CancellationTokenSource cancel=new CancellationTokenSource();active=cancel;Busy(true);State.Text="Łączenie z Ollamą…";try{OllamaClient client=new OllamaClient(EndpointInput.Text);List<string> models=await client.ListModelsAsync(cancel.Token);if(IsDisposed)return;string previous=ModelInput.Text;ModelInput.Items.Clear();ModelInput.Items.AddRange(models.Cast<object>().ToArray());ModelInput.Text=models.Contains(previous)?previous:models.FirstOrDefault()??previous;if(ModelInput.Text!=previous){Result=null;ResultTree.Nodes.Clear();Description.Text="Wybrano inny model. Kliknij Wygeneruj, aby przygotować nową propozycję.";}State.Text=models.Count==0?"Połączono. Brak modeli — wpisz nazwę (np. qwen2.5-coder:3b) i kliknij Pobierz model.":"Połączono • modeli: "+models.Count+". Wpisz, co ma robić program, i kliknij Wygeneruj.";SavePreferences();}catch(OperationCanceledException){if(!IsDisposed)State.Text="Przerwano łączenie.";}catch(Exception ex){if(!IsDisposed)State.Text=ex.Message;}finally{active=null;cancel.Dispose();if(!IsDisposed)Busy(false);}}
+ public async Task GenerateProjectAsync(){if(busy)return;if(string.IsNullOrWhiteSpace(PromptInput.Text)){State.Text="Napisz najpierw, co ma robić program.";PromptInput.Focus();return;}if(string.IsNullOrWhiteSpace(ModelInput.Text)){State.Text="Wybierz lub wpisz nazwę modelu Ollama.";ModelInput.Focus();return;}CancellationTokenSource cancel=new CancellationTokenSource();active=cancel;bool modify=ModifyCurrent.Checked;Result=null;ResultTree.Nodes.Clear();Description.Clear();Busy(true);State.Text="AI układa bloczki… Pierwsze uruchomienie modelu może potrwać kilka minut.";
+  try{SavePreferences();OllamaGeneration generated=await new OllamaClient(EndpointInput.Text).GenerateAsync(ModelInput.Text.Trim(),PromptInput.Text.Trim(),modify?current:null,cancel.Token);if(IsDisposed)return;Result=generated;ResultModifiesCurrent=modify;ShowResult();State.Text="Gotowe: "+ProjectIO.Count(Result.Project.Blocks)+" bloczków. Obejrzyj propozycję i kliknij Użyj projektu.";}catch(OperationCanceledException){if(!IsDisposed)State.Text="Generowanie przerwane. Projekt w edytorze pozostaje bez zmian.";}catch(Exception ex){if(!IsDisposed)State.Text=ex.Message;}finally{active=null;cancel.Dispose();if(!IsDisposed)Busy(false);}
+ }
+ public async Task PullModelAsync(){if(busy)return;if(string.IsNullOrWhiteSpace(ModelInput.Text)){State.Text="Wpisz nazwę modelu, np. qwen2.5-coder:3b.";return;}CancellationTokenSource cancel=new CancellationTokenSource();active=cancel;string model=ModelInput.Text.Trim();Busy(true);State.Text="Pobieranie modelu "+model+"…";bool success=false;try{SavePreferences();await new OllamaClient(EndpointInput.Text).PullModelAsync(model,cancel.Token,delegate(string update){if(IsDisposed||!IsHandleCreated)return;try{BeginInvoke((Action)delegate{if(!IsDisposed&&active==cancel)State.Text=update;});}catch(InvalidOperationException){}});success=true;}catch(OperationCanceledException){if(!IsDisposed)State.Text="Przerwano pobieranie. Możesz wznowić przyciskiem Pobierz model.";}catch(Exception ex){if(!IsDisposed)State.Text=ex.Message;}finally{active=null;cancel.Dispose();if(!IsDisposed)Busy(false);}if(success&&!IsDisposed){await RefreshModelsAsync();if(!IsDisposed)State.Text="Model "+model+" gotowy. Wpisz opis programu i kliknij Wygeneruj.";}}
+ public void ShowResult(){ResultTree.BeginUpdate();ResultTree.Nodes.Clear();foreach(Block block in Result.Project.Blocks)ResultTree.Nodes.Add(Node(block));ResultTree.EndUpdate();foreach(TreeNode node in ResultTree.Nodes)node.Expand();if(ResultTree.Nodes.Count>0)ResultTree.TopNode=ResultTree.Nodes[0];string groups=string.Join(", ",All(Result.Project.Blocks).Select(b=>Catalog.All[b.Kind].Group).Distinct());Description.Text=Result.Summary+"\r\n\r\nNazwa: "+Result.Project.Name+"\r\nBloczki: "+ProjectIO.Count(Result.Project.Blocks)+"\r\nKategorie: "+groups+"\r\n\r\nKliknij Użyj projektu, aby wstawić bloczki do edytora. Możesz je dalej zmieniać i cofnąć wstawienie przyciskiem Cofnij. Uruchom podgląd, żeby sprawdzić działanie, a potem Kompiluj na pulpit, aby zapisać program .js.";}
+ static IEnumerable<Block> All(IEnumerable<Block> blocks){foreach(Block b in blocks){yield return b;foreach(Block child in All(b.Children))yield return child;foreach(Block child in All(b.Else))yield return child;}}
+ static TreeNode Node(Block b){Spec spec=Catalog.All[b.Kind];TreeNode node=new TreeNode((b.Disabled?"[wyłączony] ":"")+spec.Name){ForeColor=Catalog.ColorFor(spec.Group)};foreach(Field field in spec.Fields){string value=b.Get(field.Key);string shown=value.Replace("\r","").Replace("\n"," ↵ ");if(shown.Length>130)shown=shown.Substring(0,130)+"…";node.Nodes.Add(new TreeNode(field.Label+": "+shown){ToolTipText=value,ForeColor=Ui.Muted});}foreach(Block child in b.Children)node.Nodes.Add(Node(child));if(b.Else.Count>0){TreeNode otherwise=new TreeNode("w przeciwnym razie");foreach(Block child in b.Else)otherwise.Nodes.Add(Node(child));node.Nodes.Add(otherwise);}return node;}
+}
+}

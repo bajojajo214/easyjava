@@ -29,7 +29,7 @@ public static class PauseUiTests {
    Call(editor,"Redo");Check(editor.Project.StepDelaySeconds==.75&&seconds.Value==.75M,"ponawianie nie synchronizuje pola");LabelIs(button,.75M);
    results.Add("PASS przerwy GUI: pole sekund zmienia projekt, przycisk oraz cofanie i ponawianie");
 
-   Stack<string> undo=Field<Stack<string>>(editor,"undo"),redo=Field<Stack<string>>(editor,"redo");undo.Clear();redo.Clear();
+   System.Collections.ICollection undo=Field<System.Collections.ICollection>(editor,"undo"),redo=Field<System.Collections.ICollection>(editor,"redo");undo.GetType().GetMethod("Clear").Invoke(undo,null);redo.GetType().GetMethod("Clear").Invoke(redo,null);
    typeof(Editor).GetField("dirty",Private).SetValue(editor,false);editor.Project=new Project();editor.Render();
    Check(seconds.Value==0&&editor.Project.StepDelaySeconds==0,"nowy projekt nie zeruje pola przerwy");
    Check(undo.Count==0&&redo.Count==0&&!Field<bool>(editor,"dirty"),"synchronizacja nowego projektu tworzy pozorną zmianę");LabelIs(button,0);

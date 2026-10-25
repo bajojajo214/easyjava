@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory=$true)][string]$PayloadDirectory,
     [Parameter(Mandatory=$true)][string]$OutputDirectory,
     [string]$IntermediateDirectory
@@ -17,7 +17,7 @@ foreach ($file in @('easyjava.exe','easyjava.ico')) {
     if (-not (Test-Path -LiteralPath $source)) { throw "Brak $source. Najpierw uruchom Build-EasyJava.ps1." }
     Copy-Item -LiteralPath $source -Destination (Join-Path $stagePath $file)
 }
-foreach ($file in @('Instrukcja.txt','CHANGELOG.md','Raport-testow.txt','Pokrycie-bloczkow.txt')) {
+foreach ($file in @('Instrukcja.txt','CHANGELOG.md','Raport-testow.txt','Pokrycie-bloczkow.txt','Ollama.md')) {
     $source = Join-Path $payloadSource $file
     if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination (Join-Path $stagePath $file) }
 }

@@ -1,40 +1,49 @@
-﻿EASYJAVA 2.0.9 — RAPORT TESTÓW
+﻿EASYJAVA 2.0.10 — RAPORT TESTÓW
 
 APLIKACJA
-87 grup testów PASS, 0 FAIL. Pokrycie wykonania 102/102 bloczków, 12 kategorii.
-Nowa ikona jest dokładną kopią dostarczonego pliku .ico. Umieszczono ją w
-zasobach aplikacji, tytułach okien, nagłówku, instalatorze i skrótach.
+103 grupy testów PASS, 0 FAIL. W tym 87 wcześniejszych grup i 16 grup AI/GUI.
+Pokrycie wykonania 102/102 rodzajów bloczków, 12 kategorii.
 
-INSTALATOR — SPRAWDZONY RZECZYWISTY CYKL
-PASS integralność MSI odczytanego z gotowego EasyJava-Setup.exe.
-PASS rzeczywista instalacja Windows Installer, kod 0.
-PASS produkt zarejestrowany jako EasyJava (MsiGetProductInfo).
-PASS pliki aplikacji, instrukcja i osiem przykładów rozpakowane poprawnie.
-PASS zainstalowany EXE i plik ikony mają te same hashe co źródłowy payload.
-PASS skrót na pulpicie wskazuje na zainstalowany EXE i folder roboczy.
-PASS ikona skrótu w pamięci podręcznej MSI ma hash dostarczonego .ico.
-PASS zainstalowana aplikacja uruchamia się z pustym projektem.
-PASS przykład .js po instalacji uruchamia się w Windows Script Host.
-PASS odinstalowanie Windows Installer, kod 0.
-PASS odinstalowanie usuwa aplikację i skrót oraz wyrejestrowuje produkt.
-PASS osobny plik projektu użytkownika w folderze testowym pozostaje.
-PASS źródła aplikacji i instalatora kompilują się narzędziami Windows/.NET.
+OLLAMA — RZECZYWISTY MODEL
+Pobrano qwen2.5-coder:3b (około 1,93 GB) z lokalnej Ollamy.
+13 dodatkowych sprawdzeń PASS. Panel AI wygenerował licznik z polskiego
+opisu. Sprawdzono rzeczywiste kliknięcia +1 i Wyzeruj, zapis/odczyt .js.
+Następna prośba dodała +10 z zachowaniem działania pozostałych przycisków.
+Gotowy .js uruchomiono przez prawdziwy Windows Script Host.
+Wywołano także /api/tags i /api/pull dla pobranego modelu.
+Sprawdzenia prawdziwego modelu wykonano przed końcową zmianą transportu
+HTTP. Po niej finalna aplikacja przeszła 103 grupy testów, w tym rzeczywiste
+żądania do lokalnej atrapy API i obsługę zawieszonej odpowiedzi serwera.
 
-ZAKRES INSTALACJI
-Domyślne właściwości pakietu: ALLUSERS=1, ProgramFiles64Folder\EasyJava,
-skróty DesktopFolder i menu Start. Okno EXE pokazuje C:\Program Files\EasyJava.
-Cykl instalacji/odinstalowania wykonano na tym samym pakiecie MSI
-odczytanym z finalnego EXE, z jawnym nadpisaniem lokalizacji do folderu
-testowego i kontekstu do bieżącego użytkownika. Nie instalowano testowo
-do chronionego Program Files i nie automatyzowano potwierdzenia Windows.
+TESTY PROTOKOŁU I EDYTORA
+Lokalne atrapy HTTP sprawdzają /api/tags, /api/chat i /api/pull, schemat,
+UTF-8, kontekst projektu, postęp pobierania, błędy i anulowanie. Sprawdzono
+zawieszony strumień błędu HTTP wraz z responsywnością wątku GUI.
+Parser odrzuca nieznane bloczki/pola, błędne typy, duplikaty i uszkodzony
+JSON; limity: 500 bloczków, 12 poziomów, długość pola, zakres przerw.
+Testy dialogu potwierdzają brak automatycznego wykonania bloczka zapisu,
+ochronę pierwotnego projektu i usunięcie nieaktualnej propozycji.
+Cofnij/Ponów obejmuje bloczki oraz ścieżki przy nowym projekcie AI.
+Nowy projekt AI zapisuje się osobno; modyfikacja zachowuje folder projektu.
 
-POZOSTAŁE OGRANICZENIA
-Testy dialogów bloczków podstawiają odpowiedzi i ścieżki. Natywne okna
-wyboru sprawdzono przy otwieraniu/anulowaniu, bez pełnego wyboru pliku.
-Zapis/odczyt TXT i samodzielne .js wykonują rzeczywiste operacje plikowe.
-Dźwięki: wywołania API bez błędu, bez pomiaru słyszalności na sprzęcie.
-Pokrycie typów bloczków nie oznacza sprawdzenia wszystkich programów,
-ustawień Windows i odpowiedzi usług internetowych.
+INSTALATOR 2.0.10
+Zbudowano EXE z osadzonym MSI, nową wersją i nowym ProductCode.
+Sprawdzono ekstrakcję MSI z finalnego EXE oraz jego integralność SHA-256,
+wersję, folder Program Files, skróty i reguły aktualizacji w bazie MSI.
+Na komputerze istnieje instalacja 2.0.9. Nie instalowano testowo nowej wersji
+ani nie usuwano istniejącej aplikacji. Nie automatyzowano potwierdzenia UAC.
+Mechanizm instalacji/odinstalowania poprzedniej wersji przeszedł rzeczywisty
+cykl w osobnym folderze testowym (szczegóły raportu wersji 2.0.9).
+
+OGRANICZENIA
+Jakość AI zależy od modelu i polecenia. Dwa rzeczywiste zadania licznika
+nie dowodzą poprawności wszystkich możliwych wygenerowanych programów.
+Testy pobierania obejmują protokół, błędy i prawdziwy pobrany model;
+nie przetestowano wszystkich modeli ani zdalnych usług.
+Testy dialogów bloczków podstawiają odpowiedzi i ścieżki. Zapis/odczyt TXT
+i samodzielne .js wykonują rzeczywiste operacje. Pełnego wyboru pliku
+w natywnym oknie Windows nie zautomatyzowano. Dźwięk: wywołania API
+bez błędu, bez pomiaru słyszalności na sprzęcie.
 
 SZCZEGÓŁOWE WYNIKI APLIKACJI
 PASS DnD: kliknięcie i dwuklik nie dodają; brak upuszczenia nie zmienia projektu
@@ -93,6 +102,22 @@ PASS odtwarzacz: Zatrzymaj w oknie komendy w tle kończy ją, a zapis i przycisk
 PASS odtwarzacz: limit czasu komendy w tle zgłasza błąd komendy i nie cofa wykonanych kolejnych bloczków
 PASS odtwarzacz: globalny Stop kończy komendy w tle; stary wynik nie nadpisuje ponownie uruchomionego projektu
 PASS prawdziwy WSH i normalny .js: aktywna komenda strumieniująca + zapis TXT UTF-8; zamknięcie aplikacji kończy komendę bez opóźnionego zapisu
+PASS AI: odpowiedź modelu staje się edytowalnym projektem; pola pominięte przez model otrzymują wartości katalogu
+PASS AI: zagnieżdżone zdarzenia i obie gałęzie warunku zachowują operatory, polskie znaki, nowe wiersze i przerwy
+PASS AI: modyfikacja zachowuje kopię obrazów i folder projektu, włącza używane Pliki/Terminal oraz nie zmienia oryginału
+PASS AI: nieznane bloczki/pola, błędne typy, niedozwolone wnętrza i else, powtórzone klucze oraz uszkodzony JSON są odrzucane
+PASS AI: limity głębokości, 500 bloczków, długości pól i dozwolonego zakresu przerw ograniczają odpowiedź modelu
+PASS AI: instrukcja i schemat zawierają wszystkie 102 rodzaje bloczków bieżącego katalogu
+PASS AI HTTP: prawdziwe żądanie GET /api/tags odczytuje zainstalowane modele, usuwa duplikaty i obsługuje pustą listę
+PASS AI HTTP: POST /api/chat przesyła wybrany model, opis UTF-8, schemat i kontekst, a odpowiedź zamienia na edytowalne bloczki
+PASS AI HTTP: brak modelu, błąd silnika, uszkodzony JSON i nieznany bloczek zwracają błąd zamiast zmieniać projekt
+PASS AI HTTP: pobieranie modelu /api/pull odczytuje strumień postępu, wymaga sukcesu i wykrywa błędy oraz przerwany transfer
+PASS AI HTTP: anulowanie przed wysłaniem i podczas odpowiedzi szybko przerywa operację bez uruchamiania programu
+PASS AI HTTP: zawieszony strumień błędu ma krótki limit i nie blokuje responsywności GUI
+PASS AI dialog: generowanie pokazuje bloczki bez wykonywania zapisu i zmiany projektu; zmiana opisu lub modelu usuwa starą propozycję
+PASS AI dialog: zamknięcie podczas generowania przerywa żądanie i chroni projekt przed spóźnionym wynikiem
+PASS AI runtime: wygenerowany licznik zapisuje się do .js, otwiera do edycji i działa w prawdziwym GUI z obsługą kliknięcia
+PASS Ollama GUI: lokalne ustawienia, tryb poprawy, wstawianie bez uruchamiania, Cofnij i Ponów
 PASS wszystkie zmienne i teksty; sześć działań, dziewięć funkcji, wyrażenia, losowanie i monitory
 PASS wszystkie operacje na listach: tworzenie, dodawanie, odczyt, zmiana, usunięcie, długość, wyszukiwanie, czyszczenie
 PASS wszystkie bloczki sterowania, obie gałęzie, pętle rosnące/malejące, przerwanie, czekanie i oba zatrzymania
@@ -124,3 +149,18 @@ PASS odczyt plików UTF-8 i rzeczywiste wyłączenie obsługi plików
 PASS błędy obliczeń i limit złożoności wyrażeń
 PASS realny Windows Script Host uruchamia samodzielny plik .js z GUI bez Node.js
 PASS przykłady GUI, licznik, sterowanie, lista i notatnik
+
+PRAWDZIWY MODEL — WYNIKI
+PASS prawdziwa Ollama udostępnia pobrany qwen2.5-coder:3b
+PASS prawdziwe API /api/pull potwierdza model
+PASS panel AI generuje rzeczywisty projekt: Gotowe: 11 bloczków. Obejrzyj propozycję i kliknij Użyj projektu.
+PASS panel pokazuje bloczki i pozwala użyć projektu
+PASS wygenerowany licznik tworzy GUI bez błędów
+PASS prawdziwy model: kliknięcie +1 aktualizuje zmienną i napis
+PASS prawdziwy model: przycisk Wyzeruj działa
+PASS projekt z modelu zapisuje się do edytowalnego .js
+PASS poprawienie bieżącego projektu zachowuje GUI i dodaje +10
+PASS prawdziwy model: nowy przycisk +10 działa
+PASS po poprawce wcześniejszy przycisk +1 nadal działa
+PASS po poprawce wcześniejszy przycisk Wyzeruj nadal działa
+PASS plik .js z prawdziwego modelu uruchamia się w Windows Script Host
