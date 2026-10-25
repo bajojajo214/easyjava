@@ -41,7 +41,21 @@ Ręczne tworzenie projektów działa offline i nie wymaga logowania. Potrzebujes
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
-**Aktualna wersja: 2.0.10.** Instalator pochodzi z najnowszego wydania, a przenośny EXE i paczka ZIP z gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+**Aktualna wersja: 2.0.11.** Instalator pochodzi z najnowszego wydania, a przenośny EXE i paczka ZIP z gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+
+## Nowość 2.0.11: zobacz, co robi AI, i zmień model
+
+Po kliknięciu **Wygeneruj** otwiera się zakładka **Postęp AI**. Widać etap pracy, czas, liczbę odebranych znaków oraz przybliżoną liczbę powstających bloczków. Ich nazwy pojawiają się w trakcie pisania projektu. Gdy model skończy, panel przechodzi do pełnej **Propozycji bloczków** i udostępnia **Użyj projektu**.
+
+Jeśli model nie zaczyna odpowiadać, zatrzyma się w trakcie albo zwróci błędne bloczki, panel wyjaśnia problem. Przy błędnej strukturze EasyJava prosi ten sam model o jedną poprawkę. Gdy nadal się nie uda, zobaczysz szczegóły i propozycję **Zmień model**. Podczas generowania ten przycisk przerywa operację i otwiera wybór innego modelu; opis zadania zostaje zachowany.
+
+Lista podpowiada najpierw inne modele już pobrane na serwerze. Większy model kodowy może lepiej poradzić sobie z trudniejszym projektem, a mniejszy zużywa mniej pamięci. **Wybranie modelu nie pobiera go automatycznie** — służy do tego osobny przycisk **Pobierz model**. Instalator EasyJava nadal nie instaluje samej Ollamy ani modeli.
+
+Generowanie ma limit 5 minut, oczekiwanie na pierwszy fragment — 90 sekund, a przerwa w napływie odpowiedzi — 45 sekund. Przerwanego lub niepoprawnego projektu nie można wstawić do edytora. [Obsługa postępu, błędów i zmiany modelu](docs/Ollama.md).
+
+Weryfikacja sprawdza także odwołania do brakujących elementów GUI, błędne pola liczbowe i całkowite zasłonięcie pól lub przycisków przez wcześniejsze napisy albo pola tekstowe. Model otrzymuje osobny zestaw dozwolonych pól dla każdego bloczka. Nadal trzeba sprawdzić działanie własnego programu: te kontrole nie dowodzą poprawności wszystkich możliwych odpowiedzi AI.
+
+Wydanie 2.0.11 przeszło **112 grup testów aplikacji bez błędów**, rzeczywisty test postępu z lokalną Ollamą oraz testy kliknięć naprawionego kalkulatora. [Raport i ograniczenia](docs/Raport-testow.txt).
 
 ## Nowość 2.0.10: opisz program, a AI ułoży bloczki
 

@@ -1,5 +1,19 @@
 # Historia zmian
 
+## 2.0.11 — 2026-10-25
+
+- Każdy rodzaj bloczka ma własny wariant schematu odpowiedzi AI, ograniczający mieszanie pól różnych bloczków.
+- Kontrola brakujących identyfikatorów GUI, błędnych operandów i całkowicie zasłoniętych pól/przycisków przed udostępnieniem propozycji.
+- Typowe odwołania AI do zadeklarowanych zmiennych w operandach liczbowych są zamieniane na format `{zmienna}`; zwykłe projekty, teksty, ścieżki i komendy pozostają dosłowne.
+
+- Odpowiedź AI jest odbierana na żywo. Zakładka Postęp AI pokazuje etap pracy, upływ czasu, odebrane znaki, przybliżoną liczbę bloczków i ich rozpoznane nazwy.
+- Gotowy, poprawny wynik przełącza panel do pełnej propozycji bloczków. Częściowa odpowiedź nie udostępnia przycisku Użyj projektu.
+- Szczegóły błędów są widoczne w panelu postępu. Brak odpowiedzi lub zatrzymanie generowania kończy się czytelnym komunikatem.
+- Jedna automatyczna prośba o poprawkę, gdy model zwróci bloczki o nieprawidłowej strukturze; bez wykonywania lub wstawiania błędnego wyniku.
+- Przycisk Zmień model zachowuje opis zadania, a podczas generowania najpierw je przerywa. Wybór proponuje inne modele już pobrane oraz warianty do osobnego pobrania.
+- Limity generowania: 5 minut łącznie, 90 sekund na pierwszy fragment i 45 sekund przerwy w odpowiedzi.
+- Doprecyzowano instrukcje modelu dotyczące obliczeń i plików, aby ograniczyć mylenie pól bloczków.
+
 ## 2.0.10 — 2026-10-25
 
 - Nowy panel AI • Ollama: opis programu po polsku zamieniany na edytowalny projekt z bloczkami.

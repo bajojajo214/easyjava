@@ -3,7 +3,7 @@
     [Parameter(Mandatory=$true)][string]$TestDirectory
 )
 $ErrorActionPreference = 'Stop'
-$product = '{8A7369E7-398C-4292-80E6-C1DE1FA0BC46}'
+$product = '{DE5E53BF-B97A-453E-B566-BA49554A2C87}'
 Add-Type -TypeDefinition @'
 using System;
 using System.Text;

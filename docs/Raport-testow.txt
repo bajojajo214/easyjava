@@ -1,49 +1,59 @@
-﻿EASYJAVA 2.0.10 — RAPORT TESTÓW
+﻿EASYJAVA 2.0.11 — RAPORT TESTÓW
 
-APLIKACJA
-103 grupy testów PASS, 0 FAIL. W tym 87 wcześniejszych grup i 16 grup AI/GUI.
-Pokrycie wykonania 102/102 rodzajów bloczków, 12 kategorii.
+FINALNA APLIKACJA
+112 grup testów PASS, 0 FAIL, wszystkie 102 rodzaje bloczków / 12 kategorii.
+Pełny zestaw wykonano po ostatniej zmianie źródeł finalnego EXE.
 
-OLLAMA — RZECZYWISTY MODEL
-Pobrano qwen2.5-coder:3b (około 1,93 GB) z lokalnej Ollamy.
-13 dodatkowych sprawdzeń PASS. Panel AI wygenerował licznik z polskiego
-opisu. Sprawdzono rzeczywiste kliknięcia +1 i Wyzeruj, zapis/odczyt .js.
-Następna prośba dodała +10 z zachowaniem działania pozostałych przycisków.
-Gotowy .js uruchomiono przez prawdziwy Windows Script Host.
-Wywołano także /api/tags i /api/pull dla pobranego modelu.
-Sprawdzenia prawdziwego modelu wykonano przed końcową zmianą transportu
-HTTP. Po niej finalna aplikacja przeszła 103 grupy testów, w tym rzeczywiste
-żądania do lokalnej atrapy API i obsługę zawieszonej odpowiedzi serwera.
+PRZYCZYNY PROBLEMU
+W rzeczywistych odpowiedziach qwen2.5-coder:3b odtworzono mieszanie pól
+bloczków, brakujące elementy GUI, błędny zapis wyrażenia i zasłonięcie
+pól/przycisku napisem. Protokół HTTP odpowiadał; poprawny JSON nie był
+dowodem na działający program. Poprzedni raport sprawdzał zbyt mały zestaw
+rzeczywistych zadań AI. Nowa kontrola odrzuca te rozpoznane nieprawidłowości.
 
-TESTY PROTOKOŁU I EDYTORA
-Lokalne atrapy HTTP sprawdzają /api/tags, /api/chat i /api/pull, schemat,
-UTF-8, kontekst projektu, postęp pobierania, błędy i anulowanie. Sprawdzono
-zawieszony strumień błędu HTTP wraz z responsywnością wątku GUI.
-Parser odrzuca nieznane bloczki/pola, błędne typy, duplikaty i uszkodzony
-JSON; limity: 500 bloczków, 12 poziomów, długość pola, zakres przerw.
-Testy dialogu potwierdzają brak automatycznego wykonania bloczka zapisu,
-ochronę pierwotnego projektu i usunięcie nieaktualnej propozycji.
-Cofnij/Ponów obejmuje bloczki oraz ścieżki przy nowym projekcie AI.
-Nowy projekt AI zapisuje się osobno; modyfikacja zachowuje folder projektu.
+POSTĘP I DIAGNOSTYKA AI
+Prawdziwa lokalna Ollama, model qwen2.5-coder:3b: panel pokazał fragmenty
+i powstające bloczki przed końcem odpowiedzi; po ukończeniu udostępnił
+pełne drzewo i Użyj projektu. Zapisano zrzuty obu etapów.
+Testy lokalnego serwera HTTP potwierdzają rozdzielone bajty UTF-8,
+done:true przed zamknięciem połączenia, pojedynczą próbę poprawy,
+przerwane odpowiedzi, anulowanie, limity rozmiaru i brak postępu.
+Postęp nie oznacza gotowego projektu; częściowego wyniku nie da się użyć.
+Jedna próba poprawy obejmuje błąd i wcześniejszą odpowiedź. Jeśli nie
+wystarczy, panel pokazuje szczegóły i propozycję zmiany modelu.
+Sprawdzono wybór innych pobranych modeli, rozmiary proponowanych modeli,
+zachowanie opisu oraz brak automatycznego pobierania po samym wyborze.
 
-INSTALATOR 2.0.10
-Zbudowano EXE z osadzonym MSI, nową wersją i nowym ProductCode.
-Sprawdzono ekstrakcję MSI z finalnego EXE oraz jego integralność SHA-256,
-wersję, folder Program Files, skróty i reguły aktualizacji w bazie MSI.
-Na komputerze istnieje instalacja 2.0.9. Nie instalowano testowo nowej wersji
-ani nie usuwano istniejącej aplikacji. Nie automatyzowano potwierdzenia UAC.
-Mechanizm instalacji/odinstalowania poprzedniej wersji przeszedł rzeczywisty
-cykl w osobnym folderze testowym (szczegóły raportu wersji 2.0.9).
+RZECZYWISTY NEGATYWNY PRZYPADEK MODELU
+W ostatniej próbie kalkulatora model nadal zwrócił zasłonięte pole także
+po jednej próbie poprawy. Po około 44 sekundach generator odrzucił wynik
+z nazwą zasłoniętego pola i propozycją zmiany modelu. Nie traktujemy tej
+odpowiedzi jako działającego kalkulatora ani jako udanej generacji.
+
+NAPRAWIONY KALKULATOR — OSOBNY, ZWERYFIKOWANY PROJEKT
+Projekt poprawiono ręcznie, zachowując kopię poprzedniego pliku.
+Kliknięciami rzeczywistych elementów GUI sprawdzono: 7+5=12, 7-5=2,
+6*7=42, 20/4=5, liczby ujemne i przecinki, dzielenie przez zero i Wyczyść.
+Weryfikator odrzuca pierwotny projekt z zasłoniętymi elementami i błędnym
+wyrażeniem oraz akceptuje naprawiony projekt. To osobny test funkcjonalny;
+nie przypisujemy ręcznej naprawy modelowi AI.
+
+INSTALATOR
+EXE zawiera MSI 2.0.11 z nowym ProductCode i stałym UpgradeCode.
+Przed publikacją sprawdzono integralność ekstrakcji, metadane, payload,
+folder Program Files, skróty oraz reguły aktualizacji. Istniejącej instalacji
+nie zastępowano podczas testów i nie automatyzowano potwierdzenia UAC.
 
 OGRANICZENIA
-Jakość AI zależy od modelu i polecenia. Dwa rzeczywiste zadania licznika
-nie dowodzą poprawności wszystkich możliwych wygenerowanych programów.
-Testy pobierania obejmują protokół, błędy i prawdziwy pobrany model;
-nie przetestowano wszystkich modeli ani zdalnych usług.
-Testy dialogów bloczków podstawiają odpowiedzi i ścieżki. Zapis/odczyt TXT
-i samodzielne .js wykonują rzeczywiste operacje. Pełnego wyboru pliku
-w natywnym oknie Windows nie zautomatyzowano. Dźwięk: wywołania API
-bez błędu, bez pomiaru słyszalności na sprzęcie.
+Kontrola GUI jest statyczna i konserwatywna. Sprawdza pełne zasłonięcie
+przez wybrane wcześniejsze elementy w tej samej liście instrukcji;
+nie dowodzi poprawnego układu we wszystkich dynamicznych scenariuszach.
+Nie dowodzi też zgodności całej logiki z dowolnym opisem użytkownika.
+Jakość projektu nadal zależy od modelu. Nie pobierano ani nie testowano
+w tym wydaniu wszystkich sugerowanych alternatywnych modeli.
+Testy natywnych dialogów plików podstawiają odpowiedzi i ścieżki;
+rzeczywisty zapis/odczyt TXT i Windows Script Host są wykonywane.
+Dźwięki: wywołania API bez błędu, bez pomiaru słyszalności na sprzęcie.
 
 SZCZEGÓŁOWE WYNIKI APLIKACJI
 PASS DnD: kliknięcie i dwuklik nie dodają; brak upuszczenia nie zmienia projektu
@@ -117,7 +127,16 @@ PASS AI HTTP: zawieszony strumień błędu ma krótki limit i nie blokuje respon
 PASS AI dialog: generowanie pokazuje bloczki bez wykonywania zapisu i zmiany projektu; zmiana opisu lub modelu usuwa starą propozycję
 PASS AI dialog: zamknięcie podczas generowania przerywa żądanie i chroni projekt przed spóźnionym wynikiem
 PASS AI runtime: wygenerowany licznik zapisuje się do .js, otwiera do edycji i działa w prawdziwym GUI z obsługą kliknięcia
+PASS AI strumień: postęp przychodzi przed końcem odpowiedzi, GUI pozostaje responsywne i powstaje kompletny projekt
+PASS AI dialog: pokazuje żywy postęp i czas, a użycie projektu odblokowuje dopiero po pełnej odpowiedzi
+PASS AI strumień: fragmenty rozdzielające bajty UTF-8 zachowują polskie znaki, emoji i nowe wiersze
+PASS AI strumień: brak done, limit długości, niepełny JSON i błąd serwera nie zwracają projektu do wstawienia
+PASS AI strumień: jedna poprawka dostaje opis i błąd walidacji; drugi błędny wynik kończy się błędem bez dalszych prób
+PASS AI strumień: Przerwij szybko kończy oczekiwanie także po odebraniu części odpowiedzi
+PASS AI strumień: osobne limity wykrywają brak pierwszej odpowiedzi i zatrzymanie po otrzymaniu fragmentu
+PASS AI strumień: nadmiernie duży fragment jest odrzucany bez tworzenia projektu
 PASS Ollama GUI: lokalne ustawienia, tryb poprawy, wstawianie bez uruchamiania, Cofnij i Ponów
+PASS Ollama modele: propozycja innego pobranego modelu, alternatywy z rozmiarem, wybór bez automatycznego pobierania
 PASS wszystkie zmienne i teksty; sześć działań, dziewięć funkcji, wyrażenia, losowanie i monitory
 PASS wszystkie operacje na listach: tworzenie, dodawanie, odczyt, zmiana, usunięcie, długość, wyszukiwanie, czyszczenie
 PASS wszystkie bloczki sterowania, obie gałęzie, pętle rosnące/malejące, przerwanie, czekanie i oba zatrzymania
@@ -150,17 +169,28 @@ PASS błędy obliczeń i limit złożoności wyrażeń
 PASS realny Windows Script Host uruchamia samodzielny plik .js z GUI bez Node.js
 PASS przykłady GUI, licznik, sterowanie, lista i notatnik
 
-PRAWDZIWY MODEL — WYNIKI
-PASS prawdziwa Ollama udostępnia pobrany qwen2.5-coder:3b
-PASS prawdziwe API /api/pull potwierdza model
-PASS panel AI generuje rzeczywisty projekt: Gotowe: 11 bloczków. Obejrzyj propozycję i kliknij Użyj projektu.
-PASS panel pokazuje bloczki i pozwala użyć projektu
-PASS wygenerowany licznik tworzy GUI bez błędów
-PASS prawdziwy model: kliknięcie +1 aktualizuje zmienną i napis
-PASS prawdziwy model: przycisk Wyzeruj działa
-PASS projekt z modelu zapisuje się do edytowalnego .js
-PASS poprawienie bieżącego projektu zachowuje GUI i dodaje +10
-PASS prawdziwy model: nowy przycisk +10 działa
-PASS po poprawce wcześniejszy przycisk +1 nadal działa
-PASS po poprawce wcześniejszy przycisk Wyzeruj nadal działa
-PASS plik .js z prawdziwego modelu uruchamia się w Windows Script Host
+PRAWDZIWY PANEL AI
+PASS prawdziwy model: panel pokazuje powstające bloczki przed ukończeniem odpowiedzi
+PASS prawdziwy model: po ukończeniu panel pokazuje pełne drzewo i odblokowuje Użyj projektu
+
+NAPRAWIONY KALKULATOR
+PASS 7 5 dodaj 12
+PASS 7 5 odejmij 2
+PASS 6 7 pomnoz 42
+PASS 20 4 podziel 5
+PASS -3 2 dodaj -1
+PASS 2,5 0,5 dodaj 3
+PASS dzielenie przez zero pokazuje zrozumiały komunikat
+PASS Wyczyść zeruje pola i wynik
+PASS poprawiony Kalkulator.js zapisany na pulpicie z automatyczną kopią poprzedniego pliku
+
+ODTWORZENIE PROBLEMU UŻYTKOWNIKA
+PASS oryginalny projekt użytkownika odrzucony: zakryte pola/przycisk i błędne wyrażenie liczbowe
+PASS naprawiony Kalkulator.js przechodzi kontrolę GUI i obliczeń
+
+Szczegóły oryginału:
+Wygenerowany projekt ma błędy:
+Bloczek „Zmień zmienną o”, pole B oczekuje liczby, {zmiennej} lub wyrażenia z =. Wartość „liczba1 + liczba2” nie jest liczbą. Obliczenia wpisz np. =liczba1 + liczba2 albo użyj bloczka math z osobnymi operandami.
+Element GUI „liczba1_input” jest całkowicie zasłonięty wcześniejszym elementem „liczba1”. Rozmieść pola, przyciski i napisy oddzielnie, bez nakładania ich pełnych obszarów.
+Element GUI „liczba2_input” jest całkowicie zasłonięty wcześniejszym elementem „liczba2”. Rozmieść pola, przyciski i napisy oddzielnie, bez nakładania ich pełnych obszarów.
+Element GUI „dodaj” jest całkowicie zasłonięty wcześniejszym elementem „wynik”. Rozmieść pola, przyciski i napisy oddzielnie, bez nakładania ich pełnych obszarów.

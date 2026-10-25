@@ -31,6 +31,11 @@ public static class OllamaUiTests {
    Check(editor.Project.SourcePath==null,"Ponów nowy projekt AI odtwarza osobny dokument");
   }
   results.Add("PASS Ollama GUI: lokalne ustawienia, tryb poprawy, wstawianie bez uruchamiania, Cofnij i Ponów");
+  List<OllamaModelChoice> choices=OllamaModelDialog.Choices("qwen2.5-coder:3b",new[]{"qwen2.5-coder:3b","lokalny:latest"});
+  Check(choices[0].Name=="lokalny:latest"&&choices[0].Installed,"najpierw inny model już pobrany");
+  Check(!choices.Any(x=>x.Name=="qwen2.5-coder:3b")&&choices.Any(x=>x.Name=="qwen2.5-coder:7b"&&!x.Installed&&x.Detail.Contains("4,7")),"propozycja innego modelu z rozmiarem pobierania");
+  using(OllamaModelDialog advice=new OllamaModelDialog("qwen2.5-coder:3b",new[]{"lokalny:latest"}))Check(advice.Models.Items.Count>=2&&advice.SelectedModel==null&&advice.Details.Text.Length>0,"wybór i pobranie wymagają działania użytkownika");
+  results.Add("PASS Ollama modele: propozycja innego pobranego modelu, alternatywy z rozmiarem, wybór bez automatycznego pobierania");
  }
 }
 }

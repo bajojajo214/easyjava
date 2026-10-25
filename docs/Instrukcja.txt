@@ -1,4 +1,4 @@
-EASYJAVA 2.0.10
+EASYJAVA 2.0.11
 Starszy projekt .js otwórz w tej wersji i zapisz ponownie,
 aby gotowy program zawierał poprawione okno komendy z animacją i kolorami.
 102 bloczki • 12 kategorii • projektant GUI • scena i duszki
@@ -25,16 +25,19 @@ PIERWSZE KROKI
 AI Z OLLAMĄ — OPISZ SWÓJ PROGRAM
 AI jest opcjonalne. Do ręcznego układania bloczków nie potrzebujesz Ollamy.
 Zainstaluj Ollamę ze strony https://ollama.com/download i uruchom ją.
+Instalator EasyJava nie instaluje automatycznie Ollamy ani żadnego modelu.
 Domyślny adres lokalnego serwera: http://127.0.0.1:11434.
 
 1. Kliknij AI • Ollama na górnym pasku EasyJava.
 2. Odśwież listę i wybierz zainstalowany model. Jeśli lista jest pusta,
    wpisz nazwę modelu i użyj Pobierz model. Pobieranie wymaga internetu;
    rozmiar zależy od wybranego modelu. Nie jest potrzebny klucz API.
-3. Wybierz nowy projekt albo poprawianie bieżącego projektu.
+3. Dla nowego programu odznacz Popraw bieżący projekt. Aby zmienić
+   otwarty projekt, zaznacz tę opcję.
 4. Opisz, co program ma robić, np.:
    Zrób licznik kliknięć z wynikiem, przyciskiem +1 i zerowaniem.
-5. Uruchom generowanie. W razie potrzeby możesz je anulować.
+5. Kliknij Wygeneruj. Zakładka Postęp AI pokazuje etap pracy, czas,
+   odebrane znaki i powstające bloczki. Możesz przerwać generowanie.
 6. Przeczytaj opis i sprawdź drzewo proponowanych bloczków.
    Kliknij Użyj projektu, aby wstawić propozycję do edytora.
 7. Uruchom podgląd przez F5, popraw bloczki i zapisz lub skompiluj .js.
@@ -45,6 +48,28 @@ W trybie poprawiania AI otrzymuje bloczki bieżącego projektu jako kontekst;
 zaimportowane obrazy pozostają w projekcie. Opisz kolejną zmianę, aby
 rozbudować program, np. Dodaj przycisk odejmowania punktu.
 Jakość odpowiedzi zależy od wybranego modelu i opisu zadania.
+
+GDY AI CZEKA LUB ZWRACA BŁĘDNE BLOCZKI
+Postęp AI pokazuje nazwy bloczków rozpoznawane w napływającej odpowiedzi.
+Ich liczba jest przybliżona i nie oznacza procentu ukończenia projektu.
+Po odebraniu pełnego, poprawnego projektu panel przechodzi do propozycji.
+Użyj projektu pozostaje wyłączone podczas generowania.
+
+Wczytanie modelu może chwilę potrwać. Gdy długo nic nie napływa,
+panel informuje o oczekiwaniu i podpowiada zmianę modelu.
+Generowanie ma limit 5 minut, pierwszy fragment — 90 sekund,
+a przerwa w napływie odpowiedzi — 45 sekund.
+Jeżeli model pomyli pola lub strukturę bloczków, EasyJava prosi go o jedną
+poprawkę. Przy kolejnym błędzie zobaczysz szczegóły w panelu postępu.
+Niepoprawna lub niedokończona odpowiedź nie zmienia projektu w edytorze.
+
+Kliknij Zmień model, aby wybrać inny model i zachować opis zadania.
+W trakcie generowania przycisk najpierw przerywa bieżącą operację.
+Lista pokazuje inne pobrane modele oraz propozycje do pobrania.
+Większy model może lepiej rozwiązać trudne zadanie, ale wymaga więcej
+pamięci i może działać wolniej. Lżejszy nadaje się do prostszych projektów.
+Wybranie modelu nie rozpoczyna pobierania. Kliknij osobno Pobierz model,
+jeśli go nie masz, a po zakończeniu ponownie Wygeneruj.
 
 Domyślnie opis trafia do Ollamy na tym komputerze. Gdy zmienisz adres
 serwera, opis i ewentualny kontekst projektu trafią pod podany adres.

@@ -40,6 +40,7 @@ public static class Tests {
   await CommandWindowTests.Run(results);
   await BackgroundCommandTests.Run(results,directory);
   await OllamaTests.Run(results,directory);
+  await OllamaStreamingTests.Run(results,directory);
   OllamaUiTests.Run(results);
   await AllFeatureTests.Run(runtime,results,directory);
   await StandaloneTests.Run(results,directory);

@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 public static class BuildMsi {
- public const string Version="2.0.10",Product="{8A7369E7-398C-4292-80E6-C1DE1FA0BC46}",Upgrade="{5E072EB9-6D60-43DB-993A-1902C26BD099}";
+ public const string Version="2.0.11",Product="{DE5E53BF-B97A-453E-B566-BA49554A2C87}",Upgrade="{5E072EB9-6D60-43DB-993A-1902C26BD099}";
  static uint db;static string context;
  [DllImport("msi.dll",CharSet=CharSet.Unicode)]static extern uint MsiOpenDatabase(string path,IntPtr mode,out uint handle);
  [DllImport("msi.dll",CharSet=CharSet.Unicode)]static extern uint MsiDatabaseOpenView(uint database,string sql,out uint view);

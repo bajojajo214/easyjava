@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -36,6 +36,18 @@ public static class OllamaTests {
   Check(basic.Project.Name=="projekt_ai"&&basic.Summary=="Projekt utworzony z opisu.","nazwa i opis projektu");
   foreach(Field field in Catalog.All["ui_button"].Fields)Check(button.Get(field.Key)==defaults.Get(field.Key),"domyślne pole "+field.Key+" pominięte przez model");
   Check(button.Children.Count==0&&button.Else.Count==0&&basic.Project.Allows("Okna i GUI"),"struktura nowego bloczka");
+  Project numeric=OllamaProject.Parse(Document("{\"kind\":\"set\",\"A\":\"liczba1\",\"B\":\"0\"},{\"kind\":\"ui_get\",\"A\":\"input2\",\"B\":\"liczba2\"},{\"kind\":\"math\",\"A\":\"wynik\",\"B\":\"liczba1\",\"C\":\"+\",\"D\":\"liczba2\"},{\"kind\":\"change\",\"A\":\"wynik\",\"B\":\"liczba1\"},{\"kind\":\"math\",\"A\":\"test\",\"B\":\"12\",\"C\":\"+\",\"D\":\"=liczba1 * 2\"},{\"kind\":\"math\",\"A\":\"test2\",\"B\":\"nieznana\",\"C\":\"+\",\"D\":\"LICZBA1\"},{\"kind\":\"say\",\"A\":\"liczba1\"}")).Project;
+  Check(numeric.Blocks[2].B=="{liczba1}"&&numeric.Blocks[2].D=="{liczba2}"&&numeric.Blocks[3].B=="{liczba1}","AI nie poprawiło zapisu znanych zmiennych w operandach liczbowych");
+  Check(numeric.Blocks[4].B=="12"&&numeric.Blocks[4].D=="=liczba1 * 2"&&numeric.Blocks[5].B=="nieznana"&&numeric.Blocks[5].D=="LICZBA1"&&numeric.Blocks[6].A=="liczba1","poprawa referencji AI zmienia literały, wyrażenia, nieznane nazwy lub zwykły tekst");
+  Project manual=new Project();manual.Blocks.Add(Block.Make("set","liczba1","0"));manual.Blocks.Add(Block.Make("math","wynik","liczba1","+","1"));Check(ProjectIO.FromJson(ProjectIO.Json(manual)).Blocks[1].B=="liczba1","poprawa AI nie może zmieniać zwykłego odczytu projektu użytkownika");
+  bool missingGui=false;try{OllamaProject.ValidateGenerated(OllamaProject.Parse(Document("{\"kind\":\"ui_get\",\"A\":\"brak_pola\",\"B\":\"tekst\"}")).Project);}catch(Exception error){missingGui=error.Message.Contains("brak_pola");}Check(missingGui,"AI przyjęło odwołanie do nieistniejącego elementu GUI");
+  OllamaProject.ValidateGenerated(Examples.Counter());
+  Project inactive=new Project();Block off=Block.Make("repeat","1");off.Disabled=true;off.Children.Add(Block.Make("ui_get","brak_w_wylaczonej_galezi","tekst"));inactive.Blocks.Add(off);OllamaProject.ValidateGenerated(inactive);
+  Project dynamicGui=new Project();dynamicGui.Blocks.Add(Block.Make("ui_text","{dynamiczny_id}","tekst"));OllamaProject.ValidateGenerated(dynamicGui);
+  bool hiddenGui=false;Project hidden=new Project();hidden.Blocks.Add(Block.Make("ui_label","cover","Opis","0","0","400","300"));hidden.Blocks.Add(Block.Make("ui_button","run","Uruchom","20","30","120","40"));try{OllamaProject.ValidateGenerated(hidden);}catch(Exception error){hiddenGui=error.Message.Contains("zasłonięty");}Check(hiddenGui,"AI przyjęło przycisk całkowicie zakryty wcześniejszym napisem");
+  bool badFormula=false;Project formula=new Project();formula.Blocks.Add(Block.Make("change","wynik","liczba1 + liczba2"));try{OllamaProject.ValidateGenerated(formula);}catch(Exception error){badFormula=error.Message.Contains("=");}Check(badFormula,"AI przyjęło wzór bez = w polu liczbowym");
+  Project hiddenByEditor=new Project();hiddenByEditor.Blocks.Add(Block.Make("ui_textarea","editor","","0","0","400","300"));hiddenByEditor.Blocks.Add(Block.Make("ui_button","save","Zapisz","20","30","120","40"));bool coveredByEditor=false;try{OllamaProject.ValidateGenerated(hiddenByEditor);}catch(Exception error){coveredByEditor=error.Message.Contains("zasłonięty");}Check(coveredByEditor,"AI przyjęło przycisk zakryty dużym polem tekstowym");
+  Check(OllamaProject.CreateSchema(false).Contains("\"disabled\":{\"type\":\"boolean\",\"const\":false}")&&OllamaProject.CreateSchema(true).Contains("\"disabled\":{\"type\":\"boolean\"}"),"schemat nowego projektu nie blokuje przypadkowego wyłączania bloczków lub zmienia stan edytowanego projektu");
   results.Add("PASS AI: odpowiedź modelu staje się edytowalnym projektem; pola pominięte przez model otrzymują wartości katalogu");
 
   string text="Zażółć gęślą jaźń\r\nTekst z {punkty}, cudzysłowem \" oraz \\";
@@ -77,6 +89,13 @@ public static class OllamaTests {
   string schema=OllamaProject.CreateSchema(),system=OllamaProject.CreateSystemPrompt();
   Check(schema.Contains("\"blocks\"")&&schema.Contains("\"kind\"")&&schema.Contains("\"required\""),"brak schematu projektu");
   foreach(string kind in Catalog.All.Keys)Check(system.Contains(kind)&&schema.Contains(Q(kind)),"brak definicji bloczka w instrukcji/schemacie: "+kind);
+  Dictionary<string,System.Xml.XmlElement> schemaRoot=OllamaJson.Object(OllamaJson.Read(schema),"schemat");
+  Dictionary<string,System.Xml.XmlElement> definitions=OllamaJson.Object(schemaRoot["$defs"],"definicje");
+  Dictionary<string,System.Xml.XmlElement> blockSchema=OllamaJson.Object(definitions["block"],"bloczek");
+  Dictionary<string,Dictionary<string,System.Xml.XmlElement>> shapes=new Dictionary<string,Dictionary<string,System.Xml.XmlElement>>();
+  foreach(System.Xml.XmlNode item in blockSchema["oneOf"].ChildNodes){System.Xml.XmlElement shape=item as System.Xml.XmlElement;if(shape==null)continue;Dictionary<string,System.Xml.XmlElement> properties=OllamaJson.Object(OllamaJson.Object(shape,"wariant")["properties"],"pola");string kind=OllamaJson.Object(properties["kind"],"rodzaj")["const"].InnerText;shapes.Add(kind,properties);}
+  Check(shapes.Count==Catalog.All.Count&&!shapes["change"].ContainsKey("C")&&!shapes["file_open"].ContainsKey("B")&&shapes["math"].ContainsKey("C")&&shapes["math"].ContainsKey("D"),"schemat ponownie pozwala modelowi mieszać pola dodawania, matematyki lub wyboru pliku");
+  Check(shapes["event_button"].ContainsKey("children")&&!shapes["say"].ContainsKey("children")&&shapes["if_else"].ContainsKey("otherwise")&&!shapes["repeat"].ContainsKey("otherwise"),"schemat dopuszcza niedozwolone wnętrza bloczków");
   results.Add("PASS AI: instrukcja i schemat zawierają wszystkie 102 rodzaje bloczków bieżącego katalogu");
  }
 
@@ -93,7 +112,7 @@ public static class OllamaTests {
   using(FakeServer server=new FakeServer(delegate(Request request){return Task.FromResult(new Response(200,Envelope(Document("{\"kind\":\"ui_button\",\"A\":\"plus\",\"B\":\"+1\"}"))));})){
    OllamaGeneration generation=await new OllamaClient(server.Url).GenerateAsync("fixture:latest",prompt,context,CancellationToken.None);Request request=await server.Received.Task;ChatRequest body=Read<ChatRequest>(request.Body);
    Check(request.Method=="POST"&&request.Path=="/api/chat", "generowanie nie używa POST /api/chat");
-   Check(body.Model=="fixture:latest"&&!body.Stream&&body.Messages!=null&&body.Messages.Any(m=>m.Role=="system")&&body.Messages.Any(m=>m.Role=="user"&&m.Content.Contains(prompt)),"niepoprawny model, prompt Unicode lub struktura rozmowy");
+   Check(body.Model=="fixture:latest"&&body.Stream&&body.Messages!=null&&body.Messages.Any(m=>m.Role=="system")&&body.Messages.Any(m=>m.Role=="user"&&m.Content.Contains(prompt)),"niepoprawny model, prompt Unicode lub struktura rozmowy");
    Check(body.Messages.Any(m=>m.Content.Contains("kontekst_ai"))&&body.Messages.Any(m=>m.Content.Contains("punkty")),"brak kontekstu bieżącego projektu");
    int format=request.Body.IndexOf("\"format\"",StringComparison.Ordinal);Check(format>=0,"brak formatu odpowiedzi");int colon=request.Body.IndexOf(':',format);Check(request.Body.Substring(colon+1).TrimStart().StartsWith("{"),"format nie zawiera obiektu JSON Schema");
    Check(generation.Project.Blocks.Single().Kind=="ui_button"&&generation.Project.Blocks[0].B=="+1","odpowiedź /api/chat nie została zamieniona na bloczki");await server.Completion;
@@ -103,7 +122,7 @@ public static class OllamaTests {
   using(FakeServer server=new FakeServer(delegate(Request request){return Task.FromResult(new Response(404,"{\"error\":\"model fixture missing\"}"));}))await Fail(new OllamaClient(server.Url).GenerateAsync("missing","test",null,CancellationToken.None),"fixture missing","brak czytelnego błędu modelu HTTP 404");
   using(FakeServer server=new FakeServer(delegate(Request request){return Task.FromResult(new Response(200,"{\"error\":\"fixture model failed\"}"));}))await Fail(new OllamaClient(server.Url).GenerateAsync("fixture","test",null,CancellationToken.None),"fixture model failed","błąd Ollamy w odpowiedzi 200 został przeoczony");
   using(FakeServer server=new FakeServer(delegate(Request request){return Task.FromResult(new Response(200,"not JSON"));}))await Fail(new OllamaClient(server.Url).ListModelsAsync(CancellationToken.None),null,"uszkodzona lista modeli została przyjęta");
-  using(FakeServer server=new FakeServer(delegate(Request request){return Task.FromResult(new Response(200,Envelope(Document("{\"kind\":\"invented_block\"}"))));}))await Fail(new OllamaClient(server.Url).GenerateAsync("fixture","test",null,CancellationToken.None),null,"nieznany bloczek przeszedł walidację klienta HTTP");
+  using(FakeServer server=new FakeServer(delegate(Request request){return Task.FromResult(new Response(200,Envelope(Document("{\"kind\":\"invented_block\"}"))));},2))await Fail(new OllamaClient(server.Url).GenerateAsync("fixture","test",null,CancellationToken.None),null,"nieznany bloczek przeszedł walidację klienta HTTP");
   results.Add("PASS AI HTTP: brak modelu, błąd silnika, uszkodzony JSON i nieznany bloczek zwracają błąd zamiast zmieniać projekt");
 
   List<string> progress=new List<string>();
