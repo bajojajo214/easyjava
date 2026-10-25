@@ -1,51 +1,42 @@
-﻿EASYJAVA 2.0.8 — RAPORT TESTÓW (Windows, .NET Framework 4.x)
+﻿EASYJAVA 2.0.9 — RAPORT TESTÓW
 
-Wynik: 87 grup testów PASS, 0 FAIL.
-Pokrycie wykonania: 102/102 bloczki, wszystkie 12 kategorii.
-Każdy bloczek jest wymieniony w Pokrycie-bloczkow.txt.
+APLIKACJA
+87 grup testów PASS, 0 FAIL. Pokrycie wykonania 102/102 bloczków, 12 kategorii.
+Nowa ikona jest dokładną kopią dostarczonego pliku .ico. Umieszczono ją w
+zasobach aplikacji, tytułach okien, nagłówku, instalatorze i skrótach.
 
-ZNALAZIONA PRZYCZYNA PROBLEMU TXT
-Układ: CMD curl parrot.live -> Zapisz plik tekstowy.
-Przy trybie Czekaj komenda nadająca bez końca wstrzymuje kolejne bloczki.
-Stop lub przekroczenie limitu kończy ten skrypt, więc nie dochodzi do zapisu.
-Nowy tryb W tle pozwala wykonać zapis podczas trwania komendy.
+INSTALATOR — SPRAWDZONY RZECZYWISTY CYKL
+PASS integralność MSI odczytanego z gotowego EasyJava-Setup.exe.
+PASS rzeczywista instalacja Windows Installer, kod 0.
+PASS produkt zarejestrowany jako EasyJava (MsiGetProductInfo).
+PASS pliki aplikacji, instrukcja i osiem przykładów rozpakowane poprawnie.
+PASS zainstalowany EXE i plik ikony mają te same hashe co źródłowy payload.
+PASS skrót na pulpicie wskazuje na zainstalowany EXE i folder roboczy.
+PASS ikona skrótu w pamięci podręcznej MSI ma hash dostarczonego .ico.
+PASS zainstalowana aplikacja uruchamia się z pustym projektem.
+PASS przykład .js po instalacji uruchamia się w Windows Script Host.
+PASS odinstalowanie Windows Installer, kod 0.
+PASS odinstalowanie usuwa aplikację i skrót oraz wyrejestrowuje produkt.
+PASS osobny plik projektu użytkownika w folderze testowym pozostaje.
+PASS źródła aplikacji i instalatora kompilują się narzędziami Windows/.NET.
 
-RZECZYWISTE TESTY CAŁEGO PRZEPŁYWU
-- Normalny .js uruchomiony przez Windows Script Host, bez --smoke:
-  aktywna komenda strumieniująca i zapis TXT UTF-8 przed jej zakończeniem.
-- Zamknięcie samodzielnego .js kończy aktywny proces; brak opóźnionego zapisu.
-- Prawdziwe curl parrot.live działało w widocznym oknie GUI z animacją ANSI,
-  podczas gdy następny bloczek zapisał tekst wielowierszowy UTF-8.
-- Dodatkowo sprawdzono pierwotny układ dwóch bloczków w istniejącym projekcie:
-  plik notatka.txt na pulpicie powstał i zawierał cztery bajty tekstu test,
-  zanim animacja curl zakończyła się po ustawionym limicie 30 sekund.
-- Ten projekt zachowano lokalnie z trybem W tle; nie jest częścią repozytorium.
-- Komenda Czekaj i jej Stop nadal pomijają dalsze bloczki, zgodnie z opisem.
-- Lokalny Stop/limit komendy w tle nie zatrzymuje przycisków i innych zdarzeń.
-- Globalny Stop i zmiana projektu kończą komendy; stare wyniki nie nadpisują
-  zmiennych nowego uruchomienia.
-- Rzeczywisty zapis/dopisanie/odczyt TXT, ścieżki względne i Unicode,
-  wielowierszowy tekst, CMD/PowerShell i oddzielne strumienie/kody wyjścia.
+ZAKRES INSTALACJI
+Domyślne właściwości pakietu: ALLUSERS=1, ProgramFiles64Folder\EasyJava,
+skróty DesktopFolder i menu Start. Okno EXE pokazuje C:\Program Files\EasyJava.
+Cykl instalacji/odinstalowania wykonano na tym samym pakiecie MSI
+odczytanym z finalnego EXE, z jawnym nadpisaniem lokalizacji do folderu
+testowego i kontekstu do bieżącego użytkownika. Nie instalowano testowo
+do chronionego Program Files i nie automatyzowano potwierdzenia Windows.
 
-POZOSTAŁE MODUŁY
-Wszystkie kontrolki GUI i właściwości, zdarzenia, pętle/warunki/zatrzymania,
-przerwy, zmienne i wyrażenia, listy, duszki i ruch, czujniki, pisak/stemple,
-dźwięk, włączanie/wyłączanie, przeciąganie, zapis/odczyt projektu i eksport.
+POZOSTAŁE OGRANICZENIA
+Testy dialogów bloczków podstawiają odpowiedzi i ścieżki. Natywne okna
+wyboru sprawdzono przy otwieraniu/anulowaniu, bez pełnego wyboru pliku.
+Zapis/odczyt TXT i samodzielne .js wykonują rzeczywiste operacje plikowe.
+Dźwięki: wywołania API bez błędu, bez pomiaru słyszalności na sprzęcie.
+Pokrycie typów bloczków nie oznacza sprawdzenia wszystkich programów,
+ustawień Windows i odpowiedzi usług internetowych.
 
-ZAKRES I OGRANICZENIA
-- Testy dialogów podstawiają odpowiedzi TAK/NIE/Anuluj i wybrane ścieżki.
-  Native okna wyboru sprawdzono przy otwieraniu i anulowaniu; pełny wybór
-  pliku przez systemowy picker nie jest zaliczony do testów GUI.
-- Zapis TXT z bezpośrednią ścieżką oraz zapis z podstawioną ścieżką dialogu
-  wykonują rzeczywiste operacje plikowe, także w samodzielnym .js.
-- Dźwięk: wywołanie API bez błędu; słyszalność na sprzęcie nie jest mierzona.
-- Pokrycie wszystkich typów bloczków nie oznacza sprawdzenia wszystkich
-  możliwych programów, ustawień Windows czy usług internetowych.
-- W tle: zmienne wyniku są puste podczas działania i wypełniane po zakończeniu;
-  przy błędzie/zatrzymaniu kod -1. Użyj Czekaj, gdy kolejny bloczek potrzebuje
-  pełnego wyniku. Globalny Stop nadal zatrzymuje wszystkie skrypty i komendy.
-
-SZCZEGÓŁOWE WYNIKI
+SZCZEGÓŁOWE WYNIKI APLIKACJI
 PASS DnD: kliknięcie i dwuklik nie dodają; brak upuszczenia nie zmienia projektu
 PASS DnD: kolejne elementy GUI mają unikalne identyfikatory
 PASS DnD: przenoszenie w obie strony i wstawianie pomiędzy bloczkami

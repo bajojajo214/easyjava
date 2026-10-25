@@ -1,5 +1,13 @@
 # Historia zmian
 
+## 2.0.9 — 2026-10-25
+
+- Ikona dostarczona przez autora osadzona w pliku EXE, oknach, nagłówku edytora i instalatorze.
+- Nowy EasyJava-Setup.exe: polski interfejs, instalacja offline do Program Files\EasyJava, skrót na pulpicie i w menu Start.
+- Pakiet Windows Installer obsługuje odinstalowanie, naprawę transakcji i wykrywanie wcześniejszych/nowszych wersji.
+- Instalator nie przejmuje rozszerzenia .js. Odinstalowanie zachowuje pliki spoza manifestu instalacji.
+- Źródła instalatora buduje dostępny .NET Framework i makecab.exe, bez pobierania zewnętrznych narzędzi.
+
 ## 2.0.8 — 2026-10-25
 
 - Nowe pole Działanie: Czekaj / W tle w CMD i PowerShell. W tle pozwala zapisywać TXT i wykonywać kolejne bloczki równocześnie z nieskończoną komendą, np. curl parrot.live.

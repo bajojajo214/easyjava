@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe"><strong>⬇ Pobierz EasyJava.exe</strong></a>
+  <a href="https://github.com/bajojajo214/easyjava/releases/latest/download/EasyJava-Setup.exe"><strong>⬇ Pobierz instalator EasyJava</strong></a>
   &nbsp; · &nbsp;
   <a href="https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/EasyJava-Windows.zip">Pobierz paczkę z przykładami</a>
   &nbsp; · &nbsp;
@@ -41,7 +41,15 @@ Nie ma instalatora, logowania ani wymaganego połączenia z internetem. Potrzebu
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
-**Aktualna wersja: 2.0.8.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+**Aktualna wersja: 2.0.9.** Powyższe przyciski pobierania prowadzą do aktualnej aplikacji w gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+
+## Nowość 2.0.9: instalator EXE i nowa ikona
+
+**[Pobierz instalator EasyJava-Setup.exe](https://github.com/bajojajo214/easyjava/releases/latest/download/EasyJava-Setup.exe)**, uruchom go i kliknij **Zainstaluj**. Domyślny folder to `C:\Program Files\EasyJava`. Instalator tworzy skrót **EasyJava** na pulpicie i w menu Start. Aplikację usuniesz przez **Ustawienia Windows → Aplikacje → EasyJava → Odinstaluj**.
+
+Nowa ikona jest osadzona w aplikacji i instalatorze oraz używana przez skróty. Instalacja działa offline i korzysta z Windows Installer. Zapis do Program Files wymaga standardowego potwierdzenia Windows. Obsługiwany jest 64-bitowy Windows z .NET Framework 4.5 lub nowszym.
+
+Wersja przenośna `easyjava.exe` i paczka ZIP pozostają dostępne. Projekty nadal zapisują się jako pojedyncze `.js`; instalator nie zmienia skojarzenia plików `.js`. Odinstalowanie usuwa pliki zainstalowanej aplikacji i jej skróty, zachowując osobne projekty oraz ustawienia i kopie w profilu użytkownika.
 
 ## Poprawka 2.0.8: zapis TXT podczas działającej komendy
 
