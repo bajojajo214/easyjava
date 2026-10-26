@@ -79,7 +79,7 @@ public sealed class OllamaClient {
   // Some models degenerate under the large recursive block grammar. A single
   // compatibility retry uses JSON mode; the same strict parser and semantic
   // validation still apply before the result can reach the editor.
-  string body="{\"model\":"+OllamaJson.Quote(model.Trim())+",\"messages\":[{\"role\":\"system\",\"content\":"+OllamaJson.Quote(OllamaProject.CreateSystemPrompt())+"},{\"role\":\"user\",\"content\":"+OllamaJson.Quote(user)+"}],\"format\":"+(plainJson?"\"json\"":OllamaProject.CreateSchema(preserveState))+",\"stream\":true,\"think\":false,\"options\":{\"temperature\":0,\"num_ctx\":"+contextSize+",\"num_predict\":"+tokenBudget+"}}";
+  string body="{\"model\":"+OllamaJson.Quote(model.Trim())+",\"messages\":[{\"role\":\"system\",\"content\":"+OllamaJson.Quote(OllamaProject.CreateSystemPrompt(user))+"},{\"role\":\"user\",\"content\":"+OllamaJson.Quote(user)+"}],\"format\":"+(plainJson?"\"json\"":OllamaProject.CreateSchema(preserveState))+",\"stream\":true,\"think\":false,\"options\":{\"temperature\":0,\"num_ctx\":"+contextSize+",\"num_predict\":"+tokenBudget+"}}";
   Stopwatch clock=Stopwatch.StartNew();
   using(HttpClient client=CreateClient())using(HttpRequestMessage request=new HttpRequestMessage(HttpMethod.Post,new Uri(baseUri,"api/chat")))using(CancellationTokenSource first=new CancellationTokenSource(90000))using(CancellationTokenSource headers=CancellationTokenSource.CreateLinkedTokenSource(cancellation,first.Token)){
    request.Headers.Accept.ParseAdd("application/x-ndjson");request.Content=new StringContent(body,Encoding.UTF8,"application/json");

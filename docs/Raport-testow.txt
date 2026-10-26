@@ -11,7 +11,9 @@ niezgodny operator dzielenia i błędną odpowiedź również po poprawce.
 Modele importowane przez hf.co/huggingface.co używają teraz JSON od początku.
 Ścisły parser, katalog bloczków i walidacja nadal obowiązują. Nie stosujemy
 ucinania JSON ani dopisywania brakującej logiki, aby uznać wynik za gotowy.
-Dodano pełny działający przykład kalkulatora w instrukcji modelu.
+Dodano pełny działający przykład tylko dla zadań o kalkulatorze.
+Walidacja wymiarów okna i geometrii GUI odrzuca średnik zamiast liczby.
+Zachowuje liczby z przecinkiem oraz dynamiczne {zmienne} i =wyrażenia.
 Rozpoznane dodatkowe ucieczkowanie znaku dzielenia poprawiamy tylko w
 math.C; nie zmieniamy tekstów, poleceń, ścieżek ani starych projektów.
 

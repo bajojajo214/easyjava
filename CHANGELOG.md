@@ -120,3 +120,5 @@
 - Samodzielny, edytowalny plik .js oraz uruchamianie bez Node.js.
 - Duszki, zdarzenia, ruch, pisak, pliki, zmienne i listy.
 - Pusty nowy projekt oraz ręcznie wybierane przykłady.
+
+Uzupełnienie 2.0.12: walidacja liczb w rozmiarze okna i geometrii GUI, w tym błędnego średnika zamiast szerokości. Przykład kalkulatora w instrukcji tylko dla zadań o kalkulatorze.

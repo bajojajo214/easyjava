@@ -42,6 +42,17 @@ public static class OllamaTests {
   Project manual=new Project();manual.Blocks.Add(Block.Make("set","liczba1","0"));manual.Blocks.Add(Block.Make("math","wynik","liczba1","+","1"));Check(ProjectIO.FromJson(ProjectIO.Json(manual)).Blocks[1].B=="liczba1","poprawa AI nie może zmieniać zwykłego odczytu projektu użytkownika");
   Project escaped=OllamaProject.Parse(Document("{\"kind\":\"math\",\"A\":\"wynik\",\"B\":\"20\",\"C\":"+Q("\\/")+",\"D\":\"4\"},{\"kind\":\"say\",\"A\":"+Q("\\/")+"}")).Project;OllamaProject.ValidateGenerated(escaped);Check(escaped.Blocks[0].C=="/"&&escaped.Blocks[1].A=="\\/","poprawa dodatkowo ucieczonego dzielenia AI zmienia zwykły tekst lub nie poprawia math.C");
   Project badOperator=new Project();badOperator.Blocks.Add(Block.Make("math","wynik","1","nonsense","2"));bool badOp=false;try{OllamaProject.ValidateGenerated(badOperator);}catch(Exception error){badOp=error.Message.Contains("znak działania");}Check(badOp,"AI przyjęło nieznany operator działania");
+  foreach(string field in new[]{"B","C"}){
+   Project badWindow=new Project();Block window=Block.Make("window","Okno","640","420","#eef2ff");window.Set(field,";");badWindow.Blocks.Add(window);bool rejected=false;
+   try{OllamaProject.ValidateGenerated(badWindow);}catch(Exception error){rejected=error.Message.Contains(";");}Check(rejected,"AI przyjęło średnik zamiast wymiaru okna w polu "+field);
+  }
+  foreach(string field in new[]{"C","D","E","F"}){
+   Project badBounds=new Project();Block label=Block.Make("ui_label","opis","Tekst; nie jest liczbą","30","40","200","35");label.Set(field,";");badBounds.Blocks.Add(label);bool rejected=false;
+   try{OllamaProject.ValidateGenerated(badBounds);}catch(Exception error){rejected=error.Message.Contains(";");}Check(rejected,"AI przyjęło nieprawidłową współrzędną lub rozmiar GUI w polu "+field);
+  }
+  Project commaDimensions=new Project();commaDimensions.Blocks.Add(Block.Make("window","Okno","640,5","420,25","#eef2ff"));commaDimensions.Blocks.Add(Block.Make("ui_label","opis","Tekst; pozostaje tekstem","30,5","40,25","200,5","35,25"));OllamaProject.ValidateGenerated(commaDimensions);
+  Project dynamicDimensions=new Project();dynamicDimensions.Blocks.Add(Block.Make("window","Okno","=szerokosc + 20","{wysokosc}","#eef2ff"));dynamicDimensions.Blocks.Add(Block.Make("ui_label","opis","Tekst","{pozycja_x}","=pozycja_y + 10","{szerokosc_pola}","=wysokosc_pola * 2"));OllamaProject.ValidateGenerated(dynamicDimensions);
+  Project manualDimensions=new Project();manualDimensions.Blocks.Add(Block.Make("window","Ręczny projekt",";","420","#eef2ff"));manualDimensions.Blocks.Add(Block.Make("ui_label","opis","Tekst",";","40","200","35"));Project reopenedDimensions=ProjectIO.FromJson(ProjectIO.Json(manualDimensions));Check(reopenedDimensions.Blocks[0].B==";"&&reopenedDimensions.Blocks[1].C==";","walidacja wymiarów AI zmienia lub blokuje zwykły odczyt ręcznego projektu");
   bool missingGui=false;try{OllamaProject.ValidateGenerated(OllamaProject.Parse(Document("{\"kind\":\"ui_get\",\"A\":\"brak_pola\",\"B\":\"tekst\"}")).Project);}catch(Exception error){missingGui=error.Message.Contains("brak_pola");}Check(missingGui,"AI przyjęło odwołanie do nieistniejącego elementu GUI");
   OllamaProject.ValidateGenerated(Examples.Counter());
   Project inert=new Project();inert.Blocks.Add(Block.Make("ui_button","martwy","Dodaj"));bool dead=false;try{OllamaProject.ValidateGenerated(inert);}catch(Exception error){dead=error.Message.Contains("martwy")&&error.Message.Contains("obsługi");}Check(dead,"AI przyjęło przycisk bez obsługi kliknięcia");
@@ -92,6 +103,7 @@ public static class OllamaTests {
   results.Add("PASS AI: limity głębokości, 500 bloczków, długości pól i dozwolonego zakresu przerw ograniczają odpowiedź modelu");
 
   string schema=OllamaProject.CreateSchema(),system=OllamaProject.CreateSystemPrompt();
+  Check(!system.Contains("PEŁNY PRZYKŁAD KALKULATORA")&&OllamaProject.CreateSystemPrompt("zrob mi prosty kalkulator").Contains("PEŁNY PRZYKŁAD KALKULATORA")&&!OllamaProject.CreateSystemPrompt("Zrób notatnik").Contains("PEŁNY PRZYKŁAD KALKULATORA"),"przykład kalkulatora musi dotyczyć polecenia, zamiast narzucać kalkulator wszystkim zadaniom");
   Check(schema.Contains("\"blocks\"")&&schema.Contains("\"kind\"")&&schema.Contains("\"required\""),"brak schematu projektu");
   foreach(string kind in Catalog.All.Keys)Check(system.Contains(kind)&&schema.Contains(Q(kind)),"brak definicji bloczka w instrukcji/schemacie: "+kind);
   Dictionary<string,System.Xml.XmlElement> schemaRoot=OllamaJson.Object(OllamaJson.Read(schema),"schemat");

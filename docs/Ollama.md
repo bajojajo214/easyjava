@@ -118,3 +118,5 @@ Opis programu trafia do wybranego serwera. W trybie poprawiania projektu trafiaj
 Integracja korzysta z API Ollamy: [lista modeli](https://docs.ollama.com/api/tags), [generowanie odpowiedzi](https://docs.ollama.com/api/chat) i [odpowiedzi zgodne ze schematem JSON](https://docs.ollama.com/capabilities/structured-outputs). Szczegóły wykonanych testów i ich ograniczenia znajdziesz w [raporcie wydania](Raport-testow.txt).
 
 Modele importowane przez hf.co/ lub huggingface.co/ używają prostszego formatu JSON już od pierwszej próby. Nadal obowiązują ścisły parser, katalog bloczków i kontrola projektu. W końcowej próbie qwen3.5-4B-super-coder:Q4_0 utworzył kalkulator w około 42 s; kliknięciami sprawdzono cztery działania, przecinki, liczby ujemne i dzielenie przez zero. Wynik tej próby nie gwarantuje kolejnych odpowiedzi.
+
+Wymiary okna i geometria kontrolek muszą być liczbami, {zmiennymi} albo =wyrażeniami. Średnik w polu Szerokość zostanie odrzucony przed wstawieniem propozycji. Pełny przykład kalkulatora jest dołączany tylko do poleceń dotyczących kalkulatora; inne zadania zachowują własny opis.

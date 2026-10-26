@@ -87,6 +87,7 @@ public static class OllamaProject {
   foreach(Block block in active){
    if(references.Contains(block.Kind)&&LiteralId(block.A)&&!controls.Contains(block.A))errors.Add("Bloczek „"+Catalog.All[block.Kind].Name+"” odwołuje się do nieistniejącego elementu GUI „"+block.A+"”. Dodaj odpowiedni element z tym identyfikatorem albo popraw identyfikator w zdarzeniu/bloczku.");
    try{if(block.Kind=="math"){ValidateNumeric(block.B,block.Kind,"B");ValidateNumeric(block.D,block.Kind,"D");if(!new[]{"+","-","*","/","%","^"}.Contains(block.C))throw new Exception("Bloczek math ma nieprawidłowy znak działania „"+block.C+"”. Użyj +, -, *, /, % albo ^.");}else if(block.Kind=="change")ValidateNumeric(block.B,block.Kind,"B");}catch(Exception error){errors.Add(error.Message);}
+   try{if(block.Kind=="window"){ValidateNumeric(block.B,block.Kind,"B");ValidateNumeric(block.C,block.Kind,"C");}else if(IsUiDefinition(block)){ValidateNumeric(block.C,block.Kind,"C");ValidateNumeric(block.D,block.Kind,"D");ValidateNumeric(block.E,block.Kind,"E");ValidateNumeric(block.F,block.Kind,"F");}}catch(Exception error){errors.Add(error.Message);}
   }
   ValidateCoverage(project.Blocks,project,errors);
   if(errors.Count>0)throw new Exception("Wygenerowany projekt ma błędy:\n"+string.Join("\n",errors.Distinct().Take(12)));
@@ -98,7 +99,8 @@ public static class OllamaProject {
   string text=(value??"").Trim();double number;
   if(double.TryParse(text.Replace(',','.'),NumberStyles.Float,CultureInfo.InvariantCulture,out number)&&!double.IsInfinity(number)&&!double.IsNaN(number))return;
   if(text.StartsWith("=",StringComparison.Ordinal)&&text.Length>1||Regex.IsMatch(text,@"^\{[^{}]+\}$"))return;
-  throw new Exception("Bloczek „"+Catalog.All[kind].Name+"”, pole "+field+" oczekuje liczby, {zmiennej} lub wyrażenia z =. Wartość „"+text+"” nie jest liczbą. Obliczenia wpisz np. =liczba1 + liczba2 albo użyj bloczka math z osobnymi operandami.");
+  Field definition=Catalog.All[kind].Fields.FirstOrDefault(f=>f.Key==field);string label=definition==null?field:definition.Label;
+  throw new Exception("Bloczek „"+Catalog.All[kind].Name+"”, pole „"+label+"” oczekuje liczby, {zmiennej} lub wyrażenia z =. Wartość „"+text+"” nie jest liczbą. Obliczenia wpisz np. =liczba1 + liczba2 albo użyj bloczka math z osobnymi operandami.");
  }
  static bool TryBounds(Block block,out double x,out double y,out double width,out double height){
   return double.TryParse(block.C.Replace(',','.'),NumberStyles.Float,CultureInfo.InvariantCulture,out x)&double.TryParse(block.D.Replace(',','.'),NumberStyles.Float,CultureInfo.InvariantCulture,out y)&double.TryParse(block.E.Replace(',','.'),NumberStyles.Float,CultureInfo.InvariantCulture,out width)&double.TryParse(block.F.Replace(',','.'),NumberStyles.Float,CultureInfo.InvariantCulture,out height)&&width>0&&height>0&&!new[]{x,y,width,height}.Any(v=>double.IsNaN(v)||double.IsInfinity(v));
@@ -176,7 +178,7 @@ public static class OllamaProject {
   return schema.Append("]}}}").ToString();
  }
 
- public static string CreateSystemPrompt(){
+ public static string CreateSystemPrompt(string request=null){
   StringBuilder prompt=new StringBuilder();
   prompt.AppendLine("Jesteś programistą EasyJava, wizualnego edytora programów Windows. Użytkownik opisuje program po polsku; zwracasz kompletny działający projekt jako obiekt JSON zgodny ze schematem. Nie zwracaj JavaScriptu, Markdown ani tekstu poza JSON. summary ma krótko po polsku wyjaśnić działanie oraz ewentualne ograniczenia.");
   prompt.AppendLine("Odpowiadaj zwięźle: summary najwyżej 2 zdania / 600 znaków. Podawaj tylko potrzebne pola, pomijaj disabled/collapsed=false, puste children i otherwise. Cały projekt musi się zmieścić w odpowiedzi. Nie twórz dekoracyjnych ani pustych przycisków. KAŻDY przycisk musi mieć event_button z rzeczywistymi instrukcjami children. Pola, napisy i przyciski muszą mieć oddzielne prostokąty, bez nakładania.");
@@ -198,7 +200,7 @@ public static class OllamaProject {
   prompt.AppendLine("KONTROLA PRZED ODPOWIEDZIĄ: czy każdy przycisk pobiera aktualną treść pól? Dla kalkulatora umieść wewnątrz event_button: [{\"kind\":\"ui_get\",\"A\":\"input1\",\"B\":\"liczba1\"},{\"kind\":\"ui_get\",\"A\":\"input2\",\"B\":\"liczba2\"},{\"kind\":\"math\",\"A\":\"wynik\",\"B\":\"{liczba1}\",\"C\":\"+\",\"D\":\"{liczba2}\"},{\"kind\":\"ui_text\",\"A\":\"label1\",\"B\":\"Wynik: {wynik}\"}]. input1/input2/label1 muszą być identyfikatorami naprawdę utworzonych elementów GUI. Nie zastępuj tych ui_get początkowym set 0.");
   prompt.AppendLine("Dla notatnika wewnątrz przycisku Zapisz wybierz file_save do zmiennej plik, sprawdź if A={plik}, B=\"\", Op=!=, a wewnątrz if umieść ui_get A=editor B=tekst, następnie file_write A={plik} B={tekst}. editor musi być ID utworzonego dużego pola tekstowego. Przycisk Otwórz: file_open A=plik, if A={plik}, B=\"\", Op=!=, w środku file_read A={plik} B=tekst i ui_text A=editor B={tekst}.");
   prompt.AppendLine("Odpowiedź musi odpowiadać schematowi JSON przekazanemu w parametrze format. Każdy kind ma własny zestaw dozwolonych pól z katalogu powyżej; nie dopisuj pól należących do innego bloczka.");
-  prompt.AppendLine("PEŁNY PRZYKŁAD KALKULATORA (dopasuj go do prośby użytkownika): " + ContextJson(Examples.Calculator()).Replace(",\"existingAssetIds\":[]", "").Replace("\"stepDelaySeconds\":0,", "\"summary\":\"Kalkulator z czterema działaniami i obsługą zera.\","));
+  if((request??"").IndexOf("kalkulator",StringComparison.OrdinalIgnoreCase)>=0||(request??"").IndexOf("calculator",StringComparison.OrdinalIgnoreCase)>=0)prompt.AppendLine("PEŁNY PRZYKŁAD KALKULATORA (dopasuj go do prośby użytkownika): " + ContextJson(Examples.Calculator()).Replace(",\"existingAssetIds\":[]", "").Replace("\"stepDelaySeconds\":0,", "\"summary\":\"Kalkulator z czterema działaniami i obsługą zera.\","));
   return prompt.ToString();
  }
 
