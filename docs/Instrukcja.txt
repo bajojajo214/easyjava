@@ -1,4 +1,4 @@
-EASYJAVA 2.0.11
+﻿EASYJAVA 2.0.12
 Starszy projekt .js otwórz w tej wersji i zapisz ponownie,
 aby gotowy program zawierał poprawione okno komendy z animacją i kolorami.
 102 bloczki • 12 kategorii • projektant GUI • scena i duszki
@@ -49,6 +49,20 @@ zaimportowane obrazy pozostają w projekcie. Opisz kolejną zmianę, aby
 rozbudować program, np. Dodaj przycisk odejmowania punktu.
 Jakość odpowiedzi zależy od wybranego modelu i opisu zadania.
 
+GOTOWY KALKULATOR — BEZ OLLAMY
+1. Otwórz AI • Ollama i kliknij Gotowy kalkulator.
+2. To sprawdzony wzorzec do edycji, jawnie oznaczony jako przygotowany
+   bez generowania AI. Nie wymaga połączenia z Ollamą ani modelu.
+3. Kliknij Użyj projektu, a potem F5. Sam wybór wzorca nie zmienia
+   otwartego projektu. Wstawienie można cofnąć przyciskiem Cofnij.
+4. Wpisz 7 i 5, kliknij +: otrzymasz Wynik: 12.
+   Dostępne są cztery działania: +, −, × i ÷, oraz przycisk Wyczyść.
+   Działają liczby ujemne i przecinek dziesiętny. Dzielenie przez zero
+   pokazuje wyjaśnienie zamiast wykonywać działanie.
+5. Edytuj dowolne bloczki. Zapisz .js zachowuje projekt,
+   a Kompiluj na pulpit tworzy gotowy program.
+Własny program z opisu generujesz osobnym przyciskiem Wygeneruj.
+
 GDY AI CZEKA LUB ZWRACA BŁĘDNE BLOCZKI
 Postęp AI pokazuje nazwy bloczków rozpoznawane w napływającej odpowiedzi.
 Ich liczba jest przybliżona i nie oznacza procentu ukończenia projektu.
@@ -60,7 +74,15 @@ panel informuje o oczekiwaniu i podpowiada zmianę modelu.
 Generowanie ma limit 5 minut, pierwszy fragment — 90 sekund,
 a przerwa w napływie odpowiedzi — 45 sekund.
 Jeżeli model pomyli pola lub strukturę bloczków, EasyJava prosi go o jedną
-poprawkę. Przy kolejnym błędzie zobaczysz szczegóły w panelu postępu.
+poprawkę. Tak samo ponawia odpowiedź uciętą przez limit długości:
+pierwsza próba ma budżet 4096 tokenów, druga 8192 i prostszy format JSON.
+Model otrzymuje opis, poprzednią odpowiedź i powód ponowienia; ma zwrócić
+cały projekt od początku. Obie próby dzielą jeden limit 5 minut.
+Kompletny, poprawny projekt można przyjąć także wtedy, gdy Ollama zgłosi
+osiągnięcie limitu. Nie ma trzeciej próby. Przerwij zatrzymuje ponowienie.
+Kontrola sprawdza także obsługę przycisków i operatory matematyczne,
+ale nie dowodzi poprawności każdego wygenerowanego programu.
+Przy kolejnym błędzie zobaczysz szczegóły w panelu postępu.
 Niepoprawna lub niedokończona odpowiedź nie zmienia projektu w edytorze.
 
 Kliknij Zmień model, aby wybrać inny model i zachować opis zadania.
@@ -135,7 +157,7 @@ i wpisz w nim czas. Wyszukiwarka znajduje go także po słowach
 przerwa, pauza lub odstęp. Samo kliknięcie bloczka go nie dodaje.
 
 POBIERANIE AKTUALNEJ WERSJI
-Aktualna wersja to 2.0.10. Numer wersji widać w tytule okna aplikacji.
+Aktualna wersja to 2.0.12. Numer wersji widać w tytule okna aplikacji.
 Aktualną aplikację pobierzesz przyciskiem w README
 repozytorium albo bezpośrednio z gałęzi main:
 https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe

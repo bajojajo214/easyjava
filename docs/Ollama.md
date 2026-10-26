@@ -1,6 +1,18 @@
-# AI w EasyJava — Ollama
+﻿# AI w EasyJava — Ollama
 
-W EasyJava 2.0.11 możesz opisać program zwykłymi słowami, a model z Ollamy przygotuje projekt z edytowalnymi bloczkami. Możesz też poprosić o zmianę w projekcie, który już masz. Zapis działa tak jak wcześniej: jeden plik `.js` zawiera program i projekt do dalszej edycji. Panel pokazuje postęp na żywo i pomaga wybrać inny model, gdy odpowiedź nie powstaje lub jest błędna.
+W EasyJava 2.0.12 możesz opisać program zwykłymi słowami, a model z Ollamy przygotuje projekt z edytowalnymi bloczkami. Możesz też poprosić o zmianę w projekcie, który już masz. Jeden plik `.js` zawiera program i projekt do dalszej edycji. Panel pokazuje postęp na żywo, ponawia uciętą odpowiedź i pomaga wybrać inny model, gdy projekt nie powstaje lub jest błędny.
+
+## Kalkulator od razu, bez generowania
+
+W panelu **AI • Ollama** kliknij **Gotowy kalkulator**. To **sprawdzony wzorzec EasyJava**, oznaczony w opisie jako przygotowany bez generowania AI. Nie potrzebujesz połączenia z Ollamą ani modelu.
+
+1. Kliknij **Gotowy kalkulator** i obejrzyj proponowane bloczki.
+2. Kliknij **Użyj projektu**, aby wstawić wzorzec do edytora. Sam wybór nie zmienia otwartego projektu.
+3. Naciśnij **F5**. Wpisz `7` i `5`, a potem kliknij **+** — wynik powinien wynosić `12`.
+4. Sprawdź pozostałe działania **− × ÷**. Przy dzieleniu przez zero pojawi się wyjaśnienie. **Wyczyść** ustawia oba pola i wynik na `0`.
+5. Zmieniaj bloczki według potrzeb. **Zapisz .js** zachowa projekt, a **Kompiluj na pulpit** utworzy gotowy program.
+
+Kalkulator przyjmuje także liczby ujemne i przecinek dziesiętny. Wstawienie wzorca można cofnąć przyciskiem **Cofnij**. Aby wygenerować własny program z opisu, użyj osobnego przycisku **Wygeneruj**.
 
 ## Pierwsze uruchomienie
 
@@ -30,9 +42,19 @@ Wczytanie modelu i przygotowanie polecenia może zająć chwilę. Po dłuższej 
 
 EasyJava czeka do **90 sekund na pierwszy fragment** i do **45 sekund na kolejne dane po zatrzymaniu strumienia**. Całe generowanie, razem z ewentualną poprawką, ma limit **5 minut**. Po przekroczeniu limitu lub przerwaniu połączenia zobaczysz szczegóły; niedokończony projekt nie trafi do edytora.
 
+## Gdy model osiągnie limit długości
+
+Pierwsza próba ma budżet **4096 tokenów odpowiedzi**. Jeśli Ollama zgłosi osiągnięcie limitu, EasyJava sprawdza odebrany tekst. Kompletny projekt, który przechodzi parser i kontrolę bloczków, może zostać użyty. Ucięty lub błędny projekt powoduje **jedną ponowną próbę z budżetem 8192 tokenów**.
+
+W **Postępie AI** zobaczysz komunikat o ponowieniu. Model dostaje pierwotny opis, poprzednią odpowiedź i przyczynę błędu. Ma przygotować od początku cały projekt, z krótkim opisem i bez zbędnych pól. Druga próba używa prostszego formatu JSON; aplikacja sprawdza jej wynik równie dokładnie jak pierwszą odpowiedź.
+
+Limit **5 minut jest wspólny dla obu prób**. Nie ma trzeciej próby ani bezterminowego oczekiwania. Jeśli model ponownie urwie projekt lub zwróci błędne bloczki, panel pokaże problem i zaproponuje zmianę modelu. **Przerwij** działa także podczas ponowienia. Niepełna propozycja nie zastępuje projektu w edytorze.
+
 ## Błędna odpowiedź i zmiana modelu
 
-Model może pomylić typ bloczka, jego pola lub zagnieżdżenie. EasyJava sprawdza te elementy przed wstawieniem. Jeżeli odpowiedź jest nieprawidłowa, program prosi ten sam model o **jedną poprawkę**, przekazując mu opis zadania i wskazany błąd. Etap poprawiania zobaczysz w panelu postępu.
+Model może pomylić typ bloczka, jego pola lub zagnieżdżenie. EasyJava sprawdza te elementy przed wstawieniem. Kontrola wykrywa także brakujące elementy GUI, przyciski bez obsługi kliknięcia, całkowicie zasłonięte pola oraz nieprawidłowe operatory i wartości matematyczne. Jeżeli odpowiedź jest nieprawidłowa, program prosi ten sam model o **jedną poprawkę**, przekazując mu opis zadania i wskazany błąd. Ta poprawka jest tą samą drugą próbą, która służy do odzyskiwania uciętej odpowiedzi; nie uruchamia dodatkowej serii żądań.
+
+Instrukcja modelu zawiera pełny przykład kalkulatora i prosi o opis do dwóch zdań / 600 znaków. Typowy błąd AI polegający na dodaniu zbędnego odwrotnego ukośnika przed znakiem dzielenia jest poprawiany wyłącznie w polu operatora. Kontrole ograniczają oczywiste błędy, ale nie potwierdzają poprawności każdego algorytmu ani całego układu okna.
 
 Gdy poprawka także jest błędna, w **Postępie AI** zobaczysz wyjaśnienie problemu i propozycję **Zmień model**. Możesz też wybrać ten przycisk samodzielnie podczas długiego generowania: bieżąca operacja zostanie przerwana, a opis zadania pozostanie w polu.
 
@@ -55,6 +77,7 @@ Opisz elementy okna, ich zachowanie i oczekiwany wynik. Dobrze zacząć od małe
 Przykłady:
 
 - „Zrób licznik kliknięć. Okno ma mieć napis Wynik: 0, przycisk +1 i przycisk Wyzeruj. Po każdym kliknięciu odśwież wynik”.
+- „Zrób prosty kalkulator: dwa pola liczbowe, przyciski +, -, *, / i napis z wynikiem. Po kliknięciu pobierz aktualne liczby z pól. Obsłuż dzielenie przez zero”.
 - „Zrób listę zadań: pole do wpisania zadania, przycisk Dodaj, lista zadań i przycisk Wyczyść listę”.
 - „Utwórz duszka robota. Strzałki mają go przesuwać, a spacja zmieniać kolor. Dodaj instrukcję sterowania na górze okna”.
 - „Zrób notatnik z dużym polem tekstowym i przyciskami Otwórz oraz Zapisz. Przy zapisie zapytaj o plik TXT”.
@@ -88,7 +111,10 @@ Opis programu trafia do wybranego serwera. W trybie poprawiania projektu trafiaj
 | Model nie istnieje | Sprawdź pełną nazwę i wariant modelu, także część po `:`. Wybierz model dostępny na tym serwerze. |
 | Generowanie trwa długo | Otwórz **Postęp AI** i sprawdź czas oraz napływ znaków. Możesz kliknąć **Zmień model**, co najpierw przerwie operację, albo uprościć opis. |
 | Model przestał przesyłać dane | Panel wykrywa przerwę i kończy oczekiwanie po limicie. Zobacz szczegóły w **Postępie AI** i spróbuj innego modelu. |
+| Model osiągnął limit długości | Wersja 2.0.12 sama podejmuje jedną próbę z większym budżetem i prostszym formatem. Jeśli także się nie uda, uprość opis, zmień model albo wybierz **Gotowy kalkulator**, gdy potrzebujesz kalkulatora wzorcowego. |
 | Odpowiedź nie jest prawidłowym projektem | EasyJava prosi o jedną poprawkę. Jeśli także się nie uda, pokazuje błąd i podpowiada **Zmień model**. Edytor nie wstawia nieprawidłowej propozycji. |
 | Program działa inaczej niż chciałeś | Opisz konkretną poprawkę w trybie poprawiania bieżącego projektu albo edytuj bloczki ręcznie. |
 
 Integracja korzysta z API Ollamy: [lista modeli](https://docs.ollama.com/api/tags), [generowanie odpowiedzi](https://docs.ollama.com/api/chat) i [odpowiedzi zgodne ze schematem JSON](https://docs.ollama.com/capabilities/structured-outputs). Szczegóły wykonanych testów i ich ograniczenia znajdziesz w [raporcie wydania](Raport-testow.txt).
+
+Modele importowane przez hf.co/ lub huggingface.co/ używają prostszego formatu JSON już od pierwszej próby. Nadal obowiązują ścisły parser, katalog bloczków i kontrola projektu. W końcowej próbie qwen3.5-4B-super-coder:Q4_0 utworzył kalkulator w około 42 s; kliknięciami sprawdzono cztery działania, przecinki, liczby ujemne i dzielenie przez zero. Wynik tej próby nie gwarantuje kolejnych odpowiedzi.

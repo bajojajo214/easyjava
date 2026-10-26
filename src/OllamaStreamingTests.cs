@@ -27,9 +27,16 @@ public static class OllamaStreamingTests {
   await Utf8Fragments(results);
   await InvalidCompletion(results);
   await RepairOnce(results);
+  await LengthRecovery(results);
+  await CompleteAtLengthLimit(results);
+  await LengthBoundedAndCancelled(results);
   await CancelWhileStreaming(results);
   await StallDetection(results);
   await SizeLimit(results);
+  string imported=Piece(Document("Model importowany"),true,"stop");using(StreamServer server=StreamServer.Body(imported)){
+   OllamaGeneration generated=await new OllamaClient(server.Url).GenerateAsync("hf.co/example/model:Q4_0","Prosty projekt",null,CancellationToken.None);Check(generated.Project.Blocks.Count==1&&server.RequestBody.Contains("\"format\":\"json\""),"model importowany nie używa zgodnego trybu JSON");await server.Completion;
+  }
+  results.Add("PASS AI zgodność: modele hf.co używają prostego JSON od początku i nadal przechodzą parser projektu");
  }
 
  static async Task LiveProgress(List<string> results){
@@ -68,10 +75,10 @@ public static class OllamaStreamingTests {
  }
 
  static async Task InvalidCompletion(List<string> results){
-  foreach(string body in new[]{Piece(Document("niekompletny")),Piece(Document("ucięty"),true,"length"),Piece("{\"name\":",true,"stop"),"{\"error\":\"fixture stream failed\"}\n"}){
+  foreach(string body in new[]{Piece(Document("niekompletny")),Piece("{\"name\":\"ucięty",true,"length"),Piece("{\"name\":",true,"stop"),"{\"error\":\"fixture stream failed\"}\n"}){
    string text=body;using(StreamServer server=new StreamServer(new[]{text,text}))await ExpectFailure(new OllamaClient(server.Url).GenerateAsync("fixture:latest","Test błędu",null,CancellationToken.None),null,"przerwany, ucięty lub błędny strumień został uznany za poprawny projekt");
   }
-  results.Add("PASS AI strumień: brak done, limit długości, niepełny JSON i błąd serwera nie zwracają projektu do wstawienia");
+  results.Add("PASS AI strumień: brak done, ponownie ucięty JSON, niepełny JSON i błąd serwera nie zwracają projektu do wstawienia");
  }
 
  static async Task CancelWhileStreaming(List<string> results){
@@ -87,11 +94,58 @@ public static class OllamaStreamingTests {
   using(StreamServer server=new StreamServer(new[]{Piece(invalid,true,"stop"),Piece(Document("Naprawiono"),true,"stop")})){
    List<string> updates=new List<string>();OllamaGeneration generated=await new OllamaClient(server.Url).GenerateAsync("fixture:latest","Pierwotny opis naprawy",null,CancellationToken.None,delegate(OllamaProgress value){updates.Add(value.Text??"");});
    Check(generated.Project.Blocks[0].Children[0].A=="Naprawiono"&&server.Requests.Count==2,"poprawny drugi wynik nie naprawił nieznanego bloczka");string repair=server.Requests[1];Check(repair.Contains("Pierwotny opis naprawy")&&repair.Contains("invented_block")&&repair.IndexOf("nieznanego",StringComparison.OrdinalIgnoreCase)>=0,"naprawa nie otrzymała pierwotnego opisu, odpowiedzi i przyczyny błędu");Check(updates.Any(x=>x.IndexOf("popraw",StringComparison.OrdinalIgnoreCase)>=0),"brak informacji o automatycznej poprawce");await server.Completion;
+   Check(server.Requests[0].Contains("\"num_predict\":4096")&&server.Requests[1].Contains("\"num_predict\":8192"),"poprawka walidacji nie ma większego, skończonego budżetu odpowiedzi");
   }
   using(StreamServer server=new StreamServer(new[]{Piece(invalid,true,"stop"),Piece(invalid,true,"stop")})){
    await ExpectFailure(new OllamaClient(server.Url).GenerateAsync("fixture:latest","Wciąż błędny projekt",null,CancellationToken.None),null,"drugi błędny projekt został przyjęty albo naprawa nie ma końca");Check(server.Requests.Count==2,"naprawa wykonała inną liczbę prób niż jedna");await server.Completion;
   }
   results.Add("PASS AI strumień: jedna poprawka dostaje opis i błąd walidacji; drugi błędny wynik kończy się błędem bez dalszych prób");
+ }
+
+ static async Task LengthRecovery(List<string> results){
+  const string partial="{\"name\":\"kalkulator_przerwany\",\"summary\":\"Niedokończony projekt";
+  using(MemoryStream stream=new MemoryStream(Encoding.UTF8.GetBytes(Piece(partial,true,"length")))){
+   bool retained=false;try{await OllamaClient.ReadGenerationStreamAsync(stream,CancellationToken.None,null);}catch(OllamaLengthException error){retained=error.Content==partial;}
+   Check(retained,"sygnał limitu nie zachowuje dokładnej treści potrzebnej do ponowienia");
+  }
+  using(StreamServer server=new StreamServer(new[]{Piece(partial,true,"length"),Piece(Document("Pełny projekt po zwiększeniu limitu"),true,"stop")})){
+   OllamaGeneration generated=await new OllamaClient(server.Url).GenerateAsync("fixture:latest","Pierwotny opis kalkulatora do ponowienia",null,CancellationToken.None);
+   Check(generated.Project.Blocks[0].Children[0].A=="Pełny projekt po zwiększeniu limitu"&&server.Requests.Count==2,"ucięta odpowiedź nie została zastąpiona pełnym projektem z jednej ponownej próby");
+   string first=server.Requests[0],retry=server.Requests[1];
+   Check(first.Contains("\"num_predict\":4096")&&retry.Contains("\"num_predict\":8192"),"ponowienie po limicie nie zmienia budżetu 4096 na skończone 8192");
+    Check(first.Contains("\"think\":false")&&retry.Contains("\"think\":false"),"zwiększenie budżetu przypadkiem włącza myślenie modelu");
+    Check(first.Contains("\"format\":{")&&retry.Contains("\"format\":\"json\""),"ponowienie nie używa prostszego formatu JSON z tą samą walidacją projektu");
+   Check(retry.Contains("Pierwotny opis kalkulatora do ponowienia")&&retry.Contains("kalkulator_przerwany")&&retry.IndexOf("limit",StringComparison.OrdinalIgnoreCase)>=0,"ponowienie utraciło opis, uciętą treść albo przyczynę przerwania");
+   Check(!retry.Contains("\"num_predict\":-1"),"ponowienie ma nieograniczony budżet");await server.Completion;
+  }
+  results.Add("PASS AI limit: ucięta treść trafia do jednej ponownej próby z budżetem 8192 zamiast 4096 i pełną walidacją wyniku");
+ }
+
+ static async Task CompleteAtLengthLimit(List<string> results){
+  using(StreamServer server=StreamServer.Body(Piece(Document("Pełny JSON mimo limitu")+"  \n",true,"length"))){
+   OllamaGeneration generated=await new OllamaClient(server.Url).GenerateAsync("fixture:latest","Kompletny projekt na końcu budżetu",null,CancellationToken.None);
+   Check(generated.Project.Blocks[0].Children[0].A=="Pełny JSON mimo limitu"&&server.Requests.Count==1,"kompletny poprawny JSON z done_reason=length został odrzucony lub ponowiony");await server.Completion;
+  }
+  results.Add("PASS AI limit: kompletny poprawny JSON zakończony limitem jest przyjmowany po walidacji bez kolejnego żądania");
+ }
+
+ static async Task LengthBoundedAndCancelled(List<string> results){
+  string truncated=Piece("{\"name\":\"niedokończony",true,"length");
+  foreach(string second in new[]{truncated,Piece("{\"name\":\"zły\",\"summary\":\"Błąd\",\"blocks\":[{\"kind\":\"invented_block\"}]}",true,"stop")}){
+   using(StreamServer server=new StreamServer(new[]{truncated,second})){
+    await ExpectFailure(new OllamaClient(server.Url).GenerateAsync("fixture:latest","Wciąż ucięty lub błędny projekt",null,CancellationToken.None),null,"błędne ponowienie zostało przyjęte lub klient czeka na trzecią próbę");
+    Check(server.Requests.Count==2,"klient nie ogranicza ponowień po limicie do jednej próby");await server.Completion;
+   }
+  }
+  using(CancellationTokenSource cancel=new CancellationTokenSource())using(StreamServer server=StreamServer.Body(truncated)){
+   bool cancelledAtRetry=false;
+   Task pending=new OllamaClient(server.Url).GenerateAsync("fixture:latest","Anulowanie pomiędzy próbami",null,cancel.Token,delegate(OllamaProgress update){
+    string text=update.Text??"";
+    if(text.IndexOf("limit",StringComparison.OrdinalIgnoreCase)>=0||text.IndexOf("ponown",StringComparison.OrdinalIgnoreCase)>=0||text.IndexOf("popraw",StringComparison.OrdinalIgnoreCase)>=0){cancelledAtRetry=true;cancel.Cancel();}
+   });
+   await ExpectCancelled(pending,"anulowanie po rozpoznaniu limitu nie zostało uszanowane");Check(cancelledAtRetry&&server.Requests.Count==1,"anulowanie pomiędzy próbami rozpoczęło dodatkowe żądanie");await server.Completion;
+  }
+  results.Add("PASS AI limit: druga ucięta lub błędna odpowiedź kończy generowanie; Przerwij przed ponowieniem nie wysyła następnego żądania");
  }
 
  static async Task SizeLimit(List<string> results){

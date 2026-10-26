@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,6 +14,13 @@ namespace EasyJava2 {
 public sealed class OllamaProgress {
  public string Text,Preview;
  public int Characters,BlockCount;
+}
+// Keep a budget-truncated response separate from a broken connection. The
+// complete object may already be present; only the strict project parser can
+// decide whether it is usable, otherwise request one whole replacement.
+internal sealed class OllamaLengthException : Exception {
+ public string Content {get;private set;}
+ public OllamaLengthException(string content):base("Model osiągnął limit długości odpowiedzi."){Content=content;}
 }
 public sealed class OllamaClient {
  public const string DefaultEndpoint="http://127.0.0.1:11434";
@@ -47,9 +54,10 @@ public sealed class OllamaClient {
    try{
     if(progress!=null)progress(new OllamaProgress{Text="Ładowanie modelu i przygotowanie projektu…",Preview=""});
     for(int attempt=0;attempt<2;attempt++){
-     bool repair=attempt>0;Action<OllamaProgress> report=progress==null?(Action<OllamaProgress>)null:delegate(OllamaProgress update){if(repair)update.Text="Model poprawia błędne bloczki…";progress(update);};
-     string content;
-     try{content=await GenerateContentAsync(model,user,repair||user.Length>16000?32768:16384,context!=null,linked.Token,report);}catch(OperationCanceledException){throw;}catch(Exception e){if(repair)throw new Exception("Nie udało się poprawić bloczków. Zmień model lub uprość polecenie.\n"+e.Message,e);throw;}
+     bool repair=attempt>0;string phase=repair?"Ponowna próba: prostszy format, limit 8192 tokenów…":"AI tworzy bloczki…";Action<OllamaProgress> report=progress==null?(Action<OllamaProgress>)null:delegate(OllamaProgress update){if(repair)update.Text=phase;progress(update);};
+     string content;bool truncated=false;
+     bool imported=model.Trim().StartsWith("hf.co/",StringComparison.OrdinalIgnoreCase)||model.Trim().StartsWith("huggingface.co/",StringComparison.OrdinalIgnoreCase);
+     try{content=await GenerateContentAsync(model,user,repair||user.Length>16000?32768:16384,repair?8192:4096,context!=null,repair||imported,linked.Token,report);}catch(OllamaLengthException e){content=e.Content;truncated=true;}catch(OperationCanceledException){throw;}catch(Exception e){if(repair)throw new Exception("Nie udało się poprawić bloczków. Zmień model lub uprość polecenie.\n"+e.Message,e);throw;}
      linked.Token.ThrowIfCancellationRequested();
      if(progress!=null)progress(new OllamaProgress{Text="Sprawdzanie wygenerowanych bloczków…",Preview=Tail(content),Characters=content.Length,BlockCount=CountBlocks(content)});
      OllamaGeneration result=null;Exception invalid=null;
@@ -57,18 +65,21 @@ public sealed class OllamaClient {
      // making the one permitted repair request outside that catch.
      try{OllamaGeneration candidate=OllamaProject.Parse(content,context);OllamaProject.ValidateGenerated(candidate.Project);result=candidate;}catch(Exception e){invalid=e;}
      if(result!=null){linked.Token.ThrowIfCancellationRequested();return result;}
-     if(repair)throw new Exception("Model zwrócił niepoprawne bloczki także po próbie poprawy. Zmień model lub uprość polecenie.\n"+invalid.Message,invalid);
-     if(progress!=null)progress(new OllamaProgress{Text="Model poprawia błędne bloczki…",Preview=Tail(content),Characters=content.Length,BlockCount=CountBlocks(content)});
+     if(repair)throw new Exception(truncated?"Model ponownie urwał projekt mimo zwiększenia limitu do 8192 tokenów. Nie można użyć nieukończonych bloczków. Zmień model lub uprość polecenie.":"Model zwrócił niepoprawne bloczki także po próbie poprawy. Zmień model lub uprość polecenie.\n"+invalid.Message,invalid);
+     if(progress!=null)progress(new OllamaProgress{Text=truncated?"Odpowiedź urwana. Ponawiam z limitem 8192 tokenów…":"Model poprawia błędne bloczki…",Preview=Tail(content),Characters=content.Length,BlockCount=CountBlocks(content)});
      string previous=content.Length>32000?content.Substring(0,32000)+"\n[odpowiedź skrócona ze względu na rozmiar]":content;
-     user="POLECENIE UŻYTKOWNIKA:\n"+prompt.Trim()+"\n\nPOPRZEDNI PROJEKT JSON (dane do poprawy):\n"+previous+"\n\nBŁĄD WALIDACJI:\n"+invalid.Message+"\n\nPopraw błąd zgodnie z katalogiem bloczków. Zwróć CAŁY poprawiony projekt jako JSON, nie fragment ani opis. Dobierz prawidłowy kind i tylko jego dozwolone pola. Zachowaj oczekiwane działanie i potrzebne wcześniejsze bloczki.";
+     user="POLECENIE UŻYTKOWNIKA:\n"+prompt.Trim()+(context==null?"":"\n\nAKTUALNY PROJEKT DO MODYFIKACJI (dane):\n"+OllamaProject.ContextJson(context))+"\n\nPOPRZEDNI PROJEKT JSON (dane do poprawy):\n"+previous+"\n\nBŁĄD WALIDACJI:\n"+(truncated?"Odpowiedź została ucięta przez limit długości. Wygeneruj od początku kompletny, zwięzły projekt. ":"")+invalid.Message+"\n\nPopraw błąd zgodnie z katalogiem bloczków. Zwróć CAŁY poprawiony projekt jako JSON, nie fragment ani opis. Dobierz prawidłowy kind i tylko jego dozwolone pola. Zachowaj oczekiwane działanie i potrzebne wcześniejsze bloczki. summary najwyżej 2 krótkie zdania. Pomiń zbędne pola, nie powtarzaj bloczków i nie dodawaj długich komentarzy. Zakończ cały JSON.";
     }
     throw new Exception("Model nie zwrócił projektu.");
    }catch(OperationCanceledException){if(cancellation.IsCancellationRequested)throw new OperationCanceledException(cancellation);throw new Exception("Generowanie przekroczyło 5 minut. Przerwano oczekiwanie. Uprość polecenie lub zmień model.");}
   }
  }
 
- async Task<string> GenerateContentAsync(string model,string user,int contextSize,bool preserveState,CancellationToken cancellation,Action<OllamaProgress> progress){
-  string body="{\"model\":"+OllamaJson.Quote(model.Trim())+",\"messages\":[{\"role\":\"system\",\"content\":"+OllamaJson.Quote(OllamaProject.CreateSystemPrompt())+"},{\"role\":\"user\",\"content\":"+OllamaJson.Quote(user)+"}],\"format\":"+OllamaProject.CreateSchema(preserveState)+",\"stream\":true,\"think\":false,\"options\":{\"temperature\":0.2,\"num_ctx\":"+contextSize+",\"num_predict\":4096}}";
+ async Task<string> GenerateContentAsync(string model,string user,int contextSize,int tokenBudget,bool preserveState,bool plainJson,CancellationToken cancellation,Action<OllamaProgress> progress){
+  // Some models degenerate under the large recursive block grammar. A single
+  // compatibility retry uses JSON mode; the same strict parser and semantic
+  // validation still apply before the result can reach the editor.
+  string body="{\"model\":"+OllamaJson.Quote(model.Trim())+",\"messages\":[{\"role\":\"system\",\"content\":"+OllamaJson.Quote(OllamaProject.CreateSystemPrompt())+"},{\"role\":\"user\",\"content\":"+OllamaJson.Quote(user)+"}],\"format\":"+(plainJson?"\"json\"":OllamaProject.CreateSchema(preserveState))+",\"stream\":true,\"think\":false,\"options\":{\"temperature\":0,\"num_ctx\":"+contextSize+",\"num_predict\":"+tokenBudget+"}}";
   Stopwatch clock=Stopwatch.StartNew();
   using(HttpClient client=CreateClient())using(HttpRequestMessage request=new HttpRequestMessage(HttpMethod.Post,new Uri(baseUri,"api/chat")))using(CancellationTokenSource first=new CancellationTokenSource(90000))using(CancellationTokenSource headers=CancellationTokenSource.CreateLinkedTokenSource(cancellation,first.Token)){
    request.Headers.Accept.ParseAdd("application/x-ndjson");request.Content=new StringContent(body,Encoding.UTF8,"application/json");
@@ -127,7 +138,7 @@ public sealed class OllamaClient {
    }
    XmlElement done;if(!root.TryGetValue("done",out done)||OllamaJson.Type(done)!="boolean")throw new Exception("Ollama zwróciła fragment bez informacji o zakończeniu. Sprawdź adres serwera lub zmień model.");
    if(done.InnerText=="true"){
-    if(root.TryGetValue("done_reason",out value)&&OllamaJson.Type(value)=="string"&&value.InnerText=="length")throw new Exception("Model osiągnął limit długości odpowiedzi i nie ukończył projektu. Poproś o mniejszy program lub zmień model.");
+    if(root.TryGetValue("done_reason",out value)&&OllamaJson.Type(value)=="string"&&value.InnerText=="length")throw new OllamaLengthException(Content.ToString());
     Done=true;
    }
    if(progress!=null&&(Done||added&&(lastReport<0||clock.ElapsedMilliseconds-lastReport>=100))){string content=Content.ToString();progress(new OllamaProgress{Text=Done?"Sprawdzanie wygenerowanych bloczków…":"AI tworzy bloczki…",Preview=Tail(content),Characters=content.Length,BlockCount=CountBlocks(content)});lastReport=clock.ElapsedMilliseconds;}

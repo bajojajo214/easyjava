@@ -1,4 +1,15 @@
-# Historia zmian
+﻿# Historia zmian
+
+## 2.0.12 — 2026-10-26
+
+- Odpowiedź zakończona limitem długości jest sprawdzana: kompletny, poprawny projekt można przyjąć, a ucięty trafia do jednej ponownej próby z budżetem 8192 zamiast 4096 tokenów.
+- Ponowienie używa prostszego formatu JSON zamiast dużego schematu generowania. Parser i kontrola poprawności projektu pozostają takie same; niedokończony wynik nie udostępnia przycisku Użyj projektu.
+- Obie próby mają wspólny limit 5 minut. Anulowanie zatrzymuje także przejście do kolejnej próby; nie ma trzeciego żądania.
+- Skrócono opis odpowiedzi w schemacie do 600 znaków i dodano do instrukcji modelu pełny przykład kalkulatora z odczytem pól, działaniami i obsługą przycisków.
+- Walidacja propozycji wykrywa przyciski bez obsługi kliknięcia i nieobsługiwane operatory matematyczne. Schemat ogranicza operatory do dozwolonych wartości.
+- W odpowiedzi AI usuwany jest błędny dodatkowy odwrotny ukośnik przed znakiem dzielenia `/`. Ta korekta dotyczy wyłącznie operatora `math`; nie zmienia tekstów, ścieżek ani komend.
+- Nowy przycisk Gotowy kalkulator w panelu AI otwiera sprawdzony wzorzec bez połączenia z Ollamą. Dwa pola, cztery działania, Wyczyść, liczby ujemne i przecinki oraz komunikat przy dzieleniu przez zero. Wzorzec jest jawnie oznaczony i trafia do edytora dopiero przez Użyj projektu.
+- Rozszerzono testy o ponowienie po limicie, poprawny JSON na końcu budżetu, anulowanie pomiędzy próbami oraz zapis, odczyt i kliknięcia kalkulatora wzorcowego.
 
 ## 2.0.11 — 2026-10-25
 

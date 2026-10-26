@@ -1,59 +1,50 @@
-﻿EASYJAVA 2.0.11 — RAPORT TESTÓW
+﻿EASYJAVA 2.0.12 — RAPORT TESTÓW
 
 FINALNA APLIKACJA
-112 grup testów PASS, 0 FAIL, wszystkie 102 rodzaje bloczków / 12 kategorii.
-Pełny zestaw wykonano po ostatniej zmianie źródeł finalnego EXE.
+118 grup PASS, 0 FAIL. Wszystkie 102 rodzaje bloczków / 12 kategorii.
+Zestaw wykonano po ostatniej zmianie źródeł finalnej aplikacji.
 
-PRZYCZYNY PROBLEMU
-W rzeczywistych odpowiedziach qwen2.5-coder:3b odtworzono mieszanie pól
-bloczków, brakujące elementy GUI, błędny zapis wyrażenia i zasłonięcie
-pól/przycisku napisem. Protokół HTTP odpowiadał; poprawny JSON nie był
-dowodem na działający program. Poprzedni raport sprawdzał zbyt mały zestaw
-rzeczywistych zadań AI. Nowa kontrola odrzuca te rozpoznane nieprawidłowości.
+ODTWORZONY PROBLEM I NAPRAWA
+Model hf.co/jica98/qwen3.5-4B-super-coder:Q4_0 w lokalnej Ollamie 0.40.4.
+Próby z rozbudowanym schematem ujawniły nieobsługiwane przyciski,
+niezgodny operator dzielenia i błędną odpowiedź również po poprawce.
+Modele importowane przez hf.co/huggingface.co używają teraz JSON od początku.
+Ścisły parser, katalog bloczków i walidacja nadal obowiązują. Nie stosujemy
+ucinania JSON ani dopisywania brakującej logiki, aby uznać wynik za gotowy.
+Dodano pełny działający przykład kalkulatora w instrukcji modelu.
+Rozpoznane dodatkowe ucieczkowanie znaku dzielenia poprawiamy tylko w
+math.C; nie zmieniamy tekstów, poleceń, ścieżek ani starych projektów.
 
-POSTĘP I DIAGNOSTYKA AI
-Prawdziwa lokalna Ollama, model qwen2.5-coder:3b: panel pokazał fragmenty
-i powstające bloczki przed końcem odpowiedzi; po ukończeniu udostępnił
-pełne drzewo i Użyj projektu. Zapisano zrzuty obu etapów.
-Testy lokalnego serwera HTTP potwierdzają rozdzielone bajty UTF-8,
-done:true przed zamknięciem połączenia, pojedynczą próbę poprawy,
-przerwane odpowiedzi, anulowanie, limity rozmiaru i brak postępu.
-Postęp nie oznacza gotowego projektu; częściowego wyniku nie da się użyć.
-Jedna próba poprawy obejmuje błąd i wcześniejszą odpowiedź. Jeśli nie
-wystarczy, panel pokazuje szczegóły i propozycję zmiany modelu.
-Sprawdzono wybór innych pobranych modeli, rozmiary proponowanych modeli,
-zachowanie opisu oraz brak automatycznego pobierania po samym wyborze.
+PRAWDZIWY MODEL — KOŃCOWA PRÓBA
+Polecenie dokładnie: zrob mi prosty kalkulator
+Generowanie: 41848 ms, pierwszy tekst: 11709 ms, 279 aktualizacji postępu.
+41 bloczków, bez ponowienia. Otrzymany projekt zapisano, uruchomiono
+w RuntimeView i klikano rzeczywiste kontrolki. Sześć przypadków obliczeń
+oraz dzielenie przez zero przeszły. Wyniku nie zastąpiono wzorcem.
+To dowód działania tego przypadku; model nadal może pomylić się w innej próbie.
 
-RZECZYWISTY NEGATYWNY PRZYPADEK MODELU
-W ostatniej próbie kalkulatora model nadal zwrócił zasłonięte pole także
-po jednej próbie poprawy. Po około 44 sekundach generator odrzucił wynik
-z nazwą zasłoniętego pola i propozycją zmiany modelu. Nie traktujemy tej
-odpowiedzi jako działającego kalkulatora ani jako udanej generacji.
+AUTOMATYCZNE PONOWIENIE
+Kontrolowane odpowiedzi lokalnego serwera potwierdzają: limit długości
+zachowuje treść; pełny poprawny obiekt przechodzi walidację, a ucięty
+powoduje jedną próbę całego projektu z 8192 zamiast 4096 tokenów.
+Ponowienie stosuje prostszy format JSON z tym samym parserem i walidacją.
+Nie ma trzeciej próby, nieograniczonego budżetu ani użycia fragmentu.
+Przerwij między próbami nie wysyła następnego żądania. Wspólne 5 minut,
+90 sekund na pierwszy tekst i 45 sekund bez nowych danych pozostają aktywne.
 
-NAPRAWIONY KALKULATOR — OSOBNY, ZWERYFIKOWANY PROJEKT
-Projekt poprawiono ręcznie, zachowując kopię poprzedniego pliku.
-Kliknięciami rzeczywistych elementów GUI sprawdzono: 7+5=12, 7-5=2,
-6*7=42, 20/4=5, liczby ujemne i przecinki, dzielenie przez zero i Wyczyść.
-Weryfikator odrzuca pierwotny projekt z zasłoniętymi elementami i błędnym
-wyrażeniem oraz akceptuje naprawiony projekt. To osobny test funkcjonalny;
-nie przypisujemy ręcznej naprawy modelowi AI.
+GOTOWY KALKULATOR — OSOBNY WZORZEC
+Przycisk działa bez Ollamy, jasno opisuje wynik jako wzorzec bez AI.
+Samo obejrzenie propozycji nie zmienia projektu; Użyj projektu tworzy
+nowy dokument. Testy kliknięć obejmują 4 działania, przecinki, liczby
+ujemne, zero, Wyczyść, granice GUI oraz zapis i odczyt .js.
 
-INSTALATOR
-EXE zawiera MSI 2.0.11 z nowym ProductCode i stałym UpgradeCode.
-Przed publikacją sprawdzono integralność ekstrakcji, metadane, payload,
-folder Program Files, skróty oraz reguły aktualizacji. Istniejącej instalacji
-nie zastępowano podczas testów i nie automatyzowano potwierdzenia UAC.
-
-OGRANICZENIA
-Kontrola GUI jest statyczna i konserwatywna. Sprawdza pełne zasłonięcie
-przez wybrane wcześniejsze elementy w tej samej liście instrukcji;
-nie dowodzi poprawnego układu we wszystkich dynamicznych scenariuszach.
-Nie dowodzi też zgodności całej logiki z dowolnym opisem użytkownika.
-Jakość projektu nadal zależy od modelu. Nie pobierano ani nie testowano
-w tym wydaniu wszystkich sugerowanych alternatywnych modeli.
-Testy natywnych dialogów plików podstawiają odpowiedzi i ścieżki;
-rzeczywisty zapis/odczyt TXT i Windows Script Host są wykonywane.
-Dźwięki: wywołania API bez błędu, bez pomiaru słyszalności na sprzęcie.
+INSTALATOR I OGRANICZENIA
+Przed publikacją sprawdzono ekstrakcję osadzonego MSI, metadane,
+payload, skróty i reguły aktualizacji. Faktyczna instalacja użytkownika
+jest osobnym krokiem i wymaga standardowej zgody Windows do Program Files.
+Kontrola semantyczna nie dowodzi poprawności dowolnego programu.
+Testy dialogów plików podstawiają odpowiedzi; operacje TXT wykonują
+rzeczywisty zapis/odczyt. Dźwięki sprawdzano bez pomiaru słyszalności.
 
 SZCZEGÓŁOWE WYNIKI APLIKACJI
 PASS DnD: kliknięcie i dwuklik nie dodają; brak upuszczenia nie zmienia projektu
@@ -127,15 +118,21 @@ PASS AI HTTP: zawieszony strumień błędu ma krótki limit i nie blokuje respon
 PASS AI dialog: generowanie pokazuje bloczki bez wykonywania zapisu i zmiany projektu; zmiana opisu lub modelu usuwa starą propozycję
 PASS AI dialog: zamknięcie podczas generowania przerywa żądanie i chroni projekt przed spóźnionym wynikiem
 PASS AI runtime: wygenerowany licznik zapisuje się do .js, otwiera do edycji i działa w prawdziwym GUI z obsługą kliknięcia
+PASS kalkulator wzorcowy: zapis i odczyt .js, kliknięcia czterech działań, przecinki, liczby ujemne, dzielenie przez zero, Wyczyść oraz widoczne położenie kontrolek
 PASS AI strumień: postęp przychodzi przed końcem odpowiedzi, GUI pozostaje responsywne i powstaje kompletny projekt
 PASS AI dialog: pokazuje żywy postęp i czas, a użycie projektu odblokowuje dopiero po pełnej odpowiedzi
 PASS AI strumień: fragmenty rozdzielające bajty UTF-8 zachowują polskie znaki, emoji i nowe wiersze
-PASS AI strumień: brak done, limit długości, niepełny JSON i błąd serwera nie zwracają projektu do wstawienia
+PASS AI strumień: brak done, ponownie ucięty JSON, niepełny JSON i błąd serwera nie zwracają projektu do wstawienia
 PASS AI strumień: jedna poprawka dostaje opis i błąd walidacji; drugi błędny wynik kończy się błędem bez dalszych prób
+PASS AI limit: ucięta treść trafia do jednej ponownej próby z budżetem 8192 zamiast 4096 i pełną walidacją wyniku
+PASS AI limit: kompletny poprawny JSON zakończony limitem jest przyjmowany po walidacji bez kolejnego żądania
+PASS AI limit: druga ucięta lub błędna odpowiedź kończy generowanie; Przerwij przed ponowieniem nie wysyła następnego żądania
 PASS AI strumień: Przerwij szybko kończy oczekiwanie także po odebraniu części odpowiedzi
 PASS AI strumień: osobne limity wykrywają brak pierwszej odpowiedzi i zatrzymanie po otrzymaniu fragmentu
 PASS AI strumień: nadmiernie duży fragment jest odrzucany bez tworzenia projektu
+PASS AI zgodność: modele hf.co używają prostego JSON od początku i nadal przechodzą parser projektu
 PASS Ollama GUI: lokalne ustawienia, tryb poprawy, wstawianie bez uruchamiania, Cofnij i Ponów
+PASS Ollama kalkulator: przycisk działa bez połączenia i generowania, jawnie oznacza wzorzec i chroni bieżący projekt do momentu wstawienia
 PASS Ollama modele: propozycja innego pobranego modelu, alternatywy z rozmiarem, wybór bez automatycznego pobierania
 PASS wszystkie zmienne i teksty; sześć działań, dziewięć funkcji, wyrażenia, losowanie i monitory
 PASS wszystkie operacje na listach: tworzenie, dodawanie, odczyt, zmiana, usunięcie, długość, wyszukiwanie, czyszczenie
@@ -169,28 +166,13 @@ PASS błędy obliczeń i limit złożoności wyrażeń
 PASS realny Windows Script Host uruchamia samodzielny plik .js z GUI bez Node.js
 PASS przykłady GUI, licznik, sterowanie, lista i notatnik
 
-PRAWDZIWY PANEL AI
-PASS prawdziwy model: panel pokazuje powstające bloczki przed ukończeniem odpowiedzi
-PASS prawdziwy model: po ukończeniu panel pokazuje pełne drzewo i odblokowuje Użyj projektu
-
-NAPRAWIONY KALKULATOR
-PASS 7 5 dodaj 12
-PASS 7 5 odejmij 2
-PASS 6 7 pomnoz 42
-PASS 20 4 podziel 5
-PASS -3 2 dodaj -1
-PASS 2,5 0,5 dodaj 3
-PASS dzielenie przez zero pokazuje zrozumiały komunikat
-PASS Wyczyść zeruje pola i wynik
-PASS poprawiony Kalkulator.js zapisany na pulpicie z automatyczną kopią poprzedniego pliku
-
-ODTWORZENIE PROBLEMU UŻYTKOWNIKA
-PASS oryginalny projekt użytkownika odrzucony: zakryte pola/przycisk i błędne wyrażenie liczbowe
-PASS naprawiony Kalkulator.js przechodzi kontrolę GUI i obliczeń
-
-Szczegóły oryginału:
-Wygenerowany projekt ma błędy:
-Bloczek „Zmień zmienną o”, pole B oczekuje liczby, {zmiennej} lub wyrażenia z =. Wartość „liczba1 + liczba2” nie jest liczbą. Obliczenia wpisz np. =liczba1 + liczba2 albo użyj bloczka math z osobnymi operandami.
-Element GUI „liczba1_input” jest całkowicie zasłonięty wcześniejszym elementem „liczba1”. Rozmieść pola, przyciski i napisy oddzielnie, bez nakładania ich pełnych obszarów.
-Element GUI „liczba2_input” jest całkowicie zasłonięty wcześniejszym elementem „liczba2”. Rozmieść pola, przyciski i napisy oddzielnie, bez nakładania ich pełnych obszarów.
-Element GUI „dodaj” jest całkowicie zasłonięty wcześniejszym elementem „wynik”. Rozmieść pola, przyciski i napisy oddzielnie, bez nakładania ich pełnych obszarów.
+PRAWDZIWY MODEL I JEGO GUI
+PASS GENERATION model=hf.co/jica98/qwen3.5-4B-super-coder:Q4_0 prompt=zrob mi prosty kalkulator elapsed=41848ms first=11709ms progressUpdates=279 retry=False blocks=41
+PASS GUI starts without runtime errors
+PASS GUI 7+5=12 click=dodaj label=wynik
+PASS GUI 7-5=2 click=odejmij label=wynik
+PASS GUI 6*7=42 click=pomnoz label=wynik
+PASS GUI 20/4=5 click=podziel label=wynik
+PASS GUI 2,5+0,5=3 click=dodaj label=wynik
+PASS GUI -3+2=-1 click=dodaj label=wynik
+PASS GUI division by zero gives readable feedback without runtime error

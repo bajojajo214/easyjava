@@ -31,6 +31,18 @@ public static class OllamaUiTests {
    Check(editor.Project.SourcePath==null,"Ponów nowy projekt AI odtwarza osobny dokument");
   }
   results.Add("PASS Ollama GUI: lokalne ustawienia, tryb poprawy, wstawianie bez uruchamiania, Cofnij i Ponów");
+  Project original=Examples.Counter();string originalJson=ProjectIO.Json(original);
+  using(OllamaDialog dialog=new OllamaDialog(original,false,false)){
+   dialog.ShowInTaskbar=false;dialog.WindowState=FormWindowState.Minimized;dialog.Show();dialog.EndpointInput.Text="http://127.0.0.1:1";
+   Check(dialog.ModifyCurrent.Checked&&dialog.Result==null,"brak oryginalnego projektu przed wyborem wzorca");
+   dialog.CalculatorButton.PerformClick();
+   Check(dialog.Result!=null&&dialog.UseButton.Enabled&&!dialog.ResultModifiesCurrent&&!dialog.ModifyCurrent.Checked,"gotowy kalkulator nie tworzy osobnej propozycji możliwej do użycia");
+   Check(dialog.Result.Summary.Contains("wzorzec")&&dialog.Result.Summary.Contains("bez generowania AI")&&dialog.State.Text.Contains("bez Ollamy"),"wzorzec kalkulatora jest przedstawiony jako wynik modelu AI");
+   Check(ProjectIO.Json(original)==originalJson&&dialog.Result.Project!=original,"sam wybór gotowego kalkulatora zmienia oryginalny projekt przed Użyj projektu");
+   Check(ProjectIO.Json(dialog.Result.Project)==ProjectIO.Json(Examples.Calculator()),"przycisk kalkulatora nie zwraca sprawdzonego wzorca");
+   dialog.UseButton.PerformClick();Check(dialog.DialogResult==DialogResult.OK&&ProjectIO.Json(original)==originalJson,"Użyj projektu nie oddaje wzorca do edytora lub samodzielnie zmienia oryginał");
+  }
+  results.Add("PASS Ollama kalkulator: przycisk działa bez połączenia i generowania, jawnie oznacza wzorzec i chroni bieżący projekt do momentu wstawienia");
   List<OllamaModelChoice> choices=OllamaModelDialog.Choices("qwen2.5-coder:3b",new[]{"qwen2.5-coder:3b","lokalny:latest"});
   Check(choices[0].Name=="lokalny:latest"&&choices[0].Installed,"najpierw inny model już pobrany");
   Check(!choices.Any(x=>x.Name=="qwen2.5-coder:3b")&&choices.Any(x=>x.Name=="qwen2.5-coder:7b"&&!x.Installed&&x.Detail.Contains("4,7")),"propozycja innego modelu z rozmiarem pobierania");

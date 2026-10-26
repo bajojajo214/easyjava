@@ -1,4 +1,4 @@
-<p align="center">
+﻿<p align="center">
   <img src="docs/banner.svg" alt="EasyJava — układaj bloczki i twórz aplikacje Windows" width="920">
 </p>
 
@@ -41,7 +41,17 @@ Ręczne tworzenie projektów działa offline i nie wymaga logowania. Potrzebujes
 
 Bezpośrednia kopia aplikacji jest również dostępna w **[download/easyjava.exe](https://github.com/bajojajo214/easyjava/raw/refs/heads/main/download/easyjava.exe)**.
 
-**Aktualna wersja: 2.0.11.** Instalator pochodzi z najnowszego wydania, a przenośny EXE i paczka ZIP z gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+**Aktualna wersja: 2.0.12.** Instalator pochodzi z najnowszego wydania, a przenośny EXE i paczka ZIP z gałęzi `main`. Numer wersji widać także w tytule okna aplikacji.
+
+## Nowość 2.0.12: ponowienie AI i gotowy kalkulator
+
+Model urwał projekt, bo odpowiedź była za długa? EasyJava podejmuje **jedną ponowną próbę**, zwiększa budżet odpowiedzi z 4096 do 8192 tokenów i prosi o pełny, zwięzły projekt. W **Postępie AI** widać ponowienie. Obie próby mają wspólny limit 5 minut, a wynik nadal musi przejść kontrolę bloczków. Jeśli odpowiedź jest już kompletna i poprawna, sam sygnał osiągnięcia limitu jej nie odrzuca.
+
+Chcesz od razu uruchomić kalkulator? Otwórz **AI • Ollama → Gotowy kalkulator → Użyj projektu**, a potem naciśnij **F5**. Dostaniesz dwa pola liczbowe, cztery działania **+ − × ÷**, przycisk **Wyczyść** i komunikat przy dzieleniu przez zero. Wpisz `7` i `5`, kliknij **+** i zobacz **Wynik: 12**. Możesz używać liczb ujemnych i przecinka dziesiętnego, zmieniać bloczki oraz zapisać program jako jeden `.js`.
+
+**Gotowy kalkulator to sprawdzony wzorzec do edycji.** Działa bez Ollamy i jest wyraźnie tak oznaczony w panelu. Jest wybierany na Twoje kliknięcie; generowanie AI nadal odbywa się osobnym przyciskiem **Wygeneruj**.
+
+Model otrzymuje pełny przykład kalkulatora oraz prośbę o zwięzłą odpowiedź. Kontrola wychwytuje przyciski bez obsługi kliknięcia i nieprawidłowe operatory matematyczne. Poprawiono też typowy zapis znaku dzielenia zwracany przez AI. Jakość nadal zależy od modelu: uruchom podgląd i sprawdź działanie przed zapisaniem własnego programu. [Instrukcja i pomoc przy limicie odpowiedzi](docs/Ollama.md) · [Zakres testów wydania](docs/Raport-testow.txt).
 
 ## Nowość 2.0.11: zobacz, co robi AI, i zmień model
 
@@ -246,3 +256,5 @@ EasyJava to własny edytor inspirowany programowaniem bloczkowym. Tworzy aplikac
 Masz pomysł na nowy bloczek albo znalazłeś błąd? **[Dodaj zgłoszenie](https://github.com/bajojajo214/easyjava/issues/new)** i opisz, co chcesz zbudować.
 
 **Pobierz aplikację, dodaj pierwszy bloczek i sprawdź, co wymyślisz.**
+
+W końcowym teście 2.0.12 ten sam importowany model Qwen 4B utworzył działający kalkulator z polecenia „zrob mi prosty kalkulator”. Cztery działania sprawdzono kliknięciami rzeczywistego GUI. [Raport: 118 grup testów](docs/Raport-testow.txt).

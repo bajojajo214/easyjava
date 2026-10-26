@@ -65,7 +65,7 @@ public static class OllamaProject {
    }
    foreach(string name in names)if(Regex.IsMatch(name??"",@"^[\p{L}_][\p{L}\p{N}_]{0,79}$"))known.Add(name);
   }
-  foreach(Block block in all){if(block.Kind=="math"){block.B=NumericReference(block.B,known);block.D=NumericReference(block.D,known);}else if(block.Kind=="change")block.B=NumericReference(block.B,known);}
+  foreach(Block block in all){if(block.Kind=="math"){block.B=NumericReference(block.B,known);block.D=NumericReference(block.D,known);if(block.C=="\\/")block.C="/";}else if(block.Kind=="change")block.B=NumericReference(block.B,known);}
  }
  static string NumericReference(string value,HashSet<string> known){return known.Contains(value??"")?"{"+value+"}":value;}
  static IEnumerable<Block> Flatten(List<Block> blocks){foreach(Block block in blocks){yield return block;foreach(Block child in Flatten(block.Children))yield return child;foreach(Block child in Flatten(block.Else))yield return child;}}
@@ -76,10 +76,17 @@ public static class OllamaProject {
  public static void ValidateGenerated(Project project){
   ProjectIO.Normalize(project);List<Block> active=ActiveBlocks(project.Blocks,project).ToList();List<string> errors=new List<string>();
   HashSet<string> controls=new HashSet<string>(active.Where(b=>IsUiDefinition(b)&&LiteralId(b.A)).Select(b=>b.A),StringComparer.Ordinal);
+  HashSet<string> buttons=new HashSet<string>(active.Where(b=>b.Kind=="event_button"&&LiteralId(b.A)&&b.Children.Count>0).Select(b=>b.A),StringComparer.Ordinal);
+  foreach(Block button in active.Where(b=>b.Kind=="ui_button"&&LiteralId(b.A)))if(!buttons.Contains(button.A))errors.Add("Przycisk GUI „"+button.A+"” nie ma działającej obsługi kliknięcia. Dodaj event_button z tym ID i potrzebnymi bloczkami children albo usuń zbędny przycisk.");
+  foreach(Block button in active.Where(b=>b.Kind=="ui_button"&&LiteralId(b.A))){
+   string symbol=(button.B??"").Trim().Replace('−','-').Replace('×','*').Replace('÷','/');if(!new[]{"+","-","*","/"}.Contains(symbol))continue;
+   List<Block> arithmetic=active.Where(b=>b.Kind=="event_button"&&b.A==button.A).SelectMany(b=>ActiveBlocks(b.Children,project)).Where(b=>b.Kind=="math").ToList();
+   if(arithmetic.Count==1&&arithmetic[0].C!=symbol)errors.Add("Przycisk „"+button.B+"” ma działanie „"+arithmetic[0].C+"”, zamiast „"+symbol+"”. Popraw math.C w event_button „"+button.A+"” zgodnie ze znakiem na przycisku.");
+  }
   string[] references={"ui_get","ui_text","ui_set","ui_move","ui_size","ui_focus","ui_item","ui_clear","ui_remove","event_button","event_change"};
   foreach(Block block in active){
    if(references.Contains(block.Kind)&&LiteralId(block.A)&&!controls.Contains(block.A))errors.Add("Bloczek „"+Catalog.All[block.Kind].Name+"” odwołuje się do nieistniejącego elementu GUI „"+block.A+"”. Dodaj odpowiedni element z tym identyfikatorem albo popraw identyfikator w zdarzeniu/bloczku.");
-   try{if(block.Kind=="math"){ValidateNumeric(block.B,block.Kind,"B");ValidateNumeric(block.D,block.Kind,"D");}else if(block.Kind=="change")ValidateNumeric(block.B,block.Kind,"B");}catch(Exception error){errors.Add(error.Message);}
+   try{if(block.Kind=="math"){ValidateNumeric(block.B,block.Kind,"B");ValidateNumeric(block.D,block.Kind,"D");if(!new[]{"+","-","*","/","%","^"}.Contains(block.C))throw new Exception("Bloczek math ma nieprawidłowy znak działania „"+block.C+"”. Użyj +, -, *, /, % albo ^.");}else if(block.Kind=="change")ValidateNumeric(block.B,block.Kind,"B");}catch(Exception error){errors.Add(error.Message);}
   }
   ValidateCoverage(project.Blocks,project,errors);
   if(errors.Count>0)throw new Exception("Wygenerowany projekt ma błędy:\n"+string.Join("\n",errors.Distinct().Take(12)));
@@ -152,14 +159,14 @@ public static class OllamaProject {
   string boolean="{\"type\":\"boolean\"}";
   string state=preserveState?boolean:"{\"type\":\"boolean\",\"const\":false}";
   string nested="{\"type\":\"array\",\"maxItems\":500,\"items\":{\"$ref\":\"#/$defs/block\"}}";
-  StringBuilder schema=new StringBuilder("{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"name\",\"summary\",\"blocks\"],\"properties\":{\"name\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":70},\"summary\":{\"type\":\"string\",\"maxLength\":12000},\"stepDelaySeconds\":{\"type\":\"number\",\"minimum\":0,\"maximum\":3600},\"blocks\":{\"type\":\"array\",\"minItems\":1,\"maxItems\":500,\"items\":{\"$ref\":\"#/$defs/block\"}}},\"$defs\":{\"block\":{\"oneOf\":[");
+  StringBuilder schema=new StringBuilder("{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"name\",\"summary\",\"blocks\"],\"properties\":{\"name\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":70},\"summary\":{\"type\":\"string\",\"maxLength\":600},\"stepDelaySeconds\":{\"type\":\"number\",\"minimum\":0,\"maximum\":3600},\"blocks\":{\"type\":\"array\",\"minItems\":1,\"maxItems\":500,\"items\":{\"$ref\":\"#/$defs/block\"}}},\"$defs\":{\"block\":{\"oneOf\":[");
   bool first=true;
   foreach(Spec spec in Catalog.All.Values){
    if(!first)schema.Append(',');first=false;
    // A separate alternative for every kind prevents the model from emitting
    // fields copied from another block (for example file_open.B or change.C).
    schema.Append("{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"kind\"],\"properties\":{\"kind\":{\"type\":\"string\",\"const\":"+OllamaJson.Quote(spec.Kind)+"}");
-   foreach(Field field in spec.Fields)if(field.Key!="G")schema.Append(","+OllamaJson.Quote(field.Key)+":"+text);
+   foreach(Field field in spec.Fields)if(field.Key!="G")schema.Append(","+OllamaJson.Quote(field.Key)+":"+(field.Options!=null&&(field.Key=="Op"||spec.Kind=="math"&&field.Key=="C")?"{\"type\":\"string\",\"enum\":["+string.Join(",",field.Options.Select(OllamaJson.Quote))+"]}":text));
    foreach(string key in new[]{"disabled","collapsed"})schema.Append(","+OllamaJson.Quote(key)+":"+state);
    if(spec.Kind=="cmd"||spec.Kind=="powershell")schema.Append(",\"background\":"+boolean);
    if(spec.Container)schema.Append(",\"children\":"+nested);
@@ -172,6 +179,7 @@ public static class OllamaProject {
  public static string CreateSystemPrompt(){
   StringBuilder prompt=new StringBuilder();
   prompt.AppendLine("Jesteś programistą EasyJava, wizualnego edytora programów Windows. Użytkownik opisuje program po polsku; zwracasz kompletny działający projekt jako obiekt JSON zgodny ze schematem. Nie zwracaj JavaScriptu, Markdown ani tekstu poza JSON. summary ma krótko po polsku wyjaśnić działanie oraz ewentualne ograniczenia.");
+  prompt.AppendLine("Odpowiadaj zwięźle: summary najwyżej 2 zdania / 600 znaków. Podawaj tylko potrzebne pola, pomijaj disabled/collapsed=false, puste children i otherwise. Cały projekt musi się zmieścić w odpowiedzi. Nie twórz dekoracyjnych ani pustych przycisków. KAŻDY przycisk musi mieć event_button z rzeczywistymi instrukcjami children. Pola, napisy i przyciski muszą mieć oddzielne prostokąty, bez nakładania.");
   prompt.AppendLine("KRYTYCZNE DLA DZIAŁANIA GUI: pole tekstowe w oknie NIE JEST zmienną programu. Sam set nie odczytuje tekstu użytkownika. W obsłudze przycisku najpierw użyj ui_get dla KAŻDEGO potrzebnego pola, a dopiero potem obliczaj lub zapisuj. Kalkulator: ui_get pierwszego pola, ui_get drugiego pola, math, ui_text. Notatnik Zapisz: ui_get dużego pola tekstowego PRZED file_write. Bez tych odczytów program nie działa, nawet jeśli wygląda poprawnie.");
   prompt.AppendLine("Projekt: {name,summary,stepDelaySeconds:0,blocks:[...]}. Każdy bloczek: {kind,A,B,C,D,E,F,Op,background,disabled,collapsed,children,otherwise}. Podawaj tylko potrzebne pola. A–F oraz Op są zawsze TEKSTAMI, także liczby. children zawiera treść pętli lub zdarzenia. otherwise tylko dla if_else. background=true tylko CMD/PowerShell. Nie wymyślaj typów bloczków ani pól. Puste brakujące pola otrzymują domyślne wartości z katalogu. Maksymalnie 500 bloczków i 12 poziomów.");
   prompt.AppendLine("Top-level bloczki niebędące zdarzeniami wykonują się po uruchomieniu projektu. Zdarzenia event_* rejestrują dzieci, ale nie wykonują ich od razu (wyjątek event_start). Zdarzenia umieszczaj WYŁĄCZNIE na najwyższym poziomie, bez zagnieżdżania. GUI utwórz przed obsługującymi je zdarzeniami. Każdy element GUI ma unikalne ID w polu A. event_button.A to ID przycisku. ui_get.A to ID elementu, ui_get.B to nazwa zmiennej docelowej. ui_text.A to ID, B to nowy tekst.");
@@ -190,6 +198,7 @@ public static class OllamaProject {
   prompt.AppendLine("KONTROLA PRZED ODPOWIEDZIĄ: czy każdy przycisk pobiera aktualną treść pól? Dla kalkulatora umieść wewnątrz event_button: [{\"kind\":\"ui_get\",\"A\":\"input1\",\"B\":\"liczba1\"},{\"kind\":\"ui_get\",\"A\":\"input2\",\"B\":\"liczba2\"},{\"kind\":\"math\",\"A\":\"wynik\",\"B\":\"{liczba1}\",\"C\":\"+\",\"D\":\"{liczba2}\"},{\"kind\":\"ui_text\",\"A\":\"label1\",\"B\":\"Wynik: {wynik}\"}]. input1/input2/label1 muszą być identyfikatorami naprawdę utworzonych elementów GUI. Nie zastępuj tych ui_get początkowym set 0.");
   prompt.AppendLine("Dla notatnika wewnątrz przycisku Zapisz wybierz file_save do zmiennej plik, sprawdź if A={plik}, B=\"\", Op=!=, a wewnątrz if umieść ui_get A=editor B=tekst, następnie file_write A={plik} B={tekst}. editor musi być ID utworzonego dużego pola tekstowego. Przycisk Otwórz: file_open A=plik, if A={plik}, B=\"\", Op=!=, w środku file_read A={plik} B=tekst i ui_text A=editor B={tekst}.");
   prompt.AppendLine("Odpowiedź musi odpowiadać schematowi JSON przekazanemu w parametrze format. Każdy kind ma własny zestaw dozwolonych pól z katalogu powyżej; nie dopisuj pól należących do innego bloczka.");
+  prompt.AppendLine("PEŁNY PRZYKŁAD KALKULATORA (dopasuj go do prośby użytkownika): " + ContextJson(Examples.Calculator()).Replace(",\"existingAssetIds\":[]", "").Replace("\"stepDelaySeconds\":0,", "\"summary\":\"Kalkulator z czterema działaniami i obsługą zera.\","));
   return prompt.ToString();
  }
 

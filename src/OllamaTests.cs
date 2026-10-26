@@ -40,8 +40,13 @@ public static class OllamaTests {
   Check(numeric.Blocks[2].B=="{liczba1}"&&numeric.Blocks[2].D=="{liczba2}"&&numeric.Blocks[3].B=="{liczba1}","AI nie poprawiło zapisu znanych zmiennych w operandach liczbowych");
   Check(numeric.Blocks[4].B=="12"&&numeric.Blocks[4].D=="=liczba1 * 2"&&numeric.Blocks[5].B=="nieznana"&&numeric.Blocks[5].D=="LICZBA1"&&numeric.Blocks[6].A=="liczba1","poprawa referencji AI zmienia literały, wyrażenia, nieznane nazwy lub zwykły tekst");
   Project manual=new Project();manual.Blocks.Add(Block.Make("set","liczba1","0"));manual.Blocks.Add(Block.Make("math","wynik","liczba1","+","1"));Check(ProjectIO.FromJson(ProjectIO.Json(manual)).Blocks[1].B=="liczba1","poprawa AI nie może zmieniać zwykłego odczytu projektu użytkownika");
+  Project escaped=OllamaProject.Parse(Document("{\"kind\":\"math\",\"A\":\"wynik\",\"B\":\"20\",\"C\":"+Q("\\/")+",\"D\":\"4\"},{\"kind\":\"say\",\"A\":"+Q("\\/")+"}")).Project;OllamaProject.ValidateGenerated(escaped);Check(escaped.Blocks[0].C=="/"&&escaped.Blocks[1].A=="\\/","poprawa dodatkowo ucieczonego dzielenia AI zmienia zwykły tekst lub nie poprawia math.C");
+  Project badOperator=new Project();badOperator.Blocks.Add(Block.Make("math","wynik","1","nonsense","2"));bool badOp=false;try{OllamaProject.ValidateGenerated(badOperator);}catch(Exception error){badOp=error.Message.Contains("znak działania");}Check(badOp,"AI przyjęło nieznany operator działania");
   bool missingGui=false;try{OllamaProject.ValidateGenerated(OllamaProject.Parse(Document("{\"kind\":\"ui_get\",\"A\":\"brak_pola\",\"B\":\"tekst\"}")).Project);}catch(Exception error){missingGui=error.Message.Contains("brak_pola");}Check(missingGui,"AI przyjęło odwołanie do nieistniejącego elementu GUI");
   OllamaProject.ValidateGenerated(Examples.Counter());
+  Project inert=new Project();inert.Blocks.Add(Block.Make("ui_button","martwy","Dodaj"));bool dead=false;try{OllamaProject.ValidateGenerated(inert);}catch(Exception error){dead=error.Message.Contains("martwy")&&error.Message.Contains("obsługi");}Check(dead,"AI przyjęło przycisk bez obsługi kliknięcia");
+  Block handler=Block.Make("event_button","martwy");handler.Children.Add(Block.Make("set","test","1"));inert.Blocks.Add(handler);OllamaProject.ValidateGenerated(inert);
+  Project wrongAction=new Project();wrongAction.Blocks.Add(Block.Make("ui_button","dziel","÷"));Block wrongHandler=Block.Make("event_button","dziel");wrongHandler.Children.Add(Block.Make("math","wynik","20","*","4"));wrongAction.Blocks.Add(wrongHandler);bool mismatch=false;try{OllamaProject.ValidateGenerated(wrongAction);}catch(Exception error){mismatch=error.Message.Contains("math.C");}Check(mismatch,"AI przyjęło mnożenie pod przyciskiem dzielenia");wrongHandler.Children[0].C="/";OllamaProject.ValidateGenerated(wrongAction);
   Project inactive=new Project();Block off=Block.Make("repeat","1");off.Disabled=true;off.Children.Add(Block.Make("ui_get","brak_w_wylaczonej_galezi","tekst"));inactive.Blocks.Add(off);OllamaProject.ValidateGenerated(inactive);
   Project dynamicGui=new Project();dynamicGui.Blocks.Add(Block.Make("ui_text","{dynamiczny_id}","tekst"));OllamaProject.ValidateGenerated(dynamicGui);
   bool hiddenGui=false;Project hidden=new Project();hidden.Blocks.Add(Block.Make("ui_label","cover","Opis","0","0","400","300"));hidden.Blocks.Add(Block.Make("ui_button","run","Uruchom","20","30","120","40"));try{OllamaProject.ValidateGenerated(hidden);}catch(Exception error){hiddenGui=error.Message.Contains("zasłonięty");}Check(hiddenGui,"AI przyjęło przycisk całkowicie zakryty wcześniejszym napisem");
@@ -109,13 +114,13 @@ public static class OllamaTests {
   results.Add("PASS AI HTTP: prawdziwe żądanie GET /api/tags odczytuje zainstalowane modele, usuwa duplikaty i obsługuje pustą listę");
 
   string prompt="Zrób licznik z przyciskiem +1 i polskim tekstem żółw.";Project context=new Project{Name="kontekst_ai"};context.Blocks.Add(Block.Make("set","punkty","0"));
-  using(FakeServer server=new FakeServer(delegate(Request request){return Task.FromResult(new Response(200,Envelope(Document("{\"kind\":\"ui_button\",\"A\":\"plus\",\"B\":\"+1\"}"))));})){
+  using(FakeServer server=new FakeServer(delegate(Request request){return Task.FromResult(new Response(200,Envelope(Document("{\"kind\":\"ui_label\",\"A\":\"plus\",\"B\":\"+1\"}"))));})){
    OllamaGeneration generation=await new OllamaClient(server.Url).GenerateAsync("fixture:latest",prompt,context,CancellationToken.None);Request request=await server.Received.Task;ChatRequest body=Read<ChatRequest>(request.Body);
    Check(request.Method=="POST"&&request.Path=="/api/chat", "generowanie nie używa POST /api/chat");
    Check(body.Model=="fixture:latest"&&body.Stream&&body.Messages!=null&&body.Messages.Any(m=>m.Role=="system")&&body.Messages.Any(m=>m.Role=="user"&&m.Content.Contains(prompt)),"niepoprawny model, prompt Unicode lub struktura rozmowy");
    Check(body.Messages.Any(m=>m.Content.Contains("kontekst_ai"))&&body.Messages.Any(m=>m.Content.Contains("punkty")),"brak kontekstu bieżącego projektu");
    int format=request.Body.IndexOf("\"format\"",StringComparison.Ordinal);Check(format>=0,"brak formatu odpowiedzi");int colon=request.Body.IndexOf(':',format);Check(request.Body.Substring(colon+1).TrimStart().StartsWith("{"),"format nie zawiera obiektu JSON Schema");
-   Check(generation.Project.Blocks.Single().Kind=="ui_button"&&generation.Project.Blocks[0].B=="+1","odpowiedź /api/chat nie została zamieniona na bloczki");await server.Completion;
+   Check(generation.Project.Blocks.Single().Kind=="ui_label"&&generation.Project.Blocks[0].B=="+1","odpowiedź /api/chat nie została zamieniona na bloczki");await server.Completion;
   }
   results.Add("PASS AI HTTP: POST /api/chat przesyła wybrany model, opis UTF-8, schemat i kontekst, a odpowiedź zamienia na edytowalne bloczki");
 
@@ -176,6 +181,27 @@ public static class OllamaTests {
    form.Controls.Add(runtime);form.Show();runtime.Silent=true;await runtime.Start(reopened);Check(runtime.Errors.Count==0&&runtime.Stage.Elements.ContainsKey("plus"),"wygenerowany projekt nie tworzy GUI");((Button)runtime.Stage.Elements["plus"].Control).PerformClick();await Task.Delay(50);Check(RuntimeView.Number(runtime.Get("punkty"))==1&&runtime.Stage.Elements["wynik"].Control.Text=="Wynik: 1","wygenerowane zdarzenie przycisku nie działa");runtime.Stop();form.Close();
   }
   results.Add("PASS AI runtime: wygenerowany licznik zapisuje się do .js, otwiera do edycji i działa w prawdziwym GUI z obsługą kliknięcia");
+
+  Project calculator=Examples.Calculator();OllamaProject.ValidateGenerated(calculator);string calculatorJson=ProjectIO.Json(calculator);
+  string calculatorPath=Path.Combine(directory,"wzorzec-kalkulator.js");ProjectIO.Write(calculatorPath,calculator,Application.ExecutablePath);Project calculatorReopened=ProjectIO.Read(calculatorPath);
+  Check(ProjectIO.Json(calculatorReopened)==calculatorJson,"wzorzec kalkulatora traci bloczki lub ustawienia po zapisie i ponownym otwarciu .js");
+  using(Form form=new Form{ShowInTaskbar=false,WindowState=FormWindowState.Minimized,Size=new Size(800,600)})using(RuntimeView runtime=new RuntimeView()){
+   form.Controls.Add(runtime);form.Show();runtime.Silent=true;await runtime.Start(calculatorReopened);
+   Check(runtime.Errors.Count==0,"wzorzec kalkulatora nie uruchamia się: "+string.Join(";",runtime.Errors));
+   foreach(string[] test in new[]{new[]{"7","5","dodaj","12"},new[]{"7","5","odejmij","2"},new[]{"6","7","pomnoz","42"},new[]{"20","4","podziel","5"},new[]{"2,5","0,5","dodaj","3"},new[]{"-3","2","dodaj","-1"}}){
+    ((TextBox)runtime.Stage.Elements["liczba1_input"].Control).Text=test[0];((TextBox)runtime.Stage.Elements["liczba2_input"].Control).Text=test[1];((Button)runtime.Stage.Elements[test[2]].Control).PerformClick();await Task.Delay(60);
+    Check(runtime.Errors.Count==0&&runtime.Stage.Elements["wynik"].Control.Text=="Wynik: "+test[3],"wzorzec kalkulatora: "+test[0]+" "+test[2]+" "+test[1]+" ma wynik "+runtime.Stage.Elements["wynik"].Control.Text);
+   }
+   ((TextBox)runtime.Stage.Elements["liczba2_input"].Control).Text="0";((Button)runtime.Stage.Elements["podziel"].Control).PerformClick();await Task.Delay(60);
+   Check(runtime.Errors.Count==0&&runtime.Stage.Elements["wynik"].Control.Text.Contains("zero"),"wzorzec kalkulatora nie wyjaśnia dzielenia przez zero");
+   ((Button)runtime.Stage.Elements["wyczysc"].Control).PerformClick();await Task.Delay(60);
+   Check(runtime.Errors.Count==0&&runtime.Stage.Elements["liczba1_input"].Control.Text=="0"&&runtime.Stage.Elements["liczba2_input"].Control.Text=="0"&&runtime.Stage.Elements["wynik"].Control.Text=="Wynik: 0","Wyczyść nie zeruje pól i wyniku wzorca kalkulatora");
+   foreach(string id in new[]{"liczba1_input","liczba2_input","dodaj","odejmij","pomnoz","podziel","wyczysc","wynik"}){
+    UiElement element=runtime.Stage.Elements[id];Check(element.Bounds.Left>=0&&element.Bounds.Top>=0&&element.Bounds.Right<=runtime.Stage.LogicalSize.Width&&element.Bounds.Bottom<=runtime.Stage.LogicalSize.Height,"element wzorca kalkulatora poza sceną: "+id);
+   }
+   runtime.Stop();form.Close();
+  }
+  results.Add("PASS kalkulator wzorcowy: zapis i odczyt .js, kliknięcia czterech działań, przecinki, liczby ujemne, dzielenie przez zero, Wyczyść oraz widoczne położenie kontrolek");
  }
 
  [DataContract]class ChatRequest{[DataMember(Name="model")]public string Model{get;set;}[DataMember(Name="stream")]public bool Stream{get;set;}[DataMember(Name="messages")]public List<ChatMessage> Messages{get;set;}}
